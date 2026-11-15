@@ -1,5 +1,5 @@
 const PREV_GRACE_MS = 3000;
-export const PREP_MS = 10000;
+export const PREP_MS = 30000;
 const fullMs = (steps, i) => steps[i].seconds * 1000;
 
 // Each step opens with a get-ready phase (`preparing`) that holds the step clock so you can read and set your hand.
