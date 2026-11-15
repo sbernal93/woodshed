@@ -15,3 +15,16 @@ export function playChime(ctx, when = ctx.currentTime) {
     osc.stop(t + 1.25);
   });
 }
+
+// Short, bright "go": the step clock has started.
+export function playGo(ctx, when = ctx.currentTime) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.frequency.value = 1760;
+  gain.gain.setValueAtTime(0.3, when);
+  gain.gain.exponentialRampToValueAtTime(0.001, when + 0.12);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(when);
+  osc.stop(when + 0.13);
+}

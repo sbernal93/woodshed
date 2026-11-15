@@ -5,7 +5,7 @@ import { useSessionClock } from '../hooks/useSessionClock.js';
 import { useWakeLock } from '../hooks/useWakeLock.js';
 import { useMetronome } from '../audio/useMetronome.js';
 import { getAudioContext } from '../audio/context.js';
-import { playChime } from '../audio/chime.js';
+import { playChime, playGo } from '../audio/chime.js';
 import { useDrone } from '../audio/useDrone.js';
 import StepPrompt from '../components/StepPrompt.jsx';
 import { trackBars, promptState } from '../session/prompts.js';
@@ -59,6 +59,12 @@ export default function Session({ trackId, minutes }) {
     if (step.bpm) metronome.setBpm(step.bpm.min);
   }, [state.index]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const started = useRef(state.startedCount);
+  useEffect(() => {
+    if (state.startedCount > started.current) playGo(getAudioContext());
+    started.current = state.startedCount;
+  }, [state.startedCount]);
+
   const chimed = useRef(state.endedCount);
   useEffect(() => {
     if (state.endedCount > chimed.current) playChime(getAudioContext());
@@ -111,13 +117,36 @@ export default function Session({ trackId, minutes }) {
 
           <div className="mt-6 flex items-center justify-between gap-4">
             <ArrowButton direction="prev" label="Previous step" onClick={() => dispatch({ type: 'prev' })} />
-            <div className="text-center" role="timer" aria-live="off">
-              <p className={`font-display text-[clamp(3.5rem,19vw,6rem)] font-extrabold italic leading-none tabular-nums lg:text-9xl ${state.paused ? 'opacity-40' : ''}`}>
-                {formatClock(state.remainingMs)}
-              </p>
-            </div>
+            {state.preparing ? (
+              <div className="text-center" role="timer" aria-live="off">
+                <p className="font-display text-lg font-extrabold uppercase italic text-brand">Get ready</p>
+                <p className={`font-display text-[clamp(3.5rem,19vw,6rem)] font-extrabold italic leading-none tabular-nums lg:text-9xl ${state.paused ? 'opacity-40' : ''}`}>
+                  {Math.ceil(state.prepMs / 1000)}
+                </p>
+                <p className="mt-1 text-[15px] text-ink-soft">then {formatClock(state.remainingMs)} on the clock</p>
+              </div>
+            ) : (
+              <div className="text-center" role="timer" aria-live="off">
+                <p className={`font-display text-[clamp(3.5rem,19vw,6rem)] font-extrabold italic leading-none tabular-nums lg:text-9xl ${state.paused ? 'opacity-40' : ''}`}>
+                  {formatClock(state.remainingMs)}
+                </p>
+              </div>
+            )}
             <ArrowButton direction="next" label="Next step" onClick={() => dispatch({ type: 'next' })} />
           </div>
+
+          {state.preparing && (
+            <div className="mt-4 grid grid-cols-[1fr_auto] gap-3">
+              <button type="button" onClick={() => dispatch({ type: 'startNow', now: performance.now() })}
+                className="min-h-14 bg-brand font-display text-xl font-extrabold uppercase italic text-on-brand shadow-flat active:translate-x-px active:translate-y-px active:shadow-none">
+                Start now
+              </button>
+              <button type="button" onClick={() => dispatch({ type: 'morePrep', ms: 10000 })}
+                className="min-h-14 bg-fill px-5 font-display text-xl font-extrabold uppercase italic hover:bg-fill-hover">
+                +10 s
+              </button>
+            </div>
+          )}
 
           <div className="mt-4 flex justify-center">
             <button type="button" onClick={() => dispatch({ type: 'togglePause', now: performance.now() })}
