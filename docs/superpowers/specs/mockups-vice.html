@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Woodshed — Vice City</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mr+Dafoe&family=Barlow+Condensed:ital,wght@1,600;1,800&family=Barlow:wght@500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: none; }
+  body { font-family: 'Barlow', sans-serif; padding: 16px 8px; color: var(--foreground); }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.lead { color: var(--muted-foreground, #999); margin-bottom: 20px; font-size: 14px; max-width: 900px; }
+  .gallery { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 20px; }
+  .card { flex: 0 0 300px; }
+  .label { font-size: 13px; color: #ccc; margin-bottom: 8px; line-height: 1.45; min-height: 56px; }
+  .label b { color: #fff; display: block; font-size: 15px; margin-bottom: 2px; }
+  .phone { width: 300px; height: 640px; overflow: hidden; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+  .screen { width: 100%; height: 100%; padding: 22px 20px; background: var(--bg); color: var(--ink); }
+
+  .head { display: flex; justify-content: space-between; align-items: flex-end; }
+  .logo { font-family: 'Mr Dafoe', cursive; font-size: 46px; line-height: 0.9; color: var(--logo); text-shadow: var(--glow); transform: rotate(-6deg); transform-origin: left bottom; }
+  .timer { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 30px; color: var(--accent2); letter-spacing: 0.02em; }
+  .stripes { margin: 12px 0 0; display: grid; gap: 3px; }
+  .stripes i { height: 3px; display: block; }
+  .stripes i:nth-child(1) { background: var(--s1); } .stripes i:nth-child(2) { background: var(--s2); } .stripes i:nth-child(3) { background: var(--s3); }
+  .kicker { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 600; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-top: 14px; }
+  .title { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 26px; line-height: 1.05; text-transform: uppercase; margin-top: 2px; }
+  .instr { font-size: 14px; line-height: 1.5; margin-top: 8px; color: var(--ink2); }
+  .bpm { display: inline-block; margin-top: 10px; font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 17px; letter-spacing: 0.06em; padding: 2px 12px; background: var(--chip); color: var(--chipInk); transform: skewX(-12deg); }
+  .bpm span { display: inline-block; transform: skewX(12deg); }
+  .board { margin-top: 10px; display: flex; justify-content: center; }
+  .nav { display: flex; justify-content: space-between; margin-top: 8px; }
+  .nav button { width: 58px; height: 58px; border: 2px solid var(--accent2); background: transparent; color: var(--accent2); font-size: 24px; cursor: pointer; border-radius: 50%; }
+  .nav button.next { background: var(--logo); border-color: var(--logo); color: var(--bg); box-shadow: var(--btnGlow); }
+
+  .night { --bg:#160B2E; --ink:#F7F1FF; --ink2:#D9CFF0; --muted:#3FF0E0; --logo:#FF3EA5; --accent2:#3FF0E0;
+    --glow: 0 0 6px rgba(255,62,165,0.9), 0 0 18px rgba(255,62,165,0.6); --btnGlow: 0 0 16px rgba(255,62,165,0.55);
+    --s1:#FF3EA5; --s2:#FF9A3C; --s3:#3FF0E0; --chip:#3FF0E0; --chipInk:#160B2E; }
+  .ocean { --bg:#14B8B0; --ink:#0E1440; --ink2:#0E1440; --muted:#0E1440; --logo:#FF2E93; --accent2:#0E1440;
+    --glow: 2px 2px 0 #0E1440; --btnGlow: 3px 3px 0 #0E1440;
+    --s1:#FF2E93; --s2:#FFD23F; --s3:#0E1440; --chip:#0E1440; --chipInk:#FFD23F; }
+  .sunset { --bg:#FF6FA8; --ink:#1A0F3A; --ink2:#1A0F3A; --muted:#1A0F3A; --logo:#FFFFFF; --accent2:#1A0F3A;
+    --glow: 3px 3px 0 #1A0F3A; --btnGlow: 3px 3px 0 #1A0F3A;
+    --s1:#1A0F3A; --s2:#FFE45E; --s3:#00C2B8; --chip:#1A0F3A; --chipInk:#FFE45E; }
+  .night .logo { animation: flicker 6s infinite; }
+  @keyframes flicker { 0%, 92%, 96%, 100% { opacity: 1; } 93% { opacity: 0.45; } 95% { opacity: 0.8; } }
+  @media (prefers-reduced-motion: reduce) { .night .logo { animation: none; } }
+</style>
+</head>
+<body>
+<h1>Woodshed — Vice City, three flat grounds</h1>
+<p class="lead">Busy sun and grid are gone. Each ground is one flat colour. The Vice City look comes from the neon script wordmark, the Ocean Drive deco stripes and skewed italic condensed type. The fretboard is the full A minor pentatonic box this time.</p>
+<div class="gallery" id="g"></div>
+
+<script>
+  const variants = [
+    { cls:'night', name:'Night Drive', note:'Flat midnight purple. Neon pink sign, aqua accents, and the wordmark flickers now and then like a sign on Ocean Drive.',
+      b:{ line:'#3FF0E0', text:'#D9CFF0', root:'#FF3EA5', rootStroke:'#FF3EA5', note:'#160B2E', noteStroke:'#3FF0E0', glow:'drop-shadow(0 0 4px rgba(63,240,224,0.7))' } },
+    { cls:'ocean', name:'Ocean Drive', note:'Flat teal, the pastel side of Vice City. Hot pink and navy, with flat offset shadows instead of glow.',
+      b:{ line:'#0E1440', text:'#0E1440', root:'#FF2E93', rootStroke:'#0E1440', note:'#14B8B0', noteStroke:'#0E1440' } },
+    { cls:'sunset', name:'Flamingo', note:'Flat hot pink. White script logo, navy ink, yellow and teal stripes. The loudest of the three.',
+      b:{ line:'#1A0F3A', text:'#1A0F3A', root:'#1A0F3A', rootStroke:'#1A0F3A', note:'#FF6FA8', noteStroke:'#1A0F3A', rootText:'#FFE45E' } },
+  ];
+
+  // A minor pentatonic, position 1. Cells = frets 5-8; a note at fret f sits between wire f-1 and wire f.
+  const strings = [
+    { name:'E', dots:[{f:5,root:true},{f:8}] }, { name:'A', dots:[{f:5},{f:7}] }, { name:'D', dots:[{f:5},{f:7,root:true}] },
+    { name:'G', dots:[{f:5},{f:7}] }, { name:'B', dots:[{f:5},{f:8}] }, { name:'e', dots:[{f:5,root:true},{f:8}] },
+  ];
+  const lo = 5, hi = 8;
+  function board(o) {
+    const W = 230, H = 260, padL = 28, padT = 10, padB = 22, padR = 16, iw = W-padL-padR, ih = H-padT-padB;
+    const sx = i => padL + iw*i/5, fy = w => padT + ih*(w-lo+1)/(hi-lo+1);
+    let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="filter:${o.glow||'none'}" font-family="Barlow Condensed" font-style="italic" font-weight="600">`;
+    for (let w = lo-1; w <= hi; w++) {
+      s += `<line x1="${padL}" y1="${fy(w)}" x2="${padL+iw}" y2="${fy(w)}" stroke="${o.line}" stroke-width="${w===lo-1?2.5:1.5}"/>`;
+      if (w >= lo) s += `<text x="6" y="${(fy(w-1)+fy(w))/2+5}" font-size="14" fill="${o.text}">${w}</text>`;
+    }
+    strings.forEach((st,i) => {
+      const x = sx(i);
+      s += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+ih}" stroke="${o.line}" stroke-width="1.5"/>`;
+      s += `<text x="${x}" y="${H-4}" font-size="14" text-anchor="middle" fill="${o.text}">${st.name}</text>`;
+      st.dots.forEach(d => {
+        const y = (fy(d.f)+fy(d.f-1))/2;
+        s += `<circle cx="${x}" cy="${y}" r="11" fill="${d.root?o.root:o.note}" stroke="${d.root?o.rootStroke:o.noteStroke}" stroke-width="2"/>`;
+        if (d.root) s += `<text x="${x}" y="${y+5}" font-size="13" text-anchor="middle" fill="${o.rootText||'#fff'}">R</text>`;
+      });
+    });
+    return s + '</svg>';
+  }
+
+  document.getElementById('g').innerHTML = variants.map(v => `
+    <div class="card">
+      <div class="label"><b>${v.name}</b>${v.note}</div>
+      <div class="phone ${v.cls}"><div class="screen">
+        <div class="head"><div class="logo">Woodshed</div><div class="timer">4:32</div></div>
+        <div class="stripes"><i></i><i></i><i></i></div>
+        <div class="kicker">Scales · Step 2 of 5</div>
+        <div class="title">Position 1<br>A Minor Pentatonic</div>
+        <div class="instr">Play the shape up and down, one note per click. Keep fretting fingers close to the board.</div>
+        <div class="bpm"><span>72–96 BPM</span></div>
+        <div class="board">${board(v.b)}</div>
+        <div class="nav"><button aria-label="Previous step">←</button><button class="next" aria-label="Next step">→</button></div>
+      </div></div>
+    </div>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Woodshed — Round 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&family=JetBrains+Mono:wght@400;700&family=Archivo:wght@500;700;800&family=VT323&family=Anton&family=Space+Grotesk:wght@500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: none; }
+  body { font-family: 'Archivo', sans-serif; padding: 16px 8px; color: var(--foreground); }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.lead { color: var(--muted-foreground, #999); margin-bottom: 20px; font-size: 14px; max-width: 900px; }
+  .gallery { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 20px; }
+  .card { flex: 0 0 300px; }
+  .label { font-size: 13px; color: #ccc; margin-bottom: 8px; line-height: 1.4; min-height: 72px; }
+  .label b { color: #fff; display: block; font-size: 15px; margin-bottom: 2px; }
+  .phone { width: 300px; height: 640px; overflow: hidden; position: relative; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+  .screen { width: 100%; height: 100%; overflow: hidden; position: relative; padding: 24px 20px; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .step-title { font-size: 19px; margin-top: 14px; font-weight: 700; }
+  .instr { font-size: 13px; margin-top: 6px; line-height: 1.5; opacity: 0.85; }
+  .bpm { font-size: 13px; margin-top: 10px; display: inline-block; }
+  .board-wrap { margin-top: 16px; display: flex; justify-content: center; position: relative; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+  .nav button { font: inherit; cursor: pointer; border: none; width: 56px; height: 56px; font-size: 24px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  svg text { font-family: 'JetBrains Mono', monospace; }
+
+  /* A. Sumi */
+  .sumi .screen { background: #15140F; color: #E9E4D8; }
+  .sumi .logo { font-family: 'Yuji Syuku', serif; font-size: 21px; color: #D7CBAE; }
+  .sumi .timer { font-family: 'JetBrains Mono', monospace; font-size: 15px; }
+  .sumi .bpm { font-family: 'JetBrains Mono', monospace; color: #B4502F; padding: 4px 0; border-bottom: 1px solid #B4502F; }
+  .sumi .nav button { background: none; color: #E9E4D8; border: 1px solid #3a362c; border-radius: 50%; }
+  .sumi .nav button.next { background: #B4502F; color: #15140F; border-color: #B4502F; }
+
+  /* B. Go */
+  .go .screen { background: #D8B978; color: #231C12; background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 28px), repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 28px); }
+  .go .logo { font-size: 15px; letter-spacing: 0.08em; }
+  .go .timer { font-family: 'JetBrains Mono', monospace; font-size: 15px; }
+  .go .bpm { font-family: 'JetBrains Mono', monospace; background: #231C12; color: #D8B978; padding: 4px 10px; }
+  .go .nav button { background: #F3E6C4; color: #231C12; border-radius: 50%; box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+  .go .nav button.next { background: #231C12; color: #F3E6C4; }
+
+  /* C. Teletext */
+  .ttx .screen { background: #000; color: #fff; font-family: 'VT323', monospace; padding: 0; }
+  .ttx .band { background: #0000FF; color: #FFFF00; font-size: 26px; padding: 8px 14px; display: flex; justify-content: space-between; letter-spacing: 1px; }
+  .ttx .band .pg { color: #fff; }
+  .ttx .body { padding: 10px 14px; }
+  .ttx .step-title { font-family: 'VT323', monospace; font-size: 30px; font-weight: 400; color: #00FFFF; line-height: 1; margin-top: 4px; }
+  .ttx .instr { font-size: 20px; line-height: 1.05; opacity: 1; color: #fff; }
+  .ttx .bpm { font-size: 22px; background: #FF00FF; color: #000; padding: 0 8px; margin-top: 8px; }
+  .ttx .nav { padding: 0 14px; }
+  .ttx .nav button { background: #00FF00; color: #000; font-family: 'VT323', monospace; font-size: 34px; border-radius: 0; }
+  .ttx .nav button.prev { background: #FF0000; color: #fff; }
+  .ttx .fast { display: flex; font-size: 20px; margin-top: 10px; }
+  .ttx .fast span { flex: 1; text-align: center; padding: 2px 0; }
+  .blink { animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* D. Split-flap */
+  .flap .screen { background: #141414; color: #F5F1E4; font-family: 'Oswald', sans-serif; }
+  .flap .logo { font-size: 13px; letter-spacing: 0.2em; color: #8a8a8a; }
+  .flaps { display: flex; gap: 3px; margin-top: 12px; }
+  .tile { width: 38px; height: 54px; background: #232323; border-radius: 3px; position: relative; overflow: hidden; font-size: 40px; font-weight: 700; color: #F5F1E4; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.5); }
+  .tile::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: #000; }
+  .tile.colon { width: 14px; background: none; box-shadow: none; }
+  .tile.colon::after { display: none; }
+  .tile.flip { animation: flip 0.32s ease-in; }
+  @keyframes flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(90deg); filter: brightness(0.6); } 100% { transform: rotateX(0); } }
+  .flap .step-title { font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: #FFC21A; margin-top: 14px; }
+  .flap .instr { font-family: 'Archivo', sans-serif; }
+  .flap .bpm { font-size: 15px; letter-spacing: 0.1em; border: 1px solid #FFC21A; color: #FFC21A; padding: 2px 10px; }
+  .flap .nav button { background: #232323; color: #F5F1E4; border-radius: 3px; }
+  .flap .nav button.next { background: #FFC21A; color: #141414; }
+
+  /* E. Risograph */
+  .riso .screen { background: #FFFFFF; color: #1d3bd6; font-family: 'Space Grotesk', sans-serif; }
+  .riso .grain { position: absolute; inset: 0; pointer-events: none; opacity: 0.18; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .riso .logo { font-family: 'Anton', sans-serif; font-size: 44px; line-height: 0.85; color: #ff48b0; mix-blend-mode: multiply; letter-spacing: -0.01em; transform: rotate(-3deg); transform-origin: left; }
+  .riso .logo span { display: block; color: #1d3bd6; margin-left: 6px; margin-top: -30px; opacity: 0.85; }
+  .riso .timer { font-family: 'Anton', sans-serif; font-size: 26px; color: #ff48b0; mix-blend-mode: multiply; }
+  .riso .step-title { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 24px; text-transform: uppercase; line-height: 1; margin-top: 6px; }
+  .riso .instr { color: #1d3bd6; opacity: 1; }
+  .riso .bpm { font-family: 'Anton', sans-serif; font-size: 16px; background: #ff48b0; color: #fff; padding: 2px 10px; transform: rotate(2deg); mix-blend-mode: multiply; }
+  .riso .board-wrap svg { mix-blend-mode: multiply; }
+  .riso .board-wrap .ghost { position: absolute; top: 3px; left: 50%; transform: translateX(calc(-50% + 4px)); }
+  .riso .nav button { background: #1d3bd6; color: #fff; border-radius: 0; mix-blend-mode: multiply; }
+  .riso .nav button.next { background: #ff48b0; transform: rotate(-4deg); }
+</style>
+</head>
+<body>
+<h1>Woodshed — round 5: sumi &amp; Go with arrow buttons, plus three weird ones</h1>
+<p class="lead">C, D and E are the wild cards — but each has a reason: teletext and split-flap boards were literally designed to be read from across a room, and riso is the opposite of polished-AI-gradient. The split-flap timer is live.</p>
+<div class="gallery">
+
+  <div class="card">
+    <div class="label"><b>A — Sumi</b>Arrow-only controls; "next" is the hanko stamp.</div>
+    <div class="phone sumi"><div class="screen">
+      <div class="top"><div class="logo">筆 Woodshed</div><div class="timer">04:32</div></div>
+      <div class="step-title">Position 1 — A Minor Pentatonic</div>
+      <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+      <div class="bpm">TARGET 72–96 BPM</div>
+      <div class="board-wrap" id="b-sumi"></div>
+      <div class="nav"><button aria-label="Previous step">←</button><button class="next" aria-label="Next step">→</button></div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="label"><b>B — Go Board</b>Arrow controls as Go stones — white to go back, black to go forward.</div>
+    <div class="phone go"><div class="screen">
+      <div class="top"><div class="logo">WOODSHED</div><div class="timer">04:32</div></div>
+      <div class="step-title">Position 1 — A Minor Pentatonic</div>
+      <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+      <div class="bpm">72–96 BPM</div>
+      <div class="board-wrap" id="b-go"></div>
+      <div class="nav"><button aria-label="Previous step">←</button><button class="next" aria-label="Next step">→</button></div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="label"><b>C — Teletext</b>1980s Ceefax page 401. Eight colours, blocky type, a blinking countdown. Made for reading a TV from the sofa — so from a music stand too.</div>
+    <div class="phone ttx"><div class="screen">
+      <div class="band"><span>WOODSHED</span><span class="pg">P401</span></div>
+      <div class="body">
+        <div style="display:flex;justify-content:space-between;font-size:22px;color:#FFFF00"><span>SCALES</span><span class="blink">04:32</span></div>
+        <div class="step-title">POSITION 1<br>A MINOR PENTATONIC</div>
+        <div class="instr">Play the shape up and down, one note per click. Keep fingers close to the board.</div>
+        <div class="bpm">TARGET 72-96 BPM</div>
+        <div class="board-wrap" id="b-ttx"></div>
+      </div>
+      <div class="nav"><button class="prev" aria-label="Previous step">◄</button><button aria-label="Next step">►</button></div>
+      <div class="fast"><span style="background:#FF0000">PREV</span><span style="background:#00FF00;color:#000">NEXT</span><span style="background:#FFFF00;color:#000">TEMPO</span><span style="background:#00FFFF;color:#000">LOG</span></div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="label"><b>D — Split-Flap Board</b>A station departures board. Timer clacks over every second; on a step change the whole title would flap through.</div>
+    <div class="phone flap"><div class="screen">
+      <div class="logo">WOODSHED · NOW PRACTISING</div>
+      <div class="flaps" id="flaps"></div>
+      <div class="step-title">Position 1 — A Minor Pentatonic</div>
+      <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+      <div class="bpm">72–96 BPM</div>
+      <div class="board-wrap" id="b-flap"></div>
+      <div class="nav"><button aria-label="Previous step">←</button><button class="next" aria-label="Next step">→</button></div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="label"><b>E — Risograph Zine</b>Two inks, fluoro pink over blue, printed slightly out of register. A practice zine you photocopied in a basement.</div>
+    <div class="phone riso"><div class="screen">
+      <div class="grain"></div>
+      <div class="top"><div class="logo">WOOD<span>SHED</span></div><div class="timer">04:32</div></div>
+      <div class="step-title">Position 1 —<br>A Minor Pentatonic</div>
+      <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+      <div class="bpm">72–96 BPM</div>
+      <div class="board-wrap" id="b-riso"></div>
+      <div class="nav"><button aria-label="Previous step">←</button><button class="next" aria-label="Next step">→</button></div>
+    </div></div>
+  </div>
+
+</div>
+
+<script>
+  // A minor pentatonic, position 1, standard tuning (low E left). Root = A.
+  const strings = [
+    { name: 'E', dots: [{f:5,root:true}, {f:8}] },
+    { name: 'A', dots: [{f:5}, {f:7}] },
+    { name: 'D', dots: [{f:5}, {f:7,root:true}] },
+    { name: 'G', dots: [{f:5}, {f:7}] },
+    { name: 'B', dots: [{f:5}, {f:8}] },
+    { name: 'e', dots: [{f:5,root:true}, {f:8}] },
+  ];
+  const fretLo = 5, fretHi = 9;
+
+  function board(o) {
+    const W = o.w || 220, H = o.h || 280, padL = 26, padT = 18, padB = 20, padR = 10;
+    const iw = W - padL - padR, ih = H - padT - padB;
+    const sx = i => padL + iw * i / 5, fy = f => padT + ih * (f - fretLo) / (fretHi - fretLo);
+    let s = `<svg class="${o.cls||''}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    for (let f = fretLo; f <= fretHi; f++) {
+      s += `<line x1="${padL}" y1="${fy(f)}" x2="${padL+iw}" y2="${fy(f)}" stroke="${o.line}" stroke-width="${o.lw||1}"/>`;
+      if (o.labels !== false) s += `<text x="4" y="${fy(f)+4}" font-size="${o.fs||10}" fill="${o.text}" ${o.font?`font-family="${o.font}"`:''}>${f}</text>`;
+    }
+    strings.forEach((st, i) => {
+      s += `<line x1="${sx(i)}" y1="${padT}" x2="${sx(i)}" y2="${padT+ih}" stroke="${o.line}" stroke-width="${o.lw||1}"/>`;
+      if (o.labels !== false) s += `<text x="${sx(i)}" y="${H-4}" font-size="${o.fs||10}" text-anchor="middle" fill="${o.text}" ${o.font?`font-family="${o.font}"`:''}>${st.name}</text>`;
+      st.dots.forEach(d => {
+        const x = sx(i), y = (fy(d.f) + fy(d.f-1)) / 2, r = o.r || 9;
+        const fill = d.root ? o.root : o.note, stroke = d.root ? (o.rootStroke||o.root) : o.noteStroke;
+        s += o.square
+          ? `<rect x="${x-r}" y="${y-r}" width="${2*r}" height="${2*r}" fill="${fill}"/>`
+          : `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+      });
+    });
+    return s + '</svg>';
+  }
+
+  const $ = id => document.getElementById(id);
+  $('b-sumi').innerHTML = board({ line:'rgba(233,228,216,0.55)', text:'#E9E4D8', root:'#B4502F', note:'#E9E4D8', noteStroke:'#E9E4D8' });
+  $('b-go').innerHTML = board({ line:'#231C12', text:'#231C12', root:'#F3E6C4', rootStroke:'#231C12', note:'#231C12', noteStroke:'#231C12', r:10 });
+  $('b-ttx').innerHTML = board({ w:240, h:200, line:'#00FFFF', text:'#FFFF00', root:'#FF00FF', note:'#FFFF00', square:true, r:8, lw:2, fs:18, font:'VT323' });
+  $('b-flap').innerHTML = board({ line:'rgba(245,241,228,0.35)', text:'#8a8a8a', root:'#FFC21A', note:'#141414', noteStroke:'#F5F1E4' });
+  $('b-riso').innerHTML =
+    board({ cls:'ghost', line:'#ff48b0', text:'transparent', root:'#ff48b0', note:'#ff48b0', noteStroke:'#ff48b0', lw:2, labels:false }) +
+    board({ line:'#1d3bd6', text:'#1d3bd6', root:'#1d3bd6', note:'#fff', noteStroke:'#1d3bd6', lw:1.5 });
+
+  // Live split-flap countdown
+  let t = 4 * 60 + 32, prev = '';
+  const flaps = $('flaps');
+  function renderFlaps() {
+    const str = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+    if (!prev) flaps.innerHTML = [...str].map(c => `<div class="tile${c === ':' ? ' colon' : ''}">${c}</div>`).join('');
+    else [...str].forEach((c, i) => { if (c !== prev[i]) { const el = flaps.children[i]; el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); setTimeout(() => el.textContent = c, 160); } });
+    prev = str;
+  }
+  renderFlaps();
+  setInterval(() => { t = t > 0 ? t - 1 : 272; renderFlaps(); }, 1000);
+</script>
+</body>
+</html>

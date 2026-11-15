@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Woodshed — Sumi Accent Variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: none; }
+  body { font-family: 'Zen Kaku Gothic New', sans-serif; padding: 16px 8px; color: var(--foreground); }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.lead { color: var(--muted-foreground, #999); margin-bottom: 20px; font-size: 14px; }
+  .gallery { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 20px; }
+  .card { flex: 0 0 300px; }
+  .label { font-size: 13px; color: #ccc; margin-bottom: 8px; line-height: 1.4; }
+  .label b { color: #fff; display: block; font-size: 15px; margin-bottom: 2px; }
+  .phone { width: 300px; height: 640px; border-radius: 28px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; }
+  .screen { width: 100%; height: 100%; overflow: hidden; position: relative; padding: 24px 20px; background: #15140F; color: #E9E4D8; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .logo { font-size: 14px; letter-spacing: 0.08em; color: #B8B2A0; }
+  .timer { font-family: 'JetBrains Mono', monospace; font-size: 15px; }
+  .step-title { font-size: 19px; margin-top: 14px; font-weight: 700; }
+  .instr { font-size: 13px; margin-top: 6px; line-height: 1.5; opacity: 0.8; }
+  .bpm { font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-top: 10px; display: inline-block; padding: 4px 10px; border-radius: 2px; }
+  .board-wrap { margin-top: 18px; display: flex; justify-content: center; }
+  .nav { display: flex; justify-content: space-between; margin-top: 18px; }
+  .nav button { font: inherit; padding: 10px 18px; border-radius: 4px; cursor: pointer; border: none; background: #26241C; color: #E9E4D8; }
+  svg text { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<h1>Woodshed — sumi board, four accent options</h1>
+<p class="lead">Same dark lacquer base, same layout. Only the accent color (BPM chip, root dots, "next" button) changes.</p>
+<div class="gallery" id="gallery"></div>
+
+<script>
+  const strings = [
+    { name: 'E', dots: [{f:5,root:true}, {f:8,root:false}] },
+    { name: 'A', dots: [{f:5,root:false}, {f:7,root:false}] },
+    { name: 'D', dots: [{f:5,root:false}, {f:7,root:true}] },
+    { name: 'G', dots: [{f:5,root:false}, {f:7,root:false}] },
+    { name: 'B', dots: [{f:5,root:false}, {f:8,root:false}] },
+    { name: 'e', dots: [{f:5,root:true}, {f:8,root:false}] },
+  ];
+  const fretLo = 5, fretHi = 9;
+  const W = 220, H = 300, padL = 26, padT = 24, padB = 20, padR = 10;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const stringX = i => padL + (innerW * i) / (strings.length - 1);
+  const fretY = f => padT + (innerH * (f - fretLo)) / (fretHi - fretLo);
+
+  function buildBoard(accent) {
+    const lineColor = '#E9E4D8';
+    let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    for (let f = fretLo; f <= fretHi; f++) {
+      const y = fretY(f);
+      svg += `<line x1="${padL}" y1="${y}" x2="${padL+innerW}" y2="${y}" stroke="${lineColor}" stroke-width="${f===fretLo?2:1}" opacity="0.6"/>`;
+      svg += `<text x="4" y="${y+4}" font-size="10" fill="${lineColor}" opacity="0.7">${f}</text>`;
+    }
+    strings.forEach((s, i) => {
+      const x = stringX(i);
+      svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+innerH}" stroke="${lineColor}" stroke-width="1" opacity="0.7"/>`;
+      svg += `<text x="${x}" y="${H-4}" font-size="10" text-anchor="middle" fill="${lineColor}" opacity="0.8">${s.name}</text>`;
+    });
+    strings.forEach((s, i) => {
+      const x = stringX(i);
+      s.dots.forEach(d => {
+        const y = (fretY(d.f) + fretY(d.f - 1)) / 2;
+        const r = 9;
+        if (d.root) {
+          svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="${accent}"/>`;
+          svg += `<text x="${x}" y="${y+4}" font-size="9" text-anchor="middle" fill="#15140F">R</text>`;
+        } else {
+          svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="#E9E4D8" stroke="#E9E4D8" stroke-width="1.5"/>`;
+        }
+      });
+    });
+    svg += `</svg>`;
+    return svg;
+  }
+
+  const variants = [
+    { name: 'Aged Brass', accent: '#C99A4B', note: 'Warm metal-leaf gold — calm, like repaired lacquer seams.' },
+    { name: 'Moss', accent: '#7A9B6E', note: 'Quiet, natural green — the least "alarm" of the four.' },
+    { name: 'Dusty Terracotta', accent: '#C27B5C', note: 'Softer, earthier red — keeps warmth, loses the alarm-red edge.' },
+    { name: 'Moonlit Ice', accent: '#7FB8C9', note: 'Cool pale cyan — a colder, calmer contrast against the dark ground.' },
+  ];
+
+  const gallery = document.getElementById('gallery');
+  variants.forEach((v, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="label"><b>${idx+1} — ${v.name}</b>${v.note}</div>
+      <div class="phone"><div class="screen">
+        <div class="top"><div class="logo">ADVANCED TECHNIQUE</div><div class="timer">04:32</div></div>
+        <div class="step-title">Position 1 — A Minor Pentatonic</div>
+        <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+        <div class="bpm" style="border:1px solid ${v.accent}; color:${v.accent};">TARGET 72–96 BPM</div>
+        <div class="board-wrap"></div>
+        <div class="nav"><button>◂ Prev</button><button style="background:${v.accent}; color:#15140F;">Next ▸</button></div>
+      </div></div>`;
+    card.querySelector('.board-wrap').innerHTML = buildBoard(v.accent);
+    gallery.appendChild(card);
+  });
+</script>
+</body>
+</html>

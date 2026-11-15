@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Woodshed — Round 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+JP:wght@700;900&family=Press+Start+2P&family=Pixelify+Sans:wght@500;700&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: none; }
+  body { font-family: 'JetBrains Mono', monospace; padding: 16px 8px; color: var(--foreground); }
+  h1 { font-size: 20px; margin-bottom: 4px; font-family: system-ui, sans-serif; }
+  p.lead { color: var(--muted-foreground, #999); margin-bottom: 20px; font-size: 14px; max-width: 900px; font-family: system-ui, sans-serif; }
+  .gallery { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 20px; }
+  .card { flex: 0 0 300px; }
+  .label { font-size: 13px; color: #ccc; margin-bottom: 8px; line-height: 1.45; min-height: 76px; font-family: system-ui, sans-serif; }
+  .label b { color: #fff; display: block; font-size: 15px; margin-bottom: 2px; }
+  .phone { width: 300px; height: 640px; overflow: hidden; position: relative; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+  .screen { width: 100%; height: 100%; overflow: hidden; position: relative; }
+  .board-wrap { display: flex; justify-content: center; position: relative; }
+  .nav { display: flex; justify-content: space-between; align-items: center; }
+  .nav button { font: inherit; cursor: pointer; border: none; width: 56px; height: 56px; font-size: 22px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== 1. Windows 95 ===== */
+  .w95 .screen { background: #008080; padding: 14px 10px; font-family: Tahoma, Verdana, 'Segoe UI', sans-serif; font-size: 13px; color: #000; }
+  .win { background: #c0c0c0; border: 2px solid; border-color: #fff #000 #000 #fff; box-shadow: inset -1px -1px #808080, inset 1px 1px #dfdfdf; padding: 3px; }
+  .titlebar { background: linear-gradient(90deg, #000080, #1084d0); color: #fff; font-weight: 700; padding: 3px 4px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .titlebar .x { background: #c0c0c0; color: #000; width: 18px; height: 16px; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 1px solid; border-color: #fff #000 #000 #fff; }
+  .menubar { padding: 3px 4px; font-size: 13px; }
+  .menubar u { margin-right: 10px; text-decoration: none; }
+  .menubar u::first-letter { text-decoration: underline; }
+  .w95 .inner { padding: 8px 6px; }
+  .w95 .step-title { font-weight: 700; font-size: 16px; }
+  .w95 .instr { margin-top: 4px; line-height: 1.4; }
+  .sunken { background: #fff; border: 2px solid; border-color: #808080 #fff #fff #808080; box-shadow: inset 1px 1px #000; margin-top: 8px; padding: 6px 0; }
+  .progress { display: flex; gap: 2px; height: 20px; padding: 2px; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; margin-top: 8px; }
+  .progress i { width: 10px; background: #000080; }
+  .w95 .row { display: flex; justify-content: space-between; margin-top: 6px; font-size: 13px; }
+  .w95 .nav { margin-top: 8px; }
+  .w95 .nav button { background: #c0c0c0; border: 2px solid; border-color: #fff #000 #000 #fff; box-shadow: inset -1px -1px #808080, inset 1px 1px #dfdfdf; width: 64px; height: 40px; font-size: 16px; color: #000; }
+  .taskbar { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; background: #c0c0c0; border-top: 2px solid #fff; display: flex; align-items: center; padding: 0 4px; gap: 6px; font-family: Tahoma, sans-serif; font-size: 12px; font-weight: 700; }
+  .taskbar .start { border: 2px solid; border-color: #fff #000 #000 #fff; padding: 2px 6px; }
+  .taskbar .clock { margin-left: auto; font-weight: 400; border: 1px solid; border-color: #808080 #fff #fff #808080; padding: 3px 8px; }
+
+  /* ===== 2. Vaporwave ===== */
+  .vapor .screen { background: linear-gradient(180deg, #2b0a4a 0%, #7b2cbf 38%, #ff71ce 62%, #ff9e6d 70%); color: #fff; padding: 22px 18px; font-family: 'Archivo Black', sans-serif; }
+  .vapor .sun { position: absolute; left: 50%; top: 210px; width: 220px; height: 220px; transform: translateX(-50%); border-radius: 50%; background: linear-gradient(180deg, #fffb96, #ff71ce);
+    -webkit-mask: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 18px); mask: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 18px); opacity: 0.85; }
+  .vapor .floor { position: absolute; left: -50%; right: -50%; bottom: 0; height: 240px; background: #12002a;
+    background-image: linear-gradient(#01cdfe 2px, transparent 2px), linear-gradient(90deg, #01cdfe 2px, transparent 2px); background-size: 40px 30px;
+    transform: perspective(240px) rotateX(58deg); transform-origin: bottom; box-shadow: 0 -10px 40px #01cdfe; }
+  .vapor .content { position: relative; z-index: 1; }
+  .vapor .jp { font-family: 'Noto Sans JP', sans-serif; font-weight: 900; font-size: 12px; letter-spacing: 0.3em; color: #01cdfe; }
+  .vapor .logo { font-size: 30px; font-style: italic; letter-spacing: -0.02em; background: linear-gradient(180deg, #fff 0%, #b8e9ff 45%, #6a5acd 50%, #fff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(2px 2px 0 #ff71ce); }
+  .vapor .timer { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #fffb96; float: right; margin-top: -26px; }
+  .vapor .step-title { font-size: 17px; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.08em; text-shadow: 2px 2px 0 #b967ff; }
+  .vapor .instr { font-family: 'JetBrains Mono', monospace; font-size: 12px; margin-top: 6px; line-height: 1.5; background: rgba(18,0,42,0.55); padding: 6px 8px; }
+  .vapor .bpm { display: inline-block; margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #12002a; background: #05ffa1; padding: 2px 10px; }
+  .vapor .board-wrap { margin-top: 8px; }
+  .vapor .board-wrap svg { filter: drop-shadow(0 0 6px #01cdfe); }
+  .vapor .nav { margin-top: 2px; }
+  .vapor .nav button { background: rgba(18,0,42,0.7); color: #01cdfe; border: 2px solid #01cdfe; }
+  .vapor .nav button.next { color: #12002a; background: #ff71ce; border-color: #fffb96; }
+
+  /* ===== 3. Game Boy ===== */
+  .gb .screen { background: #c4cfa1; padding: 18px 16px; font-family: 'Press Start 2P', monospace; }
+  .gb .lcdframe { background: #5a5f6e; border-radius: 8px 8px 30px 8px; padding: 14px 14px 10px; }
+  .gb .lcd { background: #9bbc0f; color: #0f380f; padding: 10px; height: 440px; image-rendering: pixelated; box-shadow: inset 0 0 0 2px #8bac0f; }
+  .gb .bez { font-size: 7px; color: #b0b5c4; letter-spacing: 0.08em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .gb .bez .led { width: 6px; height: 6px; border-radius: 50%; background: #ff2d2d; box-shadow: 0 0 6px #ff2d2d; }
+  .gb .hud { display: flex; justify-content: space-between; font-size: 10px; }
+  .gb .step-title { font-size: 11px; line-height: 1.6; margin-top: 10px; }
+  .gb .instr { font-size: 8px; line-height: 1.8; margin-top: 6px; color: #306230; }
+  .gb .bpm { display: inline-block; margin-top: 8px; font-size: 9px; background: #0f380f; color: #9bbc0f; padding: 4px 6px; }
+  .gb .board-wrap { margin-top: 8px; }
+  .gb .brand { font-family: 'Pixelify Sans', sans-serif; font-weight: 700; font-style: italic; color: #2b2f7a; font-size: 18px; margin: 10px 0 4px; }
+  .gb .brand small { font-size: 10px; font-style: normal; color: #2b2f7a; letter-spacing: 0.1em; }
+  .gb .nav { justify-content: flex-end; gap: 14px; }
+  .gb .nav button { width: 52px; height: 52px; border-radius: 50%; background: #8b1c62; color: #f3d6e5; font-size: 18px; box-shadow: 0 3px 0 #4e0f37; transform: rotate(-20deg); }
+  .gb .nav button span { display: inline-block; transform: rotate(20deg); }
+
+  /* ===== 4. Cross-stitch sampler ===== */
+  .xs .screen { background-color: #fbfbf7; padding: 20px 18px; font-family: 'Pixelify Sans', sans-serif;
+    background-image: radial-gradient(circle, rgba(60,60,80,0.18) 0.9px, transparent 1.2px); background-size: 6px 6px; }
+  .xs .frame { position: absolute; inset: 8px; border: 4px dashed #1f6b4a; border-radius: 4px; pointer-events: none; }
+  .xs .frame::after { content: ''; position: absolute; inset: 5px; border: 2px dotted #c8283a; }
+  .xs .content { position: relative; }
+  .xs .logo { font-weight: 700; font-size: 26px; color: #c8283a; letter-spacing: 0.06em; text-align: center; text-shadow: 1px 1px 0 #8a1525; }
+  .xs .motif { text-align: center; color: #1f6b4a; font-size: 14px; letter-spacing: 4px; margin-top: 2px; }
+  .xs .hud { display: flex; justify-content: space-between; font-size: 15px; color: #2a3a8c; margin-top: 8px; }
+  .xs .step-title { font-weight: 700; font-size: 18px; color: #2a3a8c; margin-top: 6px; }
+  .xs .instr { font-family: 'IM Fell English', serif; font-style: italic; font-size: 14px; color: #3b3b48; line-height: 1.45; margin-top: 4px; }
+  .xs .bpm { display: inline-block; margin-top: 6px; font-size: 14px; color: #c8283a; border: 2px dashed #c8283a; padding: 1px 8px; }
+  .xs .board-wrap { margin-top: 8px; }
+  .xs .nav { margin-top: 4px; }
+  .xs .nav button { background: none; color: #2a3a8c; border: 3px dashed #2a3a8c; border-radius: 50%; font-family: 'Pixelify Sans'; }
+  .xs .nav button.next { color: #fff; background: #c8283a; border-color: #8a1525; }
+  .xs .stitchline { text-align: center; font-size: 10px; color: #3b3b48; margin-top: 6px; font-family: 'IM Fell English', serif; font-style: italic; }
+
+  /* ===== 5. Tarot ===== */
+  .tarot .screen { background: #0d0b14; color: #e8d39a; padding: 14px; font-family: 'IM Fell English SC', serif; }
+  .tarot .cardframe { border: 2px solid #c9a646; outline: 1px solid #c9a646; outline-offset: 4px; height: 100%; padding: 14px 14px 10px; position: relative;
+    background: radial-gradient(ellipse at top, #1d1630 0%, #0d0b14 60%); }
+  .tarot .corner { position: absolute; font-size: 14px; color: #c9a646; }
+  .tarot .corner.tl { top: 4px; left: 6px; } .tarot .corner.tr { top: 4px; right: 6px; } .tarot .corner.bl { bottom: 4px; left: 6px; } .tarot .corner.br { bottom: 4px; right: 6px; }
+  .tarot .num { text-align: center; font-size: 22px; letter-spacing: 0.3em; color: #c9a646; }
+  .tarot .stars { text-align: center; font-size: 11px; letter-spacing: 6px; color: #8f7a3c; }
+  .tarot .step-title { text-align: center; font-size: 22px; margin-top: 4px; letter-spacing: 0.04em; color: #f1e2b3; }
+  .tarot .sub { text-align: center; font-family: 'IM Fell English', serif; font-style: italic; font-size: 13px; color: #b9a46a; }
+  .tarot .board-wrap { margin-top: 8px; }
+  .tarot .instr { font-family: 'IM Fell English', serif; font-style: italic; font-size: 13.5px; text-align: center; line-height: 1.45; margin-top: 4px; color: #d8c48a; }
+  .tarot .meta { display: flex; justify-content: space-between; font-size: 13px; margin-top: 6px; color: #c9a646; letter-spacing: 0.1em; }
+  .tarot .nav { margin-top: 6px; }
+  .tarot .nav button { background: none; color: #c9a646; border: 1px solid #c9a646; transform: rotate(45deg); width: 44px; height: 44px; }
+  .tarot .nav button span { transform: rotate(-45deg); display: inline-block; }
+  .tarot .nav button.next { background: #c9a646; color: #0d0b14; }
+  .tarot .eye { text-align: center; font-size: 18px; color: #c9a646; margin-top: -36px; }
+</style>
+</head>
+<body>
+<h1>Woodshed — round 6: five weird ones</h1>
+<p class="lead">Same practice step, same correct A minor pentatonic box, five very different worlds. Arrow-only controls everywhere.</p>
+<div class="gallery">
+
+  <!-- 1. Windows 95 -->
+  <div class="card">
+    <div class="label"><b>1 — Windows 95 (the 90s one)</b>Each practice step is a dialog box. Beveled grey chrome, a chunky blue progress bar instead of a countdown ring, "Start" button, taskbar clock.</div>
+    <div class="phone w95"><div class="screen">
+      <div class="win">
+        <div class="titlebar"><span>🎸 WOODSHED.EXE</span><span class="x">✕</span></div>
+        <div class="menubar"><u>File</u><u>Session</u><u>Tempo</u><u>Help</u></div>
+        <div class="inner">
+          <div class="step-title">Position 1 — A Minor Pentatonic</div>
+          <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting fingers close to the fretboard.</div>
+          <div class="sunken"><div class="board-wrap" id="b-w95"></div></div>
+          <div class="row"><span>Target: 72–96 BPM</span><span>4:32 left</span></div>
+          <div class="progress"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="nav"><button aria-label="Previous step">◄</button><button aria-label="Next step">►</button></div>
+        </div>
+      </div>
+      <div class="taskbar"><span class="start">⊞ Start</span><span>Woodshed</span><span class="clock">7:42 PM</span></div>
+    </div></div>
+  </div>
+
+  <!-- 2. Vaporwave -->
+  <div class="card">
+    <div class="label"><b>2 — Vaporwave</b>Sunset sun sliced into stripes, neon grid floor, chrome italic wordmark, katakana over everything. The fretboard glows like a laser display.</div>
+    <div class="phone vapor"><div class="screen">
+      <div class="sun"></div><div class="floor"></div>
+      <div class="content">
+        <div class="jp">ウッドシェッド ・ 練習</div>
+        <div class="logo">WOODSHED</div>
+        <div class="timer">04:32</div>
+        <div class="step-title">Position 1 ▸ A Minor Pentatonic</div>
+        <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting fingers close to the fretboard.</div>
+        <div class="bpm">72–96 BPM</div>
+        <div class="board-wrap" id="b-vapor"></div>
+        <div class="nav"><button aria-label="Previous step">←</button><button class="next" aria-label="Next step">→</button></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 3. Game Boy -->
+  <div class="card">
+    <div class="label"><b>3 — Game Boy DMG</b>Four shades of pea-green LCD, pixel type, the fretboard in chunky blocks. Prev/Next are the magenta B and A buttons.</div>
+    <div class="phone gb"><div class="screen">
+      <div class="lcdframe">
+        <div class="bez"><span class="led"></span>DOT MATRIX WITH STEREO SOUND</div>
+        <div class="lcd">
+          <div class="hud"><span>LV.1</span><span>04:32</span></div>
+          <div class="step-title">POSITION 1<br>A MIN PENTA</div>
+          <div class="instr">PLAY UP+DOWN.<br>1 NOTE PER CLICK.</div>
+          <div class="bpm">BPM 72-96</div>
+          <div class="board-wrap" id="b-gb"></div>
+        </div>
+      </div>
+      <div class="brand">Woodshed <small>PRACTICE BOY</small></div>
+      <div class="nav"><button aria-label="Previous step"><span>←</span></button><button aria-label="Next step"><span>→</span></button></div>
+    </div></div>
+  </div>
+
+  <!-- 4. Cross-stitch -->
+  <div class="card">
+    <div class="label"><b>4 — Cross-Stitch Sampler</b>An embroidered sampler on white aida cloth. Strings are backstitch, notes are little X stitches, roots in red thread. Practice, stitch by stitch.</div>
+    <div class="phone xs"><div class="screen">
+      <div class="frame"></div>
+      <div class="content">
+        <div class="logo">WOODSHED</div>
+        <div class="motif">✿ ✕ ✿ ✕ ✿</div>
+        <div class="hud"><span>Scales</span><span>04:32</span></div>
+        <div class="step-title">Position 1 — A Minor Pentatonic</div>
+        <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting fingers close.</div>
+        <div class="bpm">72–96 BPM</div>
+        <div class="board-wrap" id="b-xs"></div>
+        <div class="nav"><button aria-label="Previous step">←</button><button class="next" aria-label="Next step">→</button></div>
+        <div class="stitchline">~ practice makes the pattern ~</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 5. Tarot -->
+  <div class="card">
+    <div class="label"><b>5 — Tarot Card</b>Each step is a card from the deck: Roman numeral, gilt border, a title like a major arcana. Diamond arrows. Drawing your next card = moving to the next step.</div>
+    <div class="phone tarot"><div class="screen">
+      <div class="cardframe">
+        <span class="corner tl">✦</span><span class="corner tr">✦</span><span class="corner bl">✦</span><span class="corner br">✦</span>
+        <div class="num">VII</div>
+        <div class="stars">✧ ☾ ✧</div>
+        <div class="step-title">The Pentatonic</div>
+        <div class="sub">A minor · first position</div>
+        <div class="board-wrap" id="b-tarot"></div>
+        <div class="instr">Ascend and descend the shape, one note to every click. Let the fingers hover close.</div>
+        <div class="meta"><span>72–96 BPM</span><span>04:32</span></div>
+        <div class="nav"><button aria-label="Previous step"><span>←</span></button><button class="next" aria-label="Next step"><span>→</span></button></div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<script>
+  // A minor pentatonic, position 1, standard tuning (low E on the left). Root = A.
+  const strings = [
+    { name: 'E', dots: [{f:5,root:true}, {f:8}] },
+    { name: 'A', dots: [{f:5}, {f:7}] },
+    { name: 'D', dots: [{f:5}, {f:7,root:true}] },
+    { name: 'G', dots: [{f:5}, {f:7}] },
+    { name: 'B', dots: [{f:5}, {f:8}] },
+    { name: 'e', dots: [{f:5,root:true}, {f:8}] },
+  ];
+  // Frets 5-8 are the cells shown; a note at fret f sits between wire f-1 and wire f.
+  const fretLo = 5, fretHi = 8;
+
+  function board(o) {
+    const W = o.w || 220, H = o.h || 250, padL = 26, padT = 14, padB = 18, padR = 10;
+    const iw = W - padL - padR, ih = H - padT - padB;
+    const sx = i => padL + iw * i / 5, fy = w => padT + ih * (w - fretLo + 1) / (fretHi - fretLo + 1);
+    const ff = o.font ? `font-family="${o.font}"` : '';
+    let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" ${o.crisp ? 'shape-rendering="crispEdges"' : ''}>`;
+    for (let w = fretLo - 1; w <= fretHi; w++) {
+      s += `<line x1="${padL}" y1="${fy(w)}" x2="${padL+iw}" y2="${fy(w)}" stroke="${o.line}" stroke-width="${o.lw||1}" ${o.dash?`stroke-dasharray="${o.dash}"`:''}/>`;
+      if (w >= fretLo) s += `<text x="4" y="${(fy(w-1)+fy(w))/2+4}" font-size="${o.fs||10}" fill="${o.text}" ${ff}>${w}</text>`;
+    }
+    strings.forEach((st, i) => {
+      const x = sx(i);
+      s += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+ih}" stroke="${o.line}" stroke-width="${o.lw||1}" ${o.dash?`stroke-dasharray="${o.dash}"`:''}/>`;
+      s += `<text x="${x}" y="${H-3}" font-size="${o.fs||10}" text-anchor="middle" fill="${o.text}" ${ff}>${st.name}</text>`;
+      st.dots.forEach(d => {
+        const y = (fy(d.f) + fy(d.f-1)) / 2, r = o.r || 9;
+        const fill = d.root ? o.root : o.note, stroke = d.root ? (o.rootStroke || o.root) : o.noteStroke;
+        if (o.shape === 'square') s += `<rect x="${x-r}" y="${y-r}" width="${2*r}" height="${2*r}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+        else if (o.shape === 'x') s += `<g stroke="${fill}" stroke-width="${d.root?4:3}" stroke-linecap="round"><line x1="${x-r}" y1="${y-r}" x2="${x+r}" y2="${y+r}"/><line x1="${x+r}" y1="${y-r}" x2="${x-r}" y2="${y+r}"/></g>`;
+        else s += `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${o.sw||1.5}"/>`;
+      });
+    });
+    return s + '</svg>';
+  }
+
+  const $ = id => document.getElementById(id);
+  $('b-w95').innerHTML = board({ w:240, h:220, line:'#000', text:'#000', root:'#000080', note:'#fff', noteStroke:'#000', font:'Tahoma, sans-serif', fs:11, crisp:true });
+  $('b-vapor').innerHTML = board({ w:220, h:230, line:'#01cdfe', text:'#fffb96', root:'#ff71ce', rootStroke:'#fffb96', note:'#12002a', noteStroke:'#05ffa1', lw:1.5, sw:2 });
+  $('b-gb').innerHTML = board({ w:200, h:200, line:'#306230', text:'#0f380f', root:'#0f380f', note:'#8bac0f', noteStroke:'#0f380f', shape:'square', r:7, lw:2, font:'Press Start 2P', fs:8, crisp:true });
+  $('b-xs').innerHTML = board({ w:220, h:220, line:'#2a3a8c', text:'#2a3a8c', root:'#c8283a', note:'#1f6b4a', shape:'x', r:7, lw:2, dash:'5 3', font:'Pixelify Sans', fs:13 });
+  $('b-tarot').innerHTML = board({ w:200, h:210, line:'#8f7a3c', text:'#c9a646', root:'#c9a646', rootStroke:'#f1e2b3', note:'#0d0b14', noteStroke:'#c9a646', font:'IM Fell English SC', fs:12 });
+</script>
+</body>
+</html>

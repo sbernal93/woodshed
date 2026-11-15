@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Woodshed — Round 3 Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Archivo:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: none; }
+  body { font-family: 'Archivo', sans-serif; padding: 16px 8px; color: var(--foreground); }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.lead { color: var(--muted-foreground, #999); margin-bottom: 20px; font-size: 14px; }
+  .gallery { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 20px; }
+  .card { flex: 0 0 300px; }
+  .label { font-size: 13px; color: #ccc; margin-bottom: 8px; line-height: 1.4; }
+  .label b { color: #fff; display: block; font-size: 15px; margin-bottom: 2px; }
+  .phone { width: 300px; height: 640px; border-radius: 28px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; }
+  .phone .screen { width: 100%; height: 100%; overflow: hidden; position: relative; padding: 24px 20px; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .step-title { font-size: 19px; margin-top: 14px; font-weight: 700; }
+  .instr { font-size: 13px; margin-top: 6px; line-height: 1.5; opacity: 0.8; }
+  .bpm { font-size: 13px; margin-top: 10px; display: inline-block; }
+  .board-wrap { margin-top: 18px; display: flex; justify-content: center; }
+  .nav { display: flex; justify-content: space-between; margin-top: 18px; }
+  .nav button { font: inherit; padding: 10px 18px; border-radius: 4px; cursor: pointer; border: none; }
+
+  /* ---- A. Sumi Calligraphy Board ---- */
+  .sumi .screen { background: #15140F; color: #E9E4D8; font-family: 'Zen Kaku Gothic New', sans-serif; }
+  .sumi .logo { font-size: 14px; letter-spacing: 0.08em; color: #B8B2A0; }
+  .sumi .timer { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #E9E4D8; }
+  .sumi .bpm { font-family: 'JetBrains Mono', monospace; color: #D14B3C; border: 1px solid #D14B3C; padding: 4px 10px; border-radius: 2px; }
+  .sumi .nav button { background: #26241C; color: #E9E4D8; }
+  .sumi .nav button.next { background: #D14B3C; color: #15140F; }
+
+  /* ---- B. Blueprint Drafting ---- */
+  .blue .screen { background: #0F2A4A; color: #D8E8F7; font-family: 'Archivo', sans-serif;
+    background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 18px 18px; }
+  .blue .logo { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; color: #7FA8CC; text-transform: uppercase; }
+  .blue .timer { font-family: 'JetBrains Mono', monospace; font-size: 15px; }
+  .blue .bpm { font-family: 'JetBrains Mono', monospace; color: #F2B84B; border: 1px dashed #F2B84B; padding: 4px 10px; }
+  .blue .nav button { background: rgba(255,255,255,0.08); color: #D8E8F7; border: 1px solid #3a5f85; }
+  .blue .nav button.next { background: #F2B84B; color: #0F2A4A; border: 1px solid #F2B84B; }
+
+  /* ---- C. Bronze Forge ---- */
+  .forge .screen { background: #1C1917; color: #E7D9C4; font-family: 'Archivo', sans-serif; }
+  .forge .logo { font-size: 13px; letter-spacing: 0.1em; color: #9C8368; text-transform: uppercase; }
+  .forge .timer { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #E07A3F; }
+  .forge .bpm { font-family: 'JetBrains Mono', monospace; color: #E07A3F; border: 1px solid #5a4631; padding: 4px 10px; border-radius: 2px; }
+  .forge .nav button { background: #2A251F; color: #E7D9C4; }
+  .forge .nav button.next { background: linear-gradient(135deg,#E07A3F,#C2501E); color: #1C1917; }
+
+  svg text { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<h1>Woodshed — round 3: away from cream, into committed color</h1>
+<p class="lead">A. Sumi calligraphy practice board (black lacquer, chalk-white strokes, vermilion accent). B. Blueprint drafting paper. C. Bronze forge (dark graphite + glowing copper).</p>
+<div class="gallery">
+
+  <div class="card">
+    <div class="label"><b>A — Sumi Calligraphy Board</b>The black slate boards used to drill brush strokes before paper — practice as repetition, not preciousness.</div>
+    <div class="phone sumi"><div class="screen">
+      <div class="top"><div class="logo">ADVANCED TECHNIQUE</div><div class="timer">04:32</div></div>
+      <div class="step-title">Position 1 — A Minor Pentatonic</div>
+      <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+      <div class="bpm">TARGET 72–96 BPM</div>
+      <div class="board-wrap" id="board-sumi"></div>
+      <div class="nav"><button>◂ Prev</button><button class="next">Next ▸</button></div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="label"><b>B — Blueprint Drafting</b>Precision as the subject: gridlines, dashed tolerance marks, amber "measurement" accent.</div>
+    <div class="phone blue"><div class="screen">
+      <div class="top"><div class="logo">Advanced Technique</div><div class="timer">04:32</div></div>
+      <div class="step-title">Position 1 — A Minor Pentatonic</div>
+      <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+      <div class="bpm">TARGET 72–96 BPM</div>
+      <div class="board-wrap" id="board-blue"></div>
+      <div class="nav"><button>◂ Prev</button><button class="next">Next ▸</button></div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="label"><b>C — Bronze Forge</b>Dark graphite ground, glowing copper accent — skill forged through repeated heat and strike.</div>
+    <div class="phone forge"><div class="screen">
+      <div class="top"><div class="logo">Advanced Technique</div><div class="timer">04:32</div></div>
+      <div class="step-title">Position 1 — A Minor Pentatonic</div>
+      <div class="instr">Play the shape ascending and descending, one note per click. Keep fretting-hand fingers close to the fretboard.</div>
+      <div class="bpm">TARGET 72–96 BPM</div>
+      <div class="board-wrap" id="board-forge"></div>
+      <div class="nav"><button>◂ Prev</button><button class="next">Next ▸</button></div>
+    </div></div>
+  </div>
+
+</div>
+
+<script>
+  const strings = [
+    { name: 'E', dots: [{f:5,root:true}, {f:8,root:false}] },
+    { name: 'A', dots: [{f:5,root:false}, {f:7,root:false}] },
+    { name: 'D', dots: [{f:5,root:false}, {f:7,root:true}] },
+    { name: 'G', dots: [{f:5,root:false}, {f:7,root:false}] },
+    { name: 'B', dots: [{f:5,root:false}, {f:8,root:false}] },
+    { name: 'e', dots: [{f:5,root:true}, {f:8,root:false}] },
+  ];
+  const fretLo = 5, fretHi = 9;
+  const W = 220, H = 300, padL = 26, padT = 24, padB = 20, padR = 10;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const stringX = i => padL + (innerW * i) / (strings.length - 1);
+  const fretY = f => padT + (innerH * (f - fretLo)) / (fretHi - fretLo);
+
+  function buildBoard(opts) {
+    const { lineColor, rootFill, noteFill, noteStroke, textColor } = opts;
+    let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    for (let f = fretLo; f <= fretHi; f++) {
+      const y = fretY(f);
+      svg += `<line x1="${padL}" y1="${y}" x2="${padL+innerW}" y2="${y}" stroke="${lineColor}" stroke-width="${f===fretLo?2:1}" opacity="0.6"/>`;
+      svg += `<text x="4" y="${y+4}" font-size="10" fill="${textColor}" opacity="0.7">${f}</text>`;
+    }
+    strings.forEach((s, i) => {
+      const x = stringX(i);
+      svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+innerH}" stroke="${lineColor}" stroke-width="1" opacity="0.7"/>`;
+      svg += `<text x="${x}" y="${H-4}" font-size="10" text-anchor="middle" fill="${textColor}" opacity="0.8">${s.name}</text>`;
+    });
+    strings.forEach((s, i) => {
+      const x = stringX(i);
+      s.dots.forEach(d => {
+        const y = (fretY(d.f) + fretY(d.f - 1)) / 2;
+        const r = 9;
+        if (d.root) {
+          svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="${rootFill}"/>`;
+          svg += `<text x="${x}" y="${y+4}" font-size="9" text-anchor="middle" fill="${noteFill}">R</text>`;
+        } else {
+          svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="${noteFill}" stroke="${noteStroke}" stroke-width="1.5"/>`;
+        }
+      });
+    });
+    svg += `</svg>`;
+    return svg;
+  }
+  document.getElementById('board-sumi').innerHTML = buildBoard({ lineColor:'#E9E4D8', rootFill:'#D14B3C', noteFill:'#E9E4D8', noteStroke:'#E9E4D8', textColor:'#E9E4D8' });
+  document.getElementById('board-blue').innerHTML = buildBoard({ lineColor:'#7FA8CC', rootFill:'#F2B84B', noteFill:'#0F2A4A', noteStroke:'#D8E8F7', textColor:'#D8E8F7' });
+  document.getElementById('board-forge').innerHTML = buildBoard({ lineColor:'#9C8368', rootFill:'#E07A3F', noteFill:'#1C1917', noteStroke:'#E7D9C4', textColor:'#E7D9C4' });
+</script>
+</body>
+</html>
