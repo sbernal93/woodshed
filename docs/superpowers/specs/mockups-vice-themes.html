@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Woodshed — Ocean Drive / Night Drive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mr+Dafoe&family=Barlow+Condensed:ital,wght@1,600;1,800&family=Barlow:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: none; }
+  body { font-family: 'Barlow', sans-serif; padding: 16px 8px; color: var(--foreground); }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.lead { color: var(--muted-foreground, #999); margin-bottom: 20px; font-size: 14px; max-width: 760px; line-height: 1.5; }
+  .gallery { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 20px; }
+  .card { flex: 0 0 300px; }
+  .label { font-size: 13px; color: #ccc; margin-bottom: 8px; line-height: 1.45; min-height: 40px; }
+  .label b { color: #fff; display: block; font-size: 15px; margin-bottom: 2px; }
+  .phone { width: 300px; height: 640px; overflow: hidden; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+
+  /* One structure, two token sets. Switching theme only swaps these variables. */
+  .light { --bg:#14B8B0; --ink:#0E1440; --ink2:#0E1440; --kicker:#0E1440; --brand:#FF2E93; --line:#0E1440;
+    --shadow:#0E1440; --s1:#FF2E93; --s2:#FFD23F; --s3:#0E1440; --chip:#0E1440; --chipInk:#FFD23F;
+    --root:#FF2E93; --rootInk:#0E1440; --note:#14B8B0; --onBrand:#0E1440; }
+  .dark  { --bg:#160B2E; --ink:#F4EEFF; --ink2:#CFC6E6; --kicker:#5FE3D6; --brand:#FF4FA8; --line:#8C82AD;
+    --shadow:#05020D; --s1:#FF4FA8; --s2:#FFC94D; --s3:#5FE3D6; --chip:#5FE3D6; --chipInk:#160B2E;
+    --root:#FF4FA8; --rootInk:#160B2E; --note:#160B2E; --onBrand:#160B2E; }
+
+  .screen { width: 100%; height: 100%; padding: 22px 20px; background: var(--bg); color: var(--ink); transition: background .4s, color .4s; }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; }
+  .logo { font-family: 'Mr Dafoe', cursive; font-size: 46px; line-height: 0.9; color: var(--brand); text-shadow: 2px 2px 0 var(--shadow); transform: rotate(-6deg); transform-origin: left bottom; }
+  .timer { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 30px; }
+  .stripes { margin-top: 12px; display: grid; gap: 3px; }
+  .stripes i { height: 3px; display: block; }
+  .stripes i:nth-child(1) { background: var(--s1); } .stripes i:nth-child(2) { background: var(--s2); } .stripes i:nth-child(3) { background: var(--s3); }
+  .kicker { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 600; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--kicker); margin-top: 14px; }
+  .title { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 26px; line-height: 1.05; text-transform: uppercase; margin-top: 2px; }
+  .instr { font-size: 14px; line-height: 1.5; margin-top: 8px; color: var(--ink2); }
+  .bpm { display: inline-block; margin-top: 10px; font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 17px; letter-spacing: 0.06em; padding: 2px 12px; background: var(--chip); color: var(--chipInk); transform: skewX(-12deg); }
+  .bpm span { display: inline-block; transform: skewX(12deg); }
+  .board { margin-top: 10px; display: flex; justify-content: center; }
+
+  /* Arrow controls: 56px hit area, 44px visible disc, heavy arrow stroke. */
+  .nav { display: flex; justify-content: space-between; margin-top: 6px; }
+  .arrow { width: 56px; height: 56px; padding: 6px; border: 0; background: none; cursor: pointer; }
+  .arrow .disc { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2.5px solid var(--ink); color: var(--ink); transition: transform .12s; }
+  .arrow.next .disc { background: var(--brand); border-color: var(--brand); color: var(--onBrand); box-shadow: 2px 2px 0 var(--shadow); }
+  .arrow:active .disc { transform: translate(1px, 1px); box-shadow: none; }
+  .arrow svg { width: 22px; height: 22px; }
+
+  .toggle { margin-top: 10px; font: 600 13px 'Barlow', sans-serif; padding: 6px 12px; border-radius: 6px; border: 1px solid #555; background: #222; color: #eee; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>Ocean Drive (light) + Night Drive (dark)</h1>
+<p class="lead">Both themes use the same layout and parts. Only the colours change. The dark theme drops the neon glow and uses the same flat offset shadow as the light one, so switching feels like the lights going down rather than a different app. The arrows are smaller discs with a heavy stroke, and you can still tap anywhere in a 56px area. The third phone switches between the two themes.</p>
+<div class="gallery" id="g"></div>
+
+<script>
+  const arrow = dir => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">${
+    dir === 'next' ? '<path d="M4 12h15M13 5l7 7-7 7"/>' : '<path d="M20 12H5M11 5l-7 7 7 7"/>'}</svg>`;
+
+  // A minor pentatonic, position 1. Cells = frets 5-8; a note at fret f sits between wire f-1 and wire f.
+  const strings = [
+    { name:'E', dots:[{f:5,root:true},{f:8}] }, { name:'A', dots:[{f:5},{f:7}] }, { name:'D', dots:[{f:5},{f:7,root:true}] },
+    { name:'G', dots:[{f:5},{f:7}] }, { name:'B', dots:[{f:5},{f:8}] }, { name:'e', dots:[{f:5,root:true},{f:8}] },
+  ];
+  const lo = 5, hi = 8;
+  function board() {
+    const W = 230, H = 260, padL = 28, padT = 10, padB = 22, padR = 16, iw = W-padL-padR, ih = H-padT-padB;
+    const sx = i => padL + iw*i/5, fy = w => padT + ih*(w-lo+1)/(hi-lo+1);
+    let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Barlow Condensed" font-style="italic" font-weight="600">`;
+    for (let w = lo-1; w <= hi; w++) {
+      s += `<line x1="${padL}" y1="${fy(w)}" x2="${padL+iw}" y2="${fy(w)}" stroke="var(--line)" stroke-width="${w===lo-1?2.5:1.5}"/>`;
+      if (w >= lo) s += `<text x="6" y="${(fy(w-1)+fy(w))/2+5}" font-size="14" fill="var(--ink)">${w}</text>`;
+    }
+    strings.forEach((st,i) => {
+      const x = sx(i);
+      s += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+ih}" stroke="var(--line)" stroke-width="1.5"/>`;
+      s += `<text x="${x}" y="${H-4}" font-size="14" text-anchor="middle" fill="var(--ink)">${st.name}</text>`;
+      st.dots.forEach(d => {
+        const y = (fy(d.f)+fy(d.f-1))/2;
+        s += d.root
+          ? `<circle cx="${x}" cy="${y}" r="11" fill="var(--root)" stroke="var(--ink)" stroke-width="2"/><text x="${x}" y="${y+5}" font-size="13" text-anchor="middle" fill="var(--rootInk)">R</text>`
+          : `<circle cx="${x}" cy="${y}" r="11" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/>`;
+      });
+    });
+    return s + '</svg>';
+  }
+
+  const screen = `
+    <div class="head"><div class="logo">Woodshed</div><div class="timer">4:32</div></div>
+    <div class="stripes"><i></i><i></i><i></i></div>
+    <div class="kicker">Scales · Step 2 of 5</div>
+    <div class="title">Position 1<br>A Minor Pentatonic</div>
+    <div class="instr">Play the shape up and down, one note per click. Keep fretting fingers close to the board.</div>
+    <div class="bpm"><span>72–96 BPM</span></div>
+    <div class="board">${board()}</div>
+    <div class="nav">
+      <button class="arrow prev" aria-label="Previous step"><span class="disc">${arrow('prev')}</span></button>
+      <button class="arrow next" aria-label="Next step"><span class="disc">${arrow('next')}</span></button>
+    </div>`;
+
+  const cards = [
+    { theme:'light', name:'Ocean Drive · light', note:'The main theme. Flat teal, hot pink, navy ink.' },
+    { theme:'dark',  name:'Night Drive · dark', note:'Same parts, lights down. No glow; the logo keeps the flat offset shadow.' },
+    { theme:'light', name:'Live switch', note:'Tap the button to swap themes on the same screen.', toggle:true },
+  ];
+  document.getElementById('g').innerHTML = cards.map((c, i) => `
+    <div class="card">
+      <div class="label"><b>${c.name}</b>${c.note}</div>
+      <div class="phone ${c.theme}" id="p${i}"><div class="screen">${screen}</div></div>
+      ${c.toggle ? `<button class="toggle" onclick="const p=document.getElementById('p${i}');p.classList.toggle('light');p.classList.toggle('dark')">Switch theme</button>` : ''}
+    </div>`).join('');
+</script>
+</body>
+</html>

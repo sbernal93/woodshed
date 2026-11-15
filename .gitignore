@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.superpowers/
+.taste-skill/
+.agents/
+.claude/skills/
+skills-lock.json
+.DS_Store
+.playwright-mcp/
