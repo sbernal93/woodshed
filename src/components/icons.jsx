@@ -29,3 +29,7 @@ export const BookIcon = ({ className }) => (
     <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" /><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" />
   </svg>
 );
+export const PauseIcon = ({ className }) => (
+  <svg {...base} className={className}><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" /><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" /></svg>
+);
+export const CheckIcon = ({ className }) => <svg {...base} className={className}><path d="M5 12.5l4.5 4.5L19 7" /></svg>;

@@ -1,4 +1,4 @@
-import { parseRoute, scaleHref, cagedHref } from '../src/routes.js';
+import { parseRoute, scaleHref, cagedHref, sessionHref } from '../src/routes.js';
 
 test('empty hash is home', () => expect(parseRoute('')).toEqual({ name: 'home' }));
 test('#library is the library', () => expect(parseRoute('#library')).toEqual({ name: 'library' }));
@@ -11,3 +11,10 @@ test('unknown scale or root falls back to the library', () => {
 });
 test('caged route', () => expect(parseRoute(cagedHref('Bb'))).toEqual({ name: 'caged', root: 'Bb' }));
 test('unknown hash is home', () => expect(parseRoute('#nope')).toEqual({ name: 'home' }));
+
+test('session route carries track and minutes', () =>
+  expect(parseRoute(sessionHref('minor-pentatonic', 20))).toEqual({ name: 'session', trackId: 'minor-pentatonic', minutes: 20 }));
+test('unknown track or duration goes home', () => {
+  expect(parseRoute('#session/nope/20')).toEqual({ name: 'home' });
+  expect(parseRoute('#session/minor-pentatonic/17')).toEqual({ name: 'home' });
+});

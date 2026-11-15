@@ -1,5 +1,5 @@
 import { createRegistry } from '../schema.js';
-import stub from './stub.js';
+import minorPentatonic from './minorPentatonic.js';
 
 export const tracks = createRegistry();
-[stub].forEach((t) => tracks.register(t));
+[minorPentatonic].forEach((t) => tracks.register(t));

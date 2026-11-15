@@ -1,3 +1,5 @@
+import { pitchClass } from '../music/notes.js';
+
 export const DURATIONS = [15, 20, 30];
 export const CATEGORIES = ['fingerstyle', 'caged', 'scales', 'fretboard', 'electric', 'rhythm', 'application'];
 export const STEP_KINDS = ['warmup', 'review', 'focus', 'apply', 'cooldown'];
@@ -16,6 +18,32 @@ function validateStep(s, where) {
   check(isText(s.success), where, 'success is required');
   check(s.bpm === null || (s.bpm?.min > 0 && s.bpm.max >= s.bpm.min), where, 'bpm must be null or { min, max } with max >= min');
   check(s.fretboard === null || typeof s.fretboard === 'object', where, 'fretboard must be null or an object');
+  if (s.prompt !== undefined) {
+    const p = s.prompt;
+    check(isText(p?.label) && Array.isArray(p.items) && p.items.length > 0 && p.items.every(isText), where, 'prompt needs a label and non-empty text items');
+    check(Number.isInteger(p.everyBars) && p.everyBars > 0, where, 'prompt.everyBars must be a positive integer');
+    check(['cycle', 'random'].includes(p.order), where, 'prompt.order must be cycle or random');
+    check(p.root === undefined || isNote(p.root), where, 'prompt.root must be a note name');
+  }
+  if (s.drone !== undefined) check(isNote(s.drone?.root), where, 'drone.root must be a note name');
+  if (s.pattern !== undefined) {
+    const p = s.pattern;
+    const known = (spec) => ['spider', 'sequence'].includes(spec?.type)
+      && (spec.notesPerBeat === undefined || (Number.isInteger(spec.notesPerBeat) && spec.notesPerBeat > 0 && spec.notesPerBeat <= 4));
+    check(Number.isInteger(p?.notesPerBeat) && p.notesPerBeat > 0, where, 'pattern.notesPerBeat must be a positive integer');
+    if (p.byPrompt) {
+      const keys = Object.keys(p.byPrompt);
+      check(keys.every((k) => s.prompt?.items.includes(k)), where, 'pattern.byPrompt keys must be prompt items');
+      check(keys.every((k) => known(p.byPrompt[k])), where, 'pattern specs must be spider or sequence, notesPerBeat 1-4');
+    } else {
+      check(known(p.spec), where, 'pattern.spec must be spider or sequence, notesPerBeat 1-4');
+    }
+  }
+  if (s.ladder !== undefined) check(Number.isInteger(s.ladder?.by) && s.ladder.by > 0, where, 'ladder.by must be a positive integer');
+}
+
+function isNote(name) {
+  try { pitchClass(name); return true; } catch { return false; }
 }
 
 export function validateTrack(track) {
