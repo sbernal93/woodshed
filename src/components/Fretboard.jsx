@@ -12,7 +12,10 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
   const [acrossA, acrossB] = L.acrossSpan;
   const wires = Array.from({ length: L.cells + 1 }, (_, i) => L.firstWire + i);
   const cellFrets = wires.slice(1);
-  const showAllNumbers = L.cells <= 6;
+  const neckView = L.cells > 6;
+  const showAllNumbers = !neckView;
+  // Inlays help you find your place on a long neck; on a 4-fret shape they just sit behind notes.
+  const inlays = (list) => (neckView ? cellFrets.filter((f) => list.includes(f)) : []);
   const between = (s1, s2) => (L.stringPos(s1) + L.stringPos(s2)) / 2;
   const line = (a1, c1, a2, c2) => {
     const p1 = point(a1, c1), p2 = point(a2, c2);
@@ -21,12 +24,12 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
 
   return (
     <svg viewBox={`0 0 ${L.width} ${L.height}`} width={L.width} height={L.height} role="img" aria-label={title}
-      className="h-auto max-w-full font-display italic">
-      {cellFrets.filter((f) => SINGLE_INLAYS.includes(f)).map((f) => {
+      className={`mx-auto block h-auto font-display italic ${L.vertical ? 'max-w-full' : 'max-w-none'}`}>
+      {inlays(SINGLE_INLAYS).map((f) => {
         const p = point(L.fretAlong(f), between(4, 3));
         return <circle key={`i${f}`} cx={p.x} cy={p.y} r="6" className="fill-fill" />;
       })}
-      {cellFrets.filter((f) => DOUBLE_INLAYS.includes(f)).flatMap((f) =>
+      {inlays(DOUBLE_INLAYS).flatMap((f) =>
         [between(5, 4), between(3, 2)].map((c, i) => {
           const p = point(L.fretAlong(f), c);
           return <circle key={`d${f}${i}`} cx={p.x} cy={p.y} r="6" className="fill-fill" />;
