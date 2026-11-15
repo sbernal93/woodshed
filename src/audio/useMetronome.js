@@ -14,7 +14,11 @@ export function useMetronome(initialBpm = 80) {
     return ref.current;
   }, []);
 
-  useEffect(() => () => ref.current?.stop(), []);
+  // Safari caps live AudioContexts, so release ours on unmount (also handles StrictMode's double mount).
+  useEffect(() => () => {
+    ref.current?.close();
+    ref.current = null;
+  }, []);
 
   const setBpm = useCallback((n) => {
     const v = clampBpm(n);

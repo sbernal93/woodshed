@@ -36,7 +36,12 @@ export class Metronome {
   }
 
   setBpm(bpm) { this.bpm = clampBpm(bpm); }
-  setSubdivision(n) { this.subdivision = [1, 2, 3, 4].includes(n) ? n : 1; }
+  // A change mid-beat waits for the next main beat so the downbeat never shifts.
+  setSubdivision(n) {
+    const next = [1, 2, 3, 4].includes(n) ? n : 1;
+    if (this.running && this.subIndex !== 0) this.pendingSubdivision = next;
+    else { this.subdivision = next; this.pendingSubdivision = null; }
+  }
   setAccent(on) { this.accent = Boolean(on); }
   isRunning() { return this.running; }
 
@@ -65,6 +70,11 @@ export class Metronome {
     clearTimeout(this.timer);
   }
 
+  close() {
+    this.stop();
+    this.ctx.close?.();
+  }
+
   tap(nowMs = performance.now()) {
     this.taps = [...this.taps, nowMs].slice(-5);
     const bpm = tapTempoBpm(this.taps);
@@ -74,14 +84,25 @@ export class Metronome {
   }
 
   _poll() {
+    // A throttled background tab lets nextTime fall behind; skip missed pulses silently instead of firing them all at once.
+    while (this.nextTime < this.ctx.currentTime) this._advance();
     while (this.nextTime < this.ctx.currentTime + this.scheduleAheadSec) {
       const mainBeat = this.subIndex === 0;
       const isAccent = mainBeat && this.accent && this.beatInBar === 0;
       this._click(this.nextTime, isAccent ? 1500 : mainBeat ? 1000 : 700, mainBeat ? 0.6 : 0.25);
       if (mainBeat) this.listeners.forEach((cb) => cb(this.beatInBar, isAccent, this.nextTime));
-      this.nextTime = nextNoteTime(this.nextTime, this.bpm, this.subdivision);
-      this.subIndex = (this.subIndex + 1) % this.subdivision;
-      if (this.subIndex === 0) this.beatInBar = (this.beatInBar + 1) % BEATS_PER_BAR;
+      this._advance();
+    }
+  }
+
+  _advance() {
+    this.nextTime = nextNoteTime(this.nextTime, this.bpm, this.subdivision);
+    this.subIndex = (this.subIndex + 1) % this.subdivision;
+    if (this.subIndex !== 0) return;
+    this.beatInBar = (this.beatInBar + 1) % BEATS_PER_BAR;
+    if (this.pendingSubdivision) {
+      this.subdivision = this.pendingSubdivision;
+      this.pendingSubdivision = null;
     }
   }
 
