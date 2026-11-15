@@ -31,3 +31,20 @@ test('shipped tracks register and validate', async () => {
   const { tracks } = await import('../../src/data/tracks/index.js');
   expect(tracks.list().length).toBeGreaterThan(0);
 });
+
+const withStep = (extra) => track({ sessions: [{ id: 's', title: 'S', focus: 'F', durations: { 15: [{ ...step('focus', 900), ...extra }] } }] });
+
+test('accepts prompt, drone and ladder on a step', () =>
+  expect(() => validateTrack(withStep({
+    prompt: { label: 'Land on', items: ['b3', '5'], everyBars: 4, order: 'cycle', root: 'A' },
+    drone: { root: 'A' },
+    ladder: { by: 4 },
+  }))).not.toThrow());
+test('rejects a prompt with no items', () =>
+  expect(() => validateTrack(withStep({ prompt: { label: 'x', items: [], everyBars: 4, order: 'cycle' } }))).toThrow(/prompt/));
+test('rejects a prompt with an unknown order', () =>
+  expect(() => validateTrack(withStep({ prompt: { label: 'x', items: ['1'], everyBars: 4, order: 'shuffle' } }))).toThrow(/prompt/));
+test('rejects a drone on an unknown note', () =>
+  expect(() => validateTrack(withStep({ drone: { root: 'H' } }))).toThrow(/drone/));
+test('rejects a ladder step of zero', () =>
+  expect(() => validateTrack(withStep({ ladder: { by: 0 } }))).toThrow(/ladder/));

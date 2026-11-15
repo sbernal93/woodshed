@@ -13,8 +13,8 @@ test('caged route', () => expect(parseRoute(cagedHref('Bb'))).toEqual({ name: 'c
 test('unknown hash is home', () => expect(parseRoute('#nope')).toEqual({ name: 'home' }));
 
 test('session route carries track and minutes', () =>
-  expect(parseRoute(sessionHref('stub', 20))).toEqual({ name: 'session', trackId: 'stub', minutes: 20 }));
+  expect(parseRoute(sessionHref('minor-pentatonic', 20))).toEqual({ name: 'session', trackId: 'minor-pentatonic', minutes: 20 }));
 test('unknown track or duration goes home', () => {
   expect(parseRoute('#session/nope/20')).toEqual({ name: 'home' });
-  expect(parseRoute('#session/stub/17')).toEqual({ name: 'home' });
+  expect(parseRoute('#session/minor-pentatonic/17')).toEqual({ name: 'home' });
 });

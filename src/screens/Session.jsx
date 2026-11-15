@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { tracks } from '../data/tracks/index.js';
 import { pickSession, formatClock, keepAwake } from '../session/runner.js';
 import { useSessionClock } from '../hooks/useSessionClock.js';
@@ -6,6 +6,8 @@ import { useWakeLock } from '../hooks/useWakeLock.js';
 import { useMetronome } from '../audio/useMetronome.js';
 import { getAudioContext } from '../audio/context.js';
 import { playChime } from '../audio/chime.js';
+import { useDrone } from '../audio/useDrone.js';
+import StepPrompt from '../components/StepPrompt.jsx';
 import { resolveFretboard } from '../music/resolve.js';
 import ArrowButton from '../components/ArrowButton.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
@@ -27,6 +29,10 @@ export default function Session({ trackId, minutes }) {
   const step = steps[state.index];
 
   useWakeLock(keepAwake(state));
+
+  const [seed] = useState(() => Math.floor(Math.random() * 2 ** 31));
+  const [droneOn, setDroneOn] = useState(true);
+  useDrone(step.drone?.root, Boolean(step.drone) && droneOn && !state.paused && !state.finished);
 
   // Each step suggests its own tempo; the click keeps running across the change.
   useEffect(() => {
@@ -101,11 +107,30 @@ export default function Session({ trackId, minutes }) {
             </button>
           </div>
 
+          {step.prompt && (
+            <StepPrompt prompt={step.prompt} bpm={metronome.bpm} seed={seed + state.index}
+              elapsedMs={step.seconds * 1000 - state.remainingMs} />
+          )}
+
           <p className="mt-6 text-lg leading-relaxed">{step.instruction}</p>
-          {step.bpm && (
-            <p className="mt-4 inline-block -skew-x-12 bg-chip px-3 py-1 font-display text-lg font-extrabold italic text-chip-ink">
-              <span className="inline-block skew-x-12">Target {step.bpm.min}–{step.bpm.max} BPM</span>
-            </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {step.bpm && (
+              <p className="inline-block -skew-x-12 bg-chip px-3 py-1 font-display text-lg font-extrabold italic text-chip-ink">
+                <span className="inline-block skew-x-12">Target {step.bpm.min}–{step.bpm.max} BPM</span>
+              </p>
+            )}
+            {step.drone && (
+              <button type="button" aria-pressed={droneOn} onClick={() => setDroneOn((on) => !on)}
+                className={`min-h-12 px-4 font-display text-lg font-extrabold uppercase italic ${droneOn ? 'bg-ink text-bg' : 'bg-fill hover:bg-fill-hover'}`}>
+                {step.drone.root} drone · {droneOn ? 'on' : 'off'}
+              </button>
+            )}
+          </div>
+          {step.ladder && (
+            <button type="button" onClick={() => metronome.setBpm(metronome.bpm + step.ladder.by)}
+              className="mt-4 flex min-h-14 w-full items-center justify-center bg-brand font-display text-xl font-extrabold uppercase italic text-on-brand shadow-flat active:translate-x-px active:translate-y-px active:shadow-none">
+              Clean pass · +{step.ladder.by} BPM
+            </button>
           )}
 
           <div className="mt-8 border-t-2 border-line pt-4">
