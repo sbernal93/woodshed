@@ -29,7 +29,7 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
     <svg viewBox={`0 0 ${L.width} ${L.height}`} width={L.width} height={L.height} role="img" aria-label={title} aria-describedby={descId}
       className={`mx-auto block h-auto font-display italic ${L.vertical ? 'max-w-full' : 'max-w-none'}`}>
       <desc id={descId}>
-        {marks.map((m) => `${SPOKEN_STRINGS[m.string]} string, fret ${m.fret}: ${m.note}${m.root ? ', root' : ''}`).join('; ')}
+        {marks.filter((m) => !m.muted).map((m) => `${SPOKEN_STRINGS[m.string]} string, fret ${m.fret}: ${m.note}${m.root ? ', root' : ''}`).join('; ')}
       </desc>
       {inlays(SINGLE_INLAYS).map((f) => {
         const p = point(L.fretAlong(f), between(4, 3));
@@ -63,7 +63,7 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
         const { x, y } = L.markPos(m.string, m.fret);
         const label = labelFor(m, labelMode);
         return (
-          <g key={`${m.string}-${m.fret}`}>
+          <g key={`${m.string}-${m.fret}`} className={m.muted ? 'opacity-30' : undefined}>
             <circle cx={x} cy={y} r="14" strokeWidth="2" className={m.root ? 'fill-brand stroke-ink' : 'fill-bg stroke-ink'} />
             {label !== '' && (
               <text x={x} y={y} dy="0.35em" textAnchor="middle" className={`text-[14px] font-extrabold ${m.root ? 'fill-on-brand' : 'fill-ink'}`}>

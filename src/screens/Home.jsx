@@ -7,7 +7,7 @@ import ThemeToggle from '../components/ThemeToggle.jsx';
 import Chip from '../components/Chip.jsx';
 import MetronomePanel from '../components/MetronomePanel.jsx';
 import MetronomeSheet from '../components/MetronomeSheet.jsx';
-import { MetronomeIcon, PlayIcon } from '../components/icons.jsx';
+import { BookIcon, MetronomeIcon, PlayIcon } from '../components/icons.jsx';
 
 const all = tracks.list();
 const heading = 'font-display text-2xl font-extrabold uppercase italic';
@@ -23,6 +23,11 @@ export default function Home() {
 
   const headerActions = (
     <div className="flex items-center">
+      <a href="#library" aria-label="Scale library"
+        className="flex h-14 min-w-14 items-center justify-center gap-2 rounded-full px-3 hover:bg-fill">
+        <BookIcon className="size-7" />
+        <span className="hidden font-display text-lg font-extrabold uppercase italic lg:inline">Library</span>
+      </a>
       <button type="button" onClick={() => setSheetOpen(true)} aria-label="Open metronome"
         className="relative grid size-14 place-items-center rounded-full hover:bg-ink/10 lg:hidden">
         <MetronomeIcon className="size-7" />
