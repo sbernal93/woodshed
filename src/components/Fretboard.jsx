@@ -1,12 +1,15 @@
+import { useId } from 'react';
 import { fretboardLayout } from '../fretboard/layout.js';
 
 const SINGLE_INLAYS = [3, 5, 7, 9, 15, 17, 19, 21];
 const DOUBLE_INLAYS = [12, 24];
 const STRING_NAMES = { 6: 'E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'e' };
+const SPOKEN_STRINGS = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high e' };
 
 const labelFor = (m, mode) => (mode === 'note' ? m.note : mode === 'degree' ? m.degree : mode === 'finger' ? (m.finger ?? '') : '');
 
 export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note', orientation = 'vertical', title = 'Fretboard' }) {
+  const descId = useId();
   const L = fretboardLayout({ fromFret, toFret, orientation });
   const { point } = L;
   const [acrossA, acrossB] = L.acrossSpan;
@@ -23,8 +26,11 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
   };
 
   return (
-    <svg viewBox={`0 0 ${L.width} ${L.height}`} width={L.width} height={L.height} role="img" aria-label={title}
+    <svg viewBox={`0 0 ${L.width} ${L.height}`} width={L.width} height={L.height} role="img" aria-label={title} aria-describedby={descId}
       className={`mx-auto block h-auto font-display italic ${L.vertical ? 'max-w-full' : 'max-w-none'}`}>
+      <desc id={descId}>
+        {marks.map((m) => `${SPOKEN_STRINGS[m.string]} string, fret ${m.fret}: ${m.note}${m.root ? ', root' : ''}`).join('; ')}
+      </desc>
       {inlays(SINGLE_INLAYS).map((f) => {
         const p = point(L.fretAlong(f), between(4, 3));
         return <circle key={`i${f}`} cx={p.x} cy={p.y} r="6" className="fill-fill" />;

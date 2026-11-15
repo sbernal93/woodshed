@@ -59,3 +59,33 @@ test('scaleMarks covers every occurrence in the range', () => {
 
 test('every scale has a degree list starting at 1', () =>
   Object.values(SCALES).forEach((degrees) => expect(degrees[0]).toBe('1')));
+
+const SEVEN = ['major', 'minor', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'locrian'];
+const sweep = [
+  ...['minorPentatonic', 'majorPentatonic'].flatMap((scale) => [1, 2, 3, 4, 5].map((position) => ({ scale, position, perString: 2 }))),
+  ...SEVEN.flatMap((scale) => [1, 2, 3, 4, 5, 6, 7].map((position) => ({ scale, position, perString: 3 }))),
+];
+
+test('every root, scale and position stays on a playable neck (frets 0-17)', () => {
+  for (const root of ROOTS) for (const s of sweep) {
+    const frets = positionMarks({ root, ...s }).map((m) => m.fret);
+    expect(Math.min(...frets), `${root} ${s.scale} ${s.position}`).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...frets), `${root} ${s.scale} ${s.position}`).toBeLessThanOrEqual(17);
+  }
+});
+
+test('E major pentatonic position 1 has no notes behind the nut', () =>
+  expect(Math.min(...positionMarks({ root: 'E', scale: 'majorPentatonic', position: 1 }).map((m) => m.fret))).toBeGreaterThanOrEqual(0));
+
+test('open strings get no finger and open shapes sit in first position', () => {
+  const m = positionMarks({ root: 'E', scale: 'minorPentatonic', position: 1 });
+  expect(m.filter((x) => x.fret === 0).every((x) => x.finger === null)).toBe(true);
+  expect(m.find((x) => x.string === 6 && x.fret === 3).finger).toBe(3);
+});
+
+test('nonsense position requests throw', () => {
+  expect(() => positionMarks({ root: 'A', scale: 'minorPentatonic', position: 0 })).toThrow(/position/);
+  expect(() => positionMarks({ root: 'A', scale: 'minorPentatonic', position: 6 })).toThrow(/position/);
+  expect(() => positionMarks({ root: 'C', scale: 'major', position: 1, perString: 2 })).toThrow(/per string/);
+  expect(() => positionMarks({ root: 'A', scale: 'blues', position: 1 })).toThrow(/per string/);
+});
