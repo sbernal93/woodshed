@@ -8,6 +8,7 @@ import { getAudioContext } from '../audio/context.js';
 import { playChime } from '../audio/chime.js';
 import { useDrone } from '../audio/useDrone.js';
 import StepPrompt from '../components/StepPrompt.jsx';
+import { trackBars } from '../session/prompts.js';
 import { resolveFretboard } from '../music/resolve.js';
 import ArrowButton from '../components/ArrowButton.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
@@ -32,6 +33,9 @@ export default function Session({ trackId, minutes }) {
 
   const [seed] = useState(() => Math.floor(Math.random() * 2 ** 31));
   const [droneOn, setDroneOn] = useState(true);
+  // Bars are counted at the tempo they were played at, so a Clean pass doesn't jump the prompt.
+  const barsRef = useRef(null);
+  barsRef.current = trackBars(barsRef.current, step.seconds * 1000 - state.remainingMs, metronome.bpm, state.index);
   useDrone(step.drone?.root, Boolean(step.drone) && droneOn && !state.paused && !state.finished);
 
   // Each step suggests its own tempo; the click keeps running across the change.
@@ -108,8 +112,7 @@ export default function Session({ trackId, minutes }) {
           </div>
 
           {step.prompt && (
-            <StepPrompt prompt={step.prompt} bpm={metronome.bpm} seed={seed + state.index}
-              elapsedMs={step.seconds * 1000 - state.remainingMs} />
+            <StepPrompt prompt={step.prompt} bars={barsRef.current.bars} seed={seed + state.index} />
           )}
 
           <p className="mt-6 text-lg leading-relaxed">{step.instruction}</p>

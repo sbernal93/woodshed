@@ -17,17 +17,25 @@ function randomIndex(n, window, seed) {
   return index;
 }
 
-// Which prompt item is showing, from elapsed step time and the current tempo (4/4 bars).
-export function promptState(prompt, elapsedMs, bpm, seed) {
+const barMs = (bpm) => 240000 / bpm;
+
+// Bars played so far in this step, accumulated at whatever tempo each stretch was played at,
+// so a tempo change only affects what comes next. A new step (key) or a restart re-derives from elapsed time.
+export function trackBars(prev, elapsedMs, bpm, key) {
+  if (!prev || prev.key !== key || elapsedMs < prev.elapsed) return { key, elapsed: elapsedMs, bars: elapsedMs / barMs(bpm) };
+  return { key, elapsed: elapsedMs, bars: prev.bars + (elapsedMs - prev.elapsed) / barMs(bpm) };
+}
+
+// Which prompt item is showing after `bars` bars (4/4) of the step.
+export function promptState(prompt, bars, seed) {
   const n = prompt.items.length;
-  const barMs = 240000 / bpm;
-  const windowMs = barMs * prompt.everyBars;
-  const window = Math.floor(Math.max(0, elapsedMs) / windowMs);
+  const played = Math.max(0, bars);
+  const window = Math.floor(played / prompt.everyBars);
   const index = n === 1 ? 0 : prompt.order === 'random' ? randomIndex(n, window, seed) : window % n;
   return {
     index,
     item: prompt.items[index],
-    barInWindow: Math.floor((Math.max(0, elapsedMs) % windowMs) / barMs),
+    barInWindow: Math.floor(played % prompt.everyBars),
     barsPerWindow: prompt.everyBars,
   };
 }
