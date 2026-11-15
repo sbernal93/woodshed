@@ -20,6 +20,12 @@ import SessionTopBar from '../components/session/SessionTopBar.jsx';
 import ReadyPanel from '../components/session/ReadyPanel.jsx';
 import ControlBar from '../components/session/ControlBar.jsx';
 import SessionDone from './SessionDone.jsx';
+import RateStep from '../components/RateStep.jsx';
+import { progress, useProgress } from '../progress/useProgress.js';
+import { suggestBpm, RATINGS } from '../progress/history.js';
+
+// Skipping past a step in a few seconds isn't practice, so it isn't logged.
+const MIN_LOGGED_MS = 15000;
 
 const KIND_LABEL = { warmup: 'Warm-up', review: 'Review', focus: 'Focus', apply: 'Apply it', cooldown: 'Cool-down' };
 
@@ -27,10 +33,15 @@ const isTyping = (el) => el instanceof HTMLElement && (el.isContentEditable || [
 
 export default function Session({ trackId, minutes }) {
   const track = tracks.get(trackId);
-  const { session, steps } = pickSession(track, minutes);
+  const { session, steps, minutes: length } = pickSession(track, minutes);
   const [state, dispatch] = useSessionClock(steps);
-  const metronome = useMetronome(steps[0].bpm?.min ?? 80);
+  // Suggestions come from history as it was when the session began, so logging a step mid-session can't shift them.
+  const [history] = useState(() => progress.getSnapshot().entries);
+  const metronome = useMetronome(suggestBpm(history, steps[0]).bpm ?? 80);
   const step = steps[state.index];
+  const suggestion = suggestBpm(history, step);
+  const { entries } = useProgress();
+  const [logged, setLogged] = useState({});
 
   useWakeLock(keepAwake(state));
 
@@ -57,8 +68,25 @@ export default function Session({ trackId, minutes }) {
 
   // Each step suggests its own tempo; the click keeps running across the change.
   useEffect(() => {
-    if (step.bpm) metronome.setBpm(step.bpm.min);
+    if (suggestion.bpm) metronome.setBpm(suggestion.bpm);
   }, [state.index]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Log a step once it is behind you (moved on or session over), with the tempo you finished it at.
+  const played = useRef({ index: 0, ms: 0, bpm: metronome.bpm });
+  useEffect(() => {
+    const p = played.current;
+    if ((state.finished || state.index > p.index) && p.ms >= MIN_LOGGED_MS) {
+      const s = steps[p.index];
+      const id = progress.record({
+        trackId, sessionId: session.id, minutes: length, exercise: s.exercise, variant: s.variant, kind: s.kind,
+        bpm: s.bpm ? p.bpm : null, seconds: Math.round(p.ms / 1000),
+      });
+      setLogged((l) => ({ ...l, [p.index]: id }));
+    }
+  }, [state.index, state.finished]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    played.current = { index: state.index, ms: state.preparing ? 0 : step.seconds * 1000 - state.remainingMs, bpm: metronome.bpm };
+  });
 
   const started = useRef(state.startedCount);
   useEffect(() => {
@@ -101,11 +129,13 @@ export default function Session({ trackId, minutes }) {
     return () => removeEventListener('keydown', onKey);
   }, [dispatch]);
 
-  if (state.finished) return <SessionDone track={track} session={session} steps={steps} />;
+  if (state.finished) return <SessionDone track={track} session={session} steps={steps} logged={logged} />;
 
   const board = step.fretboard && !pattern && !grid ? resolveFretboard(step.fretboard) : null;
   const firstSentence = step.instruction.split(/(?<=\.)\s/)[0];
   const now = () => performance.now();
+  const previous = entries.find((e) => e.id === logged[state.index - 1]);
+  const lastNote = suggestion.last && `Last time ${suggestion.last.bpm} BPM${suggestion.last.rating ? `, ${RATINGS[suggestion.last.rating].toLowerCase()}` : ''}. Starting at ${suggestion.bpm}.`;
 
   return (
     <>
@@ -118,7 +148,13 @@ export default function Session({ trackId, minutes }) {
             </p>
             <h1 id="step-h" className="font-display text-4xl font-extrabold uppercase italic leading-none lg:text-5xl">{step.title}</h1>
 
-            <ReadyPanel step={step} state={state}
+            {state.preparing && previous && (
+              <div className="mt-4">
+                <RateStep title={steps[state.index - 1].title} bpm={previous.bpm} rating={previous.rating} onRate={(r) => progress.rate(previous.id, r)} />
+              </div>
+            )}
+
+            <ReadyPanel step={step} state={state} note={lastNote}
               onStart={() => dispatch({ type: 'startNow', now: now() })}
               onMore={() => dispatch({ type: 'morePrep', ms: 10000 })} />
 

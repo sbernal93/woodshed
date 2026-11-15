@@ -10,6 +10,9 @@ import Chip from '../components/Chip.jsx';
 import MetronomePanel from '../components/MetronomePanel.jsx';
 import MetronomeSheet from '../components/MetronomeSheet.jsx';
 import { BookIcon, MetronomeIcon, PlayIcon } from '../components/icons.jsx';
+import SyncSheet from '../components/SyncSheet.jsx';
+import { useProgress } from '../progress/useProgress.js';
+import { streak } from '../progress/history.js';
 
 const all = tracks.list();
 const heading = 'font-display text-2xl font-extrabold uppercase italic';
@@ -18,6 +21,9 @@ export default function Home() {
   const [trackId, setTrackId] = useState(all[0]?.id);
   const [minutes, setMinutes] = useState(20);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [syncOpen, setSyncOpen] = useState(false);
+  const { entries } = useProgress();
+  const days = streak(entries, new Date());
   const metronome = useMetronome(80);
 
   // shortcut: random pick; Stage 4 replaces this with least-recently-practised.
@@ -90,6 +96,15 @@ export default function Home() {
             className="mt-8 flex min-h-16 w-full items-center justify-center gap-3 bg-brand font-display text-2xl font-extrabold uppercase italic text-on-brand shadow-flat active:translate-x-px active:translate-y-px active:shadow-none disabled:opacity-60">
             <PlayIcon className="size-6" /> Start {minutes}-min session
           </button>
+          <div className="mt-3 flex items-baseline justify-between gap-3 px-1">
+            <p className="font-display text-lg font-semibold italic">
+              {days > 0 ? `${days} ${days === 1 ? 'day' : 'days'} in a row` : entries.length ? 'Start a new streak today' : 'Your first session starts the log'}
+            </p>
+            <button type="button" onClick={() => setSyncOpen(true)}
+              className="min-h-12 px-1 font-display text-lg font-semibold uppercase italic underline decoration-2 underline-offset-4 hover:text-brand">
+              Sync devices
+            </button>
+          </div>
 
           <section aria-labelledby="met-h" className="mt-14 hidden lg:block">
             <h2 id="met-h" className={heading}>Metronome</h2>
@@ -99,6 +114,7 @@ export default function Home() {
       </div>
 
       <MetronomeSheet open={sheetOpen} onClose={() => setSheetOpen(false)} m={metronome} />
+      <SyncSheet open={syncOpen} onClose={() => setSyncOpen(false)} />
     </main>
   );
 }
