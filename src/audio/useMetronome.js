@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Metronome, clampBpm } from './metronome.js';
+import { getAudioContext } from './context.js';
 
 export function useMetronome(initialBpm = 80) {
   const ref = useRef(null);
@@ -8,15 +9,14 @@ export function useMetronome(initialBpm = 80) {
   const [subdivision, setSubdivisionState] = useState(1);
   const [accent, setAccentState] = useState(true);
 
-  // AudioContext must be created inside a user gesture or iOS Safari keeps it silent.
+  // The shared AudioContext is first created inside a tap, which is what unlocks audio on iOS.
   const engine = useCallback(() => {
-    if (!ref.current) ref.current = new Metronome({ audioContext: new AudioContext() });
+    if (!ref.current) ref.current = new Metronome({ audioContext: getAudioContext() });
     return ref.current;
   }, []);
 
-  // Safari caps live AudioContexts, so release ours on unmount (also handles StrictMode's double mount).
   useEffect(() => () => {
-    ref.current?.close();
+    ref.current?.stop();
     ref.current = null;
   }, []);
 
