@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { tracks } from '../data/tracks/index.js';
 import { DURATIONS } from '../data/schema.js';
 import { useMetronome } from '../audio/useMetronome.js';
+import { getAudioContext } from '../audio/context.js';
+import { sessionHref } from '../routes.js';
 import Header from '../components/Header.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import Chip from '../components/Chip.jsx';
@@ -20,6 +22,12 @@ export default function Home() {
 
   // shortcut: random pick; Stage 4 replaces this with least-recently-practised.
   const surprise = () => setTrackId(all[Math.floor(Math.random() * all.length)].id);
+
+  const start = () => {
+    getAudioContext(); // created inside this tap so iOS lets the session make sound
+    if (metronome.running) metronome.toggle();
+    location.hash = sessionHref(trackId, minutes);
+  };
 
   const headerActions = (
     <div className="flex items-center">
@@ -78,9 +86,8 @@ export default function Home() {
             </div>
           </section>
 
-          {/* shortcut: disabled until the session runner exists (Stage 3). */}
-          <button type="button" disabled
-            className="mt-8 flex min-h-16 w-full items-center justify-center gap-3 bg-brand font-display text-2xl font-extrabold uppercase italic text-on-brand shadow-flat disabled:cursor-not-allowed disabled:opacity-60">
+          <button type="button" onClick={start} disabled={!trackId}
+            className="mt-8 flex min-h-16 w-full items-center justify-center gap-3 bg-brand font-display text-2xl font-extrabold uppercase italic text-on-brand shadow-flat active:translate-x-px active:translate-y-px active:shadow-none disabled:opacity-60">
             <PlayIcon className="size-6" /> Start {minutes}-min session
           </button>
 

@@ -4,6 +4,7 @@ import Home from './screens/Home.jsx';
 import Library from './screens/Library.jsx';
 import ScaleDetail from './screens/ScaleDetail.jsx';
 import CagedDetail from './screens/CagedDetail.jsx';
+import Session from './screens/Session.jsx';
 
 const subscribe = (cb) => { addEventListener('hashchange', cb); return () => removeEventListener('hashchange', cb); };
 
@@ -12,5 +13,6 @@ export default function App() {
   if (route.name === 'library') return <Library />;
   if (route.name === 'scale') return <ScaleDetail key={`${route.scale}-${route.root}`} scale={route.scale} root={route.root} />;
   if (route.name === 'caged') return <CagedDetail root={route.root} />;
+  if (route.name === 'session') return <Session key={location.hash} trackId={route.trackId} minutes={route.minutes} />;
   return <Home />;
 }
