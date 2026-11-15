@@ -3,7 +3,7 @@ export default function Chip({ selected, onClick, children, className = '', ...r
   return (
     <button type="button" aria-pressed={selected} onClick={onClick} {...rest}
       className={`min-h-14 -skew-x-12 px-4 font-display text-xl font-extrabold italic tabular-nums transition-colors ${
-        selected ? 'bg-chip text-chip-ink shadow-flat' : 'border-2 border-ink text-ink hover:bg-ink/10'} ${className}`}>
+        selected ? 'bg-chip text-chip-ink shadow-flat' : 'bg-fill text-ink hover:bg-fill-hover'} ${className}`}>
       <span className="inline-block skew-x-12">{children}</span>
     </button>
   );

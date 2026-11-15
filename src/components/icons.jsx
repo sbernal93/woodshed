@@ -18,3 +18,9 @@ export const SunIcon = ({ className }) => (
 export const MoonIcon = ({ className }) => (
   <svg {...base} strokeWidth={2.5} className={className}><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></svg>
 );
+export const MetronomeIcon = ({ className }) => (
+  <svg {...base} strokeWidth={2.5} className={className}>
+    <path d="M9 3h6l4 18H5z" /><path d="M12 15l5-9" /><path d="M7 15h10" />
+  </svg>
+);
+export const CloseIcon = ({ className }) => <svg {...base} className={className}><path d="M6 6l12 12M18 6L6 18" /></svg>;
