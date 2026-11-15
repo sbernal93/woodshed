@@ -65,11 +65,14 @@ function GridBoard({ shape, notes }) {
 }
 
 // Rhythm-grid guide for fingerstyle: what the thumb and fingers play on each count, looping one bar.
-export default function GridGuide({ grid, bpm, frozen }) {
+// `prefs` live in the session so Hear it / speed survive the remount when the prompt switches patterns.
+export default function GridGuide({ grid, bpm, frozen, prefs, onPrefs }) {
   const [slot, setSlot] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState('slow');
-  const [sound, setSound] = useState(false);
+  const speed = prefs.speed ?? 'slow';
+  const { sound } = prefs;
+  const setSpeed = (v) => onPrefs((p) => ({ ...p, speed: v }));
+  const setSound = (f) => onPrefs((p) => ({ ...p, sound: f(p.sound) }));
   const counts = countLabels(grid.slotsPerBeat, grid.beats);
   const length = grid.slots.length;
   const stepMs = demoStepMs(speed, bpm, grid.slotsPerBeat);

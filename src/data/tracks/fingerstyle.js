@@ -51,7 +51,7 @@ const session1 = ([warmup, review, focus, apply, cooldown]) => [
   },
   {
     kind: 'apply', title: 'Em to Am, thumb never stops', seconds: apply,
-    instruction: 'Two bars of Em, two bars of Am, round and round, fingers on every &. Once it is steady, add one melody note of your own on the & of 4 in each bar.',
+    instruction: 'Two bars of Em, two bars of Am, round and round, fingers on every &. Once it is steady, replace the middle-finger note on the & of 4 with a note of your choice from E minor pentatonic (E G A B D) on the B or high e string.',
     bpm: { min: 64, max: 84 }, fretboard: null,
     prompt: { label: 'Chord', items: ['Em', 'Am'], everyBars: 2, order: 'cycle' },
     pattern: {

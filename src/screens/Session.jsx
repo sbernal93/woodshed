@@ -48,6 +48,7 @@ export default function Session({ trackId, minutes }) {
   const patternBeat = pattern ? notesPerBeatOf(step.pattern, patternSpec) : 1;
   // Opt-in: the metronome also clicks the pattern's subdivision, so you hear where each note falls.
   const [clickEveryNote, setClickEveryNote] = useState(false);
+  const [guidePrefs, setGuidePrefs] = useState({ speed: null, sound: false });
   useEffect(() => {
     if (clickEveryNote) metronome.setSubdivision(pattern ? patternBeat : 1);
   }, [clickEveryNote, patternBeat, pattern]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -130,11 +131,11 @@ export default function Session({ trackId, minutes }) {
             <StepPrompt prompt={step.prompt} state={prompt} />
           )}
 
-          {grid && <GridGuide key={`${state.index}-${prompt?.index ?? 0}`} grid={grid} bpm={metronome.bpm} frozen={state.paused} />}
+          {grid && <GridGuide key={`${state.index}-${prompt?.index ?? 0}`} grid={grid} bpm={metronome.bpm} frozen={state.paused} prefs={guidePrefs} onPrefs={setGuidePrefs} />}
           {pattern && (
             <PatternGuide key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} shape={shape} groupSize={groupSizeOf(patternSpec)}
               notesPerBeat={patternBeat} bpm={metronome.bpm} frozen={state.paused}
-              clickEveryNote={clickEveryNote}
+              clickEveryNote={clickEveryNote} prefs={guidePrefs} onPrefs={setGuidePrefs}
               onClickEveryNote={(on) => { setClickEveryNote(on); if (!on) metronome.setSubdivision(1); }}
               labelOf={(n) => (patternSpec.type === 'spider' ? n.finger : n.degree)}
               describe={(n) => (patternSpec.type === 'spider'

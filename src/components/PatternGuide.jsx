@@ -115,10 +115,11 @@ function TabStrip({ pattern, index, groupSize, notesPerBeat, stepMs }) {
 }
 
 // Demonstration of a pattern: the board shows the current group in play order, the tab scrolls past a playhead.
-export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, bpm, frozen, labelOf, describe, clickEveryNote, onClickEveryNote }) {
+export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, bpm, frozen, labelOf, describe, clickEveryNote, onClickEveryNote, prefs, onPrefs }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState('medium');
+  const speed = prefs.speed ?? 'medium';
+  const setSpeed = (v) => onPrefs((p) => ({ ...p, speed: v }));
   const stepMs = demoStepMs(speed, bpm, notesPerBeat);
   const running = playing && !frozen;
 
