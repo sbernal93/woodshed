@@ -67,6 +67,7 @@ const session1 = ([warmup, review, focus, apply, cooldown]) => [
     kind: 'cooldown', title: 'Let it ring', seconds: cooldown,
     instruction: 'Metronome off, half the tempo: play the Am pattern and let every note ring into the next. Listen for whichever string is too loud.',
     bpm: null, fretboard: null,
+    pattern: { notesPerBeat: 2, spec: grid(AM, thumbAm, { 1: [[2, 1, 'i']], 3: [[1, 0, 'm']], 5: [[2, 1, 'i']], 7: [[1, 0, 'm']] }) },
     success: 'Every note of the pattern at the same volume, ringing together.',
   },
 ];

@@ -76,6 +76,18 @@ export default function Session({ trackId, minutes }) {
     if (state.finished && metronome.running) metronome.toggle();
   }, [state.finished]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Pausing the session silences the click too, and resuming brings it back if it was on.
+  const clickBeforePause = useRef(false);
+  useEffect(() => {
+    if (state.paused && metronome.running) {
+      clickBeforePause.current = true;
+      metronome.toggle();
+    } else if (!state.paused && clickBeforePause.current) {
+      clickBeforePause.current = false;
+      if (!metronome.running) metronome.toggle();
+    }
+  }, [state.paused]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const onKey = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;

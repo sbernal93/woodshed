@@ -39,6 +39,7 @@ function validateStep(s, where) {
       check(known(p.spec), where, 'pattern.spec must be spider or sequence, notesPerBeat 1-4');
     }
   }
+  check(s.fretboard || s.pattern, where, 'every step needs a diagram or a pattern to show');
   if (s.ladder !== undefined) check(Number.isInteger(s.ladder?.by) && s.ladder.by > 0, where, 'ladder.by must be a positive integer');
 }
 

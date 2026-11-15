@@ -1,6 +1,7 @@
 import { validateTrack, createRegistry, DURATIONS } from '../../src/data/schema.js';
 
-const step = (kind, seconds) => ({ kind, title: kind, seconds, instruction: 'Do it', bpm: null, fretboard: null, success: 'Clean' });
+const box = { type: 'pentatonic', root: 'A', quality: 'minor', position: 1 };
+const step = (kind, seconds) => ({ kind, title: kind, seconds, instruction: 'Do it', bpm: null, fretboard: box, success: 'Clean' });
 const track = (over = {}) => ({
   id: 't', title: 'T', category: 'application', summary: 'S',
   sessions: [{ id: 's1', title: 'S1', focus: 'F', durations: { 15: [step('warmup', 180), step('focus', 420), step('apply', 240), step('cooldown', 60)] } }],
@@ -73,3 +74,6 @@ test('rejects a grid event outside the bar', () =>
   expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: gridSpec({ events: { 8: [[6, 0, 'p']] } }) } }))).toThrow(/grid/));
 test('rejects a grid note with an unknown hand', () =>
   expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: gridSpec({ events: { 0: [[6, 0, 'x']] } }) } }))).toThrow(/grid/));
+
+test('every step needs a diagram or a pattern to show', () =>
+  expect(() => validateTrack(withStep({ fretboard: null }))).toThrow(/diagram or a pattern/));
