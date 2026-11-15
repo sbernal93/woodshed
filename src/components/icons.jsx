@@ -33,3 +33,6 @@ export const PauseIcon = ({ className }) => (
   <svg {...base} className={className}><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" /><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" /></svg>
 );
 export const CheckIcon = ({ className }) => <svg {...base} className={className}><path d="M5 12.5l4.5 4.5L19 7" /></svg>;
+export const MoreIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className={className}><circle cx="5" cy="12" r="2.2" fill="currentColor" /><circle cx="12" cy="12" r="2.2" fill="currentColor" /><circle cx="19" cy="12" r="2.2" fill="currentColor" /></svg>
+);

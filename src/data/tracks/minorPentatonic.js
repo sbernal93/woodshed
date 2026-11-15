@@ -40,7 +40,7 @@ const steps = ([warmup, review, focus, apply, cooldown]) => [
   {
     kind: 'cooldown', title: 'Make it sing', seconds: cooldown,
     instruction: 'Take your favourite phrase from today. Play it slowly, with wide, even vibrato on the last note.',
-    bpm: null, fretboard: null, drone: { root: 'A' },
+    bpm: null, fretboard: box(1), drone: { root: 'A' },
     success: 'The vibrato is steady and stays in pitch: a pulse, not a wobble.',
   },
 ];

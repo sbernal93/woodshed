@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ArrowIcon } from './icons.jsx';
+import GuideHeader from './GuideHeader.jsx';
+import { useFollowClick } from '../hooks/useFollowClick.js';
 import { fretboardLayout } from '../fretboard/layout.js';
 import { demoStepMs, groupStart, SUBDIVISION_NAME } from '../session/patterns.js';
 
@@ -115,16 +116,19 @@ function TabStrip({ pattern, index, groupSize, notesPerBeat, stepMs }) {
 }
 
 // Demonstration of a pattern: the board shows the current group in play order, the tab scrolls past a playhead.
-export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, bpm, frozen, labelOf, describe, clickEveryNote, onClickEveryNote }) {
+export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, metronome, frozen, labelOf, describe, clickEveryNote, onClickEveryNote, prefs, onPrefs }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState('medium');
+  const speed = prefs.speed ?? 'slow';
+  const setSpeed = (v) => onPrefs((p) => ({ ...p, speed: v }));
+  const { bpm } = metronome;
   const stepMs = demoStepMs(speed, bpm, notesPerBeat);
-  const running = playing && !frozen;
+  const { following, clickActive } = useFollowClick({ metronome, slotsPerBeat: notesPerBeat, length: pattern.length, onSlot: setIndex });
+  const running = playing && !frozen && !following;
 
   useEffect(() => {
     if (!running) return undefined;
-    const id = setInterval(() => setIndex((i) => (i + 1) % pattern.length), stepMs);
+    const id = setInterval(() => { if (!clickActive()) setIndex((i) => (i + 1) % pattern.length); }, stepMs);
     return () => clearInterval(id);
   }, [running, stepMs, pattern.length]);
 
@@ -137,31 +141,14 @@ export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, 
   const wraps = index === 0;
 
   return (
-    <figure className="mt-6">
-      <div className="flex items-center gap-2">
-        <button type="button" onClick={() => step(-1)} aria-label="Previous note" className="grid size-12 place-items-center rounded-full bg-fill hover:bg-fill-hover"><ArrowIcon direction="prev" className="size-5" /></button>
-        <button type="button" onClick={() => setPlaying((p) => !p)} aria-pressed={playing}
-          className={`min-h-12 rounded-full px-5 font-display text-lg font-extrabold uppercase italic ${playing ? 'bg-brand text-on-brand' : 'bg-fill hover:bg-fill-hover'}`}>
-          {playing ? 'Pause demo' : 'Play demo'}
-        </button>
-        <button type="button" onClick={() => step(1)} aria-label="Next note" className="grid size-12 place-items-center rounded-full bg-fill hover:bg-fill-hover"><ArrowIcon direction="next" className="size-5" /></button>
-      </div>
-      <div role="group" aria-label="Demo speed" className="mt-2 flex flex-wrap gap-1.5">
-        {[['slow', 'Slow'], ['medium', 'Medium'], ['tempo', `At tempo · ${SUBDIVISION_NAME[notesPerBeat]}`]].map(([v, l]) => (
-          <button key={v} type="button" aria-pressed={speed === v} onClick={() => setSpeed(v)}
-            className={`min-h-10 rounded-full px-3 font-display text-sm font-extrabold uppercase italic ${speed === v ? 'bg-ink text-bg' : 'bg-fill hover:bg-fill-hover'}`}>
-            {l}
-          </button>
-        ))}
-        <button type="button" aria-pressed={clickEveryNote} onClick={() => onClickEveryNote(!clickEveryNote)}
-          className={`min-h-10 rounded-full px-3 font-display text-sm font-extrabold uppercase italic ${clickEveryNote ? 'bg-ink text-bg' : 'bg-fill hover:bg-fill-hover'}`}>
-          Click every note
-        </button>
-      </div>
-
-      <div className="mt-4">
+    <figure>
+      <GuideHeader following={following} playing={playing} speed={speed} onSpeed={setSpeed}
+        tempoLabel={`At tempo · ${SUBDIVISION_NAME[notesPerBeat]}`}
+        extras={[{ label: 'Click every note', on: clickEveryNote, onToggle: () => onClickEveryNote(!clickEveryNote) }]} />
+      <button type="button" disabled={following} onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pause the demo' : 'Play the demo'}
+        className="mt-3 block w-full">
         <GuideBoard pattern={pattern} shape={shape} index={index} groupSize={groupSize} labelOf={labelOf} />
-      </div>
+      </button>
       <figcaption className="mt-3 text-center">
         <span className="block font-display text-[15px] font-semibold uppercase italic text-ink-soft">
           {STRING_NAME[now.string]} string · note {(index % notesPerBeat) + 1} of {notesPerBeat} in this click

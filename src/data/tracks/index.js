@@ -1,5 +1,6 @@
 import { createRegistry } from '../schema.js';
+import fingerstyle from './fingerstyle.js';
 import minorPentatonic from './minorPentatonic.js';
 
 export const tracks = createRegistry();
-[minorPentatonic].forEach((t) => tracks.register(t));
+[fingerstyle, minorPentatonic].forEach((t) => tracks.register(t));

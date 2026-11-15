@@ -31,6 +31,7 @@ export function resolvePattern(spec) {
 // How many notes the guide groups together: one string for spider, the sequence group, or a skipped pair.
 export function groupSizeOf(spec) {
   if (spec.type === 'spider') return (spec.order ?? [1, 2, 3, 4]).length;
+  if (spec.type === 'grid') return spec.slotsPerBeat;
   return spec.skip ? 2 : spec.group ?? 3;
 }
 
@@ -46,4 +47,10 @@ const DEMO_MS = { slow: 1100, medium: 650 };
 // The guide is a demonstration, not a sync: slow and medium are fixed, 'tempo' matches the step's BPM.
 export function demoStepMs(speed, bpm, notesPerBeat) {
   return DEMO_MS[speed] ?? Math.round(60000 / bpm / notesPerBeat);
+}
+
+// When the click is running the guide follows it: beat number `count` lights its slots at the click's own audio times.
+export function beatSlots(count, slotsPerBeat, beatTime, bpm, length) {
+  const gap = 60 / bpm / slotsPerBeat;
+  return Array.from({ length: slotsPerBeat }, (_, k) => ({ slot: (count * slotsPerBeat + k) % length, at: beatTime + k * gap }));
 }

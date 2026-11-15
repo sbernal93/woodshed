@@ -10,9 +10,18 @@ export function useMetronome(initialBpm = 80) {
   const [accent, setAccentState] = useState(true);
 
   // The shared AudioContext is first created inside a tap, which is what unlocks audio on iOS.
+  // Listeners can subscribe before the engine exists, so nothing misses the very first click.
+  const listeners = useRef(new Set());
   const engine = useCallback(() => {
-    if (!ref.current) ref.current = new Metronome({ audioContext: getAudioContext() });
+    if (!ref.current) {
+      ref.current = new Metronome({ audioContext: getAudioContext() });
+      ref.current.onBeat((...beat) => listeners.current.forEach((cb) => cb(...beat)));
+    }
     return ref.current;
+  }, []);
+  const onBeat = useCallback((cb) => {
+    listeners.current.add(cb);
+    return () => listeners.current.delete(cb);
   }, []);
 
   useEffect(() => () => {
@@ -57,5 +66,5 @@ export function useMetronome(initialBpm = 80) {
     if (next !== null) setBpmState(next);
   }, [engine, bpm]);
 
-  return { bpm, setBpm, running, toggle, tap, subdivision, setSubdivision, accent, setAccent };
+  return { bpm, setBpm, running, toggle, tap, subdivision, setSubdivision, accent, setAccent, onBeat };
 }
