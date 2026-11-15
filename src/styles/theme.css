@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --wd-bg: #14B8B0;
+  --wd-ink: #0E1440;
+  --wd-ink-soft: #0E1440;
+  --wd-kicker: #0E1440;
+  --wd-brand: #FF2E93;
+  --wd-on-brand: #0E1440;
+  --wd-line: #0E1440;
+  --wd-shadow: #0E1440;
+  --wd-stripe-1: #FF2E93;
+  --wd-stripe-2: #FFD23F;
+  --wd-stripe-3: #0E1440;
+  --wd-chip: #0E1440;
+  --wd-chip-ink: #FFD23F;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --wd-bg: #160B2E;
+  --wd-ink: #F4EEFF;
+  --wd-ink-soft: #CFC6E6;
+  --wd-kicker: #5FE3D6;
+  --wd-brand: #FF4FA8;
+  --wd-on-brand: #160B2E;
+  --wd-line: #8C82AD;
+  --wd-shadow: #05020D;
+  --wd-stripe-1: #FF4FA8;
+  --wd-stripe-2: #FFC94D;
+  --wd-stripe-3: #5FE3D6;
+  --wd-chip: #5FE3D6;
+  --wd-chip-ink: #160B2E;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--wd-bg);
+  --color-ink: var(--wd-ink);
+  --color-ink-soft: var(--wd-ink-soft);
+  --color-kicker: var(--wd-kicker);
+  --color-brand: var(--wd-brand);
+  --color-on-brand: var(--wd-on-brand);
+  --color-line: var(--wd-line);
+  --color-stripe-1: var(--wd-stripe-1);
+  --color-stripe-2: var(--wd-stripe-2);
+  --color-stripe-3: var(--wd-stripe-3);
+  --color-chip: var(--wd-chip);
+  --color-chip-ink: var(--wd-chip-ink);
+  --font-script: "Mr Dafoe", cursive;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: "Barlow", system-ui, sans-serif;
+  --shadow-flat: 2px 2px 0 var(--wd-shadow);
+}
+
+body {
+  @apply bg-bg text-ink font-sans antialiased;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { transition: none; }
+}
