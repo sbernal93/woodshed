@@ -6,3 +6,4 @@ dist/
 .claude/skills/
 skills-lock.json
 .DS_Store
+.playwright-mcp/

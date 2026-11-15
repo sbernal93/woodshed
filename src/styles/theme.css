@@ -61,3 +61,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   body { transition: none; }
 }
+
+::selection { background: var(--wd-brand); color: var(--wd-on-brand); }
+:focus-visible { outline: 3px solid var(--wd-brand); outline-offset: 3px; }
+html { caret-color: var(--wd-brand); scrollbar-color: var(--wd-line) var(--wd-bg); -webkit-tap-highlight-color: transparent; }
