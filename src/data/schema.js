@@ -10,7 +10,7 @@ function check(ok, where, message) {
   if (!ok) throw new Error(`${where}: ${message}`);
 }
 
-function validateStep(s, where) {
+export function validateStep(s, where) {
   check(STEP_KINDS.includes(s?.kind), where, `kind must be one of ${STEP_KINDS.join(', ')}`);
   check(isText(s.title), where, 'title is required');
   check(Number.isInteger(s.seconds) && s.seconds > 0, where, 'seconds must be a positive integer');
