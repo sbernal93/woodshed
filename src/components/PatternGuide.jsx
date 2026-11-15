@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowIcon } from './icons.jsx';
+import { useFollowClick } from '../hooks/useFollowClick.js';
 import { fretboardLayout } from '../fretboard/layout.js';
 import { demoStepMs, groupStart, SUBDIVISION_NAME } from '../session/patterns.js';
 
@@ -115,17 +116,19 @@ function TabStrip({ pattern, index, groupSize, notesPerBeat, stepMs }) {
 }
 
 // Demonstration of a pattern: the board shows the current group in play order, the tab scrolls past a playhead.
-export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, bpm, frozen, labelOf, describe, clickEveryNote, onClickEveryNote, prefs, onPrefs }) {
+export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, metronome, frozen, labelOf, describe, clickEveryNote, onClickEveryNote, prefs, onPrefs }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const speed = prefs.speed ?? 'medium';
   const setSpeed = (v) => onPrefs((p) => ({ ...p, speed: v }));
+  const { bpm } = metronome;
   const stepMs = demoStepMs(speed, bpm, notesPerBeat);
-  const running = playing && !frozen;
+  const { following, clickActive } = useFollowClick({ metronome, slotsPerBeat: notesPerBeat, length: pattern.length, onSlot: setIndex });
+  const running = playing && !frozen && !following;
 
   useEffect(() => {
     if (!running) return undefined;
-    const id = setInterval(() => setIndex((i) => (i + 1) % pattern.length), stepMs);
+    const id = setInterval(() => { if (!clickActive()) setIndex((i) => (i + 1) % pattern.length); }, stepMs);
     return () => clearInterval(id);
   }, [running, stepMs, pattern.length]);
 
@@ -139,6 +142,14 @@ export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, 
 
   return (
     <figure className="mt-6">
+      {following ? (
+        <p className="flex min-h-12 items-center gap-2 font-display text-lg font-extrabold uppercase italic">
+          <span className="size-3 animate-pulse rounded-full bg-brand motion-reduce:animate-none" />
+          Following the click
+          <span className="font-sans text-[15px] font-semibold normal-case not-italic text-ink-soft">· stop the metronome for the demo</span>
+        </p>
+      ) : (
+        <>
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => step(-1)} aria-label="Previous note" className="grid size-12 place-items-center rounded-full bg-fill hover:bg-fill-hover"><ArrowIcon direction="prev" className="size-5" /></button>
         <button type="button" onClick={() => setPlaying((p) => !p)} aria-pressed={playing}
@@ -160,6 +171,8 @@ export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, 
         </button>
       </div>
 
+        </>
+      )}
       <div className="mt-4">
         <GuideBoard pattern={pattern} shape={shape} index={index} groupSize={groupSize} labelOf={labelOf} />
       </div>

@@ -131,10 +131,10 @@ export default function Session({ trackId, minutes }) {
             <StepPrompt prompt={step.prompt} state={prompt} />
           )}
 
-          {grid && <GridGuide key={`${state.index}-${prompt?.index ?? 0}`} grid={grid} bpm={metronome.bpm} frozen={state.paused} prefs={guidePrefs} onPrefs={setGuidePrefs} />}
+          {grid && <GridGuide key={`${state.index}-${prompt?.index ?? 0}`} grid={grid} metronome={metronome} frozen={state.paused} prefs={guidePrefs} onPrefs={setGuidePrefs} />}
           {pattern && (
             <PatternGuide key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} shape={shape} groupSize={groupSizeOf(patternSpec)}
-              notesPerBeat={patternBeat} bpm={metronome.bpm} frozen={state.paused}
+              notesPerBeat={patternBeat} metronome={metronome} frozen={state.paused}
               clickEveryNote={clickEveryNote} prefs={guidePrefs} onPrefs={setGuidePrefs}
               onClickEveryNote={(on) => { setClickEveryNote(on); if (!on) metronome.setSubdivision(1); }}
               labelOf={(n) => (patternSpec.type === 'spider' ? n.finger : n.degree)}

@@ -4,6 +4,7 @@ import { countLabels, hzOf } from '../session/grid.js';
 import { demoStepMs, SUBDIVISION_NAME } from '../session/patterns.js';
 import { getAudioContext } from '../audio/context.js';
 import { ArrowIcon } from './icons.jsx';
+import { useFollowClick } from '../hooks/useFollowClick.js';
 
 const TAB = { 6: 'E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'e' };
 const SPOKEN = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high e' };
@@ -66,7 +67,8 @@ function GridBoard({ shape, notes }) {
 
 // Rhythm-grid guide for fingerstyle: what the thumb and fingers play on each count, looping one bar.
 // `prefs` live in the session so Hear it / speed survive the remount when the prompt switches patterns.
-export default function GridGuide({ grid, bpm, frozen, prefs, onPrefs }) {
+export default function GridGuide({ grid, metronome, frozen, prefs, onPrefs }) {
+  const { bpm } = metronome;
   const [slot, setSlot] = useState(0);
   const [playing, setPlaying] = useState(true);
   const speed = prefs.speed ?? 'slow';
@@ -76,11 +78,12 @@ export default function GridGuide({ grid, bpm, frozen, prefs, onPrefs }) {
   const counts = countLabels(grid.slotsPerBeat, grid.beats);
   const length = grid.slots.length;
   const stepMs = demoStepMs(speed, bpm, grid.slotsPerBeat);
-  const running = playing && !frozen;
+  const { following, clickActive } = useFollowClick({ metronome, slotsPerBeat: grid.slotsPerBeat, length, onSlot: setSlot });
+  const running = playing && !frozen && !following;
 
   useEffect(() => {
     if (!running) return undefined;
-    const id = setInterval(() => setSlot((s) => (s + 1) % length), stepMs);
+    const id = setInterval(() => { if (!clickActive()) setSlot((s) => (s + 1) % length); }, stepMs);
     return () => clearInterval(id);
   }, [running, stepMs, length]);
 
@@ -97,6 +100,14 @@ export default function GridGuide({ grid, bpm, frozen, prefs, onPrefs }) {
 
   return (
     <figure className="mt-6">
+      {following ? (
+        <p className="flex min-h-12 items-center gap-2 font-display text-lg font-extrabold uppercase italic">
+          <span className="size-3 animate-pulse rounded-full bg-brand motion-reduce:animate-none" />
+          Following the click
+          <span className="font-sans text-[15px] font-semibold normal-case not-italic text-ink-soft">· stop the metronome for the demo</span>
+        </p>
+      ) : (
+        <>
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => step(-1)} aria-label="Previous count" className="grid size-12 place-items-center rounded-full bg-fill hover:bg-fill-hover"><ArrowIcon direction="prev" className="size-5" /></button>
         <button type="button" onClick={() => setPlaying((p) => !p)} aria-pressed={playing}
@@ -113,6 +124,8 @@ export default function GridGuide({ grid, bpm, frozen, prefs, onPrefs }) {
         <button type="button" aria-pressed={sound} onClick={() => setSound((s) => !s)} className={chip(sound)}>Hear it</button>
       </div>
 
+        </>
+      )}
       <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[15px] text-ink-soft">
         <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-ink" /> Thumb (p)</span>
         <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-brand" /> Fingers (i m a)</span>

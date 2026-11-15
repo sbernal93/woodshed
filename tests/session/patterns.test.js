@@ -64,3 +64,14 @@ test('a pattern can set its own notes per click, else the step default applies',
 });
 test('subdivisions have musician names', () =>
   expect([1, 2, 3, 4].map((n) => SUBDIVISION_NAME[n])).toEqual(['quarters', '8ths', 'triplets', '16ths']));
+
+import { beatSlots } from '../../src/session/patterns.js';
+
+test('each click lights the slots of its beat at evenly spaced audio times', () => {
+  // beat 2 of the pattern (count 1) at audio time 10s, 120 BPM, 8ths, 8-slot bar
+  expect(beatSlots(1, 2, 10, 120, 8)).toEqual([{ slot: 2, at: 10 }, { slot: 3, at: 10.25 }]);
+});
+test('slots wrap around the pattern', () =>
+  expect(beatSlots(3, 3, 0, 60, 9).map((s) => s.slot)).toEqual([0, 1, 2]));
+test('triplet spacing at 60 BPM is a third of a second', () =>
+  expect(beatSlots(0, 3, 0, 60, 9).map((s) => s.at)).toEqual([0, 1 / 3, 2 / 3]));

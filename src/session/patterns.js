@@ -48,3 +48,9 @@ const DEMO_MS = { slow: 1100, medium: 650 };
 export function demoStepMs(speed, bpm, notesPerBeat) {
   return DEMO_MS[speed] ?? Math.round(60000 / bpm / notesPerBeat);
 }
+
+// When the click is running the guide follows it: beat number `count` lights its slots at the click's own audio times.
+export function beatSlots(count, slotsPerBeat, beatTime, bpm, length) {
+  const gap = 60 / bpm / slotsPerBeat;
+  return Array.from({ length: slotsPerBeat }, (_, k) => ({ slot: (count * slotsPerBeat + k) % length, at: beatTime + k * gap }));
+}
