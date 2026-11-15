@@ -52,7 +52,8 @@ export class Metronome {
 
   start() {
     if (this.running) return;
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    // 'interrupted' is what iOS reports after a phone call; 'closed' cannot be resumed.
+    if (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') this.ctx.resume();
     this.running = true;
     this.nextTime = this.ctx.currentTime + 0.05;
     this.beatInBar = 0;

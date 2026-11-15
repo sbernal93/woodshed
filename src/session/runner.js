@@ -48,6 +48,9 @@ export function sessionReducer(state, action) {
   }
 }
 
+// Paused still counts: the player is mid-session with the phone on a stand.
+export const keepAwake = (state) => !state.finished;
+
 export function formatClock(ms) {
   const total = Math.ceil(Math.max(0, ms) / 1000);
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;

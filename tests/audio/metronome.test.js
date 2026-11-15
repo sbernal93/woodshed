@@ -80,3 +80,12 @@ test('close() stops and releases the audio context', () => {
   expect(m.isRunning()).toBe(false);
   expect(closed).toBe(true);
 });
+
+test('start resumes an interrupted context', () => {
+  const ctx = { ...fakeCtx(), state: 'interrupted' };
+  let resumed = false;
+  ctx.resume = () => { resumed = true; return Promise.resolve(); };
+  const m = new Metronome({ audioContext: ctx });
+  m.start(); m.stop();
+  expect(resumed).toBe(true);
+});

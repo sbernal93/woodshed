@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { tracks } from '../data/tracks/index.js';
-import { pickSession, formatClock } from '../session/runner.js';
+import { pickSession, formatClock, keepAwake } from '../session/runner.js';
 import { useSessionClock } from '../hooks/useSessionClock.js';
 import { useWakeLock } from '../hooks/useWakeLock.js';
 import { useMetronome } from '../audio/useMetronome.js';
@@ -26,7 +26,7 @@ export default function Session({ trackId, minutes }) {
   const metronome = useMetronome(steps[0].bpm?.min ?? 80);
   const step = steps[state.index];
 
-  useWakeLock(!state.paused && !state.finished);
+  useWakeLock(keepAwake(state));
 
   // Each step suggests its own tempo; the click keeps running across the change.
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function Session({ trackId, minutes }) {
           <div className="mt-6 flex items-center justify-between gap-4">
             <ArrowButton direction="prev" label="Previous step" onClick={() => dispatch({ type: 'prev' })} />
             <div className="text-center" role="timer" aria-live="off">
-              <p className={`font-display text-8xl font-extrabold italic leading-none tabular-nums lg:text-9xl ${state.paused ? 'opacity-40' : ''}`}>
+              <p className={`font-display text-[clamp(3.5rem,19vw,6rem)] font-extrabold italic leading-none tabular-nums lg:text-9xl ${state.paused ? 'opacity-40' : ''}`}>
                 {formatClock(state.remainingMs)}
               </p>
             </div>

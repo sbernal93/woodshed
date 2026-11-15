@@ -1,4 +1,4 @@
-import { startSession, sessionReducer as reduce, formatClock, pickSession } from '../../src/session/runner.js';
+import { startSession, sessionReducer as reduce, formatClock, pickSession, keepAwake } from '../../src/session/runner.js';
 
 const steps = [{ seconds: 60 }, { seconds: 120 }, { seconds: 30 }];
 const at = (state, ...actions) => actions.reduce(reduce, state);
@@ -68,3 +68,10 @@ test('pickSession takes the first session with that duration', () =>
   expect(pickSession(track, 20)).toMatchObject({ session: { id: 'b' }, minutes: 20 }));
 test('pickSession falls back to the closest duration of the first session', () =>
   expect(pickSession({ sessions: [track.sessions[0]] }, 30)).toMatchObject({ session: { id: 'a' }, minutes: 15 }));
+
+test('the screen stays awake for the whole session, paused included', () => {
+  const running = startSession(steps, 0);
+  expect(keepAwake(running)).toBe(true);
+  expect(keepAwake(reduce(running, { type: 'togglePause', now: 1000 }))).toBe(true);
+  expect(keepAwake(reduce(running, { type: 'tick', now: 999999 }))).toBe(false);
+});
