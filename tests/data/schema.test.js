@@ -48,3 +48,18 @@ test('rejects a drone on an unknown note', () =>
   expect(() => validateTrack(withStep({ drone: { root: 'H' } }))).toThrow(/drone/));
 test('rejects a ladder step of zero', () =>
   expect(() => validateTrack(withStep({ ladder: { by: 0 } }))).toThrow(/ladder/));
+
+test('accepts a pattern, alone or keyed by prompt item', () => {
+  expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: { type: 'spider', startFret: 5, order: [1, 3, 2, 4] } } }))).not.toThrow();
+  expect(() => validateTrack(withStep({
+    prompt: { label: 'Play', items: ['A', 'B'], everyBars: 4, order: 'cycle' },
+    pattern: { notesPerBeat: 2, byPrompt: { A: { type: 'spider' }, B: { type: 'spider' } } },
+  }))).not.toThrow();
+});
+test('rejects a pattern keyed by a prompt item that does not exist', () =>
+  expect(() => validateTrack(withStep({
+    prompt: { label: 'Play', items: ['A'], everyBars: 4, order: 'cycle' },
+    pattern: { notesPerBeat: 2, byPrompt: { A: { type: 'spider' }, Z: { type: 'spider' } } },
+  }))).toThrow(/pattern/));
+test('rejects a pattern with an unknown type', () =>
+  expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: { type: 'tapdance' } } }))).toThrow(/pattern/));

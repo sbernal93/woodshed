@@ -71,3 +71,13 @@ body {
 ::selection { background: var(--wd-brand); color: var(--wd-on-brand); }
 :focus-visible { outline: 3px solid var(--wd-brand); outline-offset: 3px; }
 html { caret-color: var(--wd-brand); scrollbar-color: var(--wd-line) var(--wd-bg); -webkit-tap-highlight-color: transparent; }
+
+/* Play-along playhead: the highlight switches instantly (it's a rhythm cue); the ring marks the moment a note sounds. */
+@keyframes wd-pulse {
+  from { transform: scale(1); opacity: 0.9; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+.wd-pulse { transform-box: fill-box; transform-origin: center; animation: wd-pulse 420ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .wd-pulse { animation: none; opacity: 0; }
+}

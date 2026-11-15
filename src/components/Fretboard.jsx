@@ -8,7 +8,8 @@ const SPOKEN_STRINGS = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high e'
 
 const labelFor = (m, mode) => (mode === 'note' ? m.note : mode === 'degree' ? m.degree : mode === 'finger' ? (m.finger ?? '') : '');
 
-export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note', orientation = 'vertical', title = 'Fretboard' }) {
+// `active` / `upcoming` are 'string-fret' keys for a play-along playhead; `pulse` changes to replay the ring.
+export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note', orientation = 'vertical', title = 'Fretboard', active, upcoming, pulse }) {
   const descId = useId();
   const L = fretboardLayout({ fromFret, toFret, orientation });
   const { point } = L;
@@ -62,11 +63,20 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
       {marks.map((m) => {
         const { x, y } = L.markPos(m.string, m.fret);
         const label = labelFor(m, labelMode);
+        const key = `${m.string}-${m.fret}`;
+        const isActive = key === active;
+        const isNext = !isActive && key === upcoming;
+        const playing = active !== undefined;
+        const fill = isActive || (m.root && !playing) ? 'fill-brand' : 'fill-bg';
+        const stroke = isNext ? 'stroke-brand' : 'stroke-ink';
+        const dim = m.muted || (playing && !isActive && !isNext);
         return (
-          <g key={`${m.string}-${m.fret}`} className={m.muted ? 'opacity-30' : undefined}>
-            <circle cx={x} cy={y} r="14" strokeWidth="2" className={m.root ? 'fill-brand stroke-ink' : 'fill-bg stroke-ink'} />
+          <g key={key} className={dim ? 'opacity-30' : undefined}>
+            {isActive && <circle key={pulse} cx={x} cy={y} r="14" className="wd-pulse fill-none stroke-brand" strokeWidth="3" />}
+            <circle cx={x} cy={y} r="14" strokeWidth={isNext ? 3.5 : 2} className={`${fill} ${stroke}`} />
             {label !== '' && (
-              <text x={x} y={y} dy="0.35em" textAnchor="middle" className={`text-[14px] font-extrabold ${m.root ? 'fill-on-brand' : 'fill-ink'}`}>
+              <text x={x} y={y} dy="0.35em" textAnchor="middle"
+                className={`text-[14px] font-extrabold ${isActive || (m.root && !playing) ? 'fill-on-brand' : 'fill-ink'}`}>
                 {label}
               </text>
             )}

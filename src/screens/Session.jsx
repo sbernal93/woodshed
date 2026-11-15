@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { tracks } from '../data/tracks/index.js';
 import { pickSession, formatClock, keepAwake } from '../session/runner.js';
 import { useSessionClock } from '../hooks/useSessionClock.js';
@@ -8,7 +8,9 @@ import { getAudioContext } from '../audio/context.js';
 import { playChime } from '../audio/chime.js';
 import { useDrone } from '../audio/useDrone.js';
 import StepPrompt from '../components/StepPrompt.jsx';
-import { trackBars } from '../session/prompts.js';
+import { trackBars, promptState } from '../session/prompts.js';
+import { resolvePattern } from '../session/patterns.js';
+import PlayAlong from '../components/PlayAlong.jsx';
 import { resolveFretboard } from '../music/resolve.js';
 import ArrowButton from '../components/ArrowButton.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
@@ -36,6 +38,9 @@ export default function Session({ trackId, minutes }) {
   // Bars are counted at the tempo they were played at, so a Clean pass doesn't jump the prompt.
   const barsRef = useRef(null);
   barsRef.current = trackBars(barsRef.current, step.seconds * 1000 - state.remainingMs, metronome.bpm, state.index);
+  const prompt = step.prompt ? promptState(step.prompt, barsRef.current.bars, seed + state.index) : null;
+  const patternSpec = step.pattern && (step.pattern.byPrompt ? step.pattern.byPrompt[prompt?.item] : step.pattern.spec);
+  const pattern = useMemo(() => (patternSpec ? resolvePattern(patternSpec) : null), [patternSpec]);
   useDrone(step.drone?.root, Boolean(step.drone) && droneOn && !state.paused && !state.finished);
 
   // Each step suggests its own tempo; the click keeps running across the change.
@@ -68,7 +73,7 @@ export default function Session({ trackId, minutes }) {
 
   if (state.finished) return <SessionDone track={track} session={session} steps={steps} />;
 
-  const board = step.fretboard ? resolveFretboard(step.fretboard) : null;
+  const board = step.fretboard && !pattern ? resolveFretboard(step.fretboard) : null;
   const total = steps.reduce((sum, s) => sum + s.seconds, 0);
 
   return (
@@ -112,7 +117,13 @@ export default function Session({ trackId, minutes }) {
           </div>
 
           {step.prompt && (
-            <StepPrompt prompt={step.prompt} bars={barsRef.current.bars} seed={seed + state.index} />
+            <StepPrompt prompt={step.prompt} state={prompt} />
+          )}
+
+          {pattern && (
+            <PlayAlong key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} notesPerBeat={step.pattern.notesPerBeat}
+              metronome={metronome} frozen={state.paused}
+              labelMode={patternSpec.type === 'spider' ? 'finger' : 'degree'} title={`${step.title}: play-along guide`} />
           )}
 
           <p className="mt-6 text-lg leading-relaxed">{step.instruction}</p>

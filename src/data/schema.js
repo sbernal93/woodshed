@@ -26,6 +26,18 @@ function validateStep(s, where) {
     check(p.root === undefined || isNote(p.root), where, 'prompt.root must be a note name');
   }
   if (s.drone !== undefined) check(isNote(s.drone?.root), where, 'drone.root must be a note name');
+  if (s.pattern !== undefined) {
+    const p = s.pattern;
+    const known = (spec) => ['spider', 'sequence'].includes(spec?.type);
+    check(Number.isInteger(p?.notesPerBeat) && p.notesPerBeat > 0, where, 'pattern.notesPerBeat must be a positive integer');
+    if (p.byPrompt) {
+      const keys = Object.keys(p.byPrompt);
+      check(keys.every((k) => s.prompt?.items.includes(k)), where, 'pattern.byPrompt keys must be prompt items');
+      check(keys.every((k) => known(p.byPrompt[k])), where, 'pattern specs must be spider or sequence');
+    } else {
+      check(known(p.spec), where, 'pattern.spec must be spider or sequence');
+    }
+  }
   if (s.ladder !== undefined) check(Number.isInteger(s.ladder?.by) && s.ladder.by > 0, where, 'ladder.by must be a positive integer');
 }
 

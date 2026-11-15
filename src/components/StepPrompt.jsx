@@ -1,4 +1,3 @@
-import { promptState } from '../session/prompts.js';
 import { spell } from '../music/notes.js';
 
 const noteFor = (root, item) => {
@@ -6,8 +5,8 @@ const noteFor = (root, item) => {
 };
 
 // The live challenge: one big target that changes every few bars, with dots counting down the bars.
-export default function StepPrompt({ prompt, bars, seed }) {
-  const { item, barInWindow, barsPerWindow } = promptState(prompt, bars, seed);
+export default function StepPrompt({ prompt, state }) {
+  const { item, barInWindow, barsPerWindow } = state;
   const note = noteFor(prompt.root, item);
   return (
     <section aria-live="polite" className="mt-6 bg-fill px-5 py-4">
