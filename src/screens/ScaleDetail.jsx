@@ -5,6 +5,7 @@ import ArrowButton from '../components/ArrowButton.jsx';
 import KeyPicker from '../components/KeyPicker.jsx';
 import Chip from '../components/Chip.jsx';
 import Fretboard from '../components/Fretboard.jsx';
+import ScaleHarmony from '../components/ScaleHarmony.jsx';
 import { SCALE_LIBRARY } from '../data/scaleLibrary.js';
 import { SCALES, positionMarks, scaleMarks, scaleNotes } from '../music/scales.js';
 import { scaleHref } from '../routes.js';
@@ -51,17 +52,17 @@ export default function ScaleDetail({ scale, root }) {
 
       <section aria-labelledby="notes-h" className="mt-8">
         <h3 id="notes-h" className={heading}>Notes and degrees</h3>
-        <ol className="mt-3 flex gap-2 lg:gap-3">
+        <ol className="mt-3 flex border-y-2 border-line">
           {notes.map((n, i) => (
-            <li key={n} className={`flex min-w-0 flex-1 flex-col items-center py-2 lg:max-w-20 ${i === 0 ? 'bg-brand text-on-brand shadow-flat' : 'bg-fill'}`}>
-              <span className="font-display text-2xl font-extrabold italic leading-none">{n}</span>
-              <span className="mt-1 font-display text-lg font-semibold italic">{degrees[i]}</span>
+            <li key={n} className="flex min-w-0 flex-1 flex-col items-center py-3 lg:max-w-24">
+              <span className={`font-display text-3xl font-extrabold italic leading-none ${i === 0 ? 'text-brand' : ''}`}>{n}</span>
+              <span className="mt-1 font-display text-lg font-semibold italic text-ink-soft">{i === 0 ? '1 · root' : degrees[i]}</span>
             </li>
           ))}
         </ol>
       </section>
 
-      <section aria-labelledby="neck-h" className="mt-10">
+      <section aria-labelledby="neck-h" className="mt-10 scroll-mt-6">
         <h3 id="neck-h" className={heading}>On the neck</h3>
         <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
           <div role="group" aria-label="Label notes by" className="grid grid-cols-3 gap-2 px-2 lg:w-96">
@@ -86,6 +87,11 @@ export default function ScaleDetail({ scale, root }) {
             title={`${root} ${info.title}${position ? `, position ${position}` : ''}, frets 0 to ${toFret}`} />
         </div>
       </section>
+
+      <ScaleHarmony root={root} scale={scale} onShowBox={(p) => {
+        setPosition(p);
+        document.getElementById('neck-h').scrollIntoView({ behavior: 'smooth' });
+      }} />
     </main>
   );
 }

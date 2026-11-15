@@ -16,7 +16,7 @@ export function resolveFretboard(spec) {
       if (spec.position) return frame(positionMarks({ root: spec.root, scale: spec.scale, position: spec.position, perString: spec.perString }));
       return { marks: scaleMarks(spec), fromFret: spec.fromFret ?? 0, toFret: spec.toFret ?? 12 };
     case 'caged':
-      return frame(cagedMarks({ root: spec.root, shape: spec.shape }));
+      return frame(cagedMarks({ root: spec.root, shape: spec.shape, quality: spec.quality }));
     default:
       throw new Error(`unknown fretboard spec type "${spec.type}"`);
   }

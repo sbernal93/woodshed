@@ -24,3 +24,15 @@ test('every CAGED shape for every root sounds only triad tones and includes the 
     expect(marks.map((m) => m.degree).every((d) => ['1', '3', '5'].includes(d))).toBe(true);
   }
 });
+
+test('minor CAGED shapes reproduce the open minor chords', () =>
+  expect(Object.keys(CAGED_SHAPES).map((s) => shapeString(cagedMarks({ root: s, shape: s, quality: 'm' }))))
+    .toEqual(['x3101x', 'x02210', '310033', '022000', 'xx0231']));
+test('every minor CAGED shape for every root sounds only minor-triad tones', () => {
+  for (const root of ROOTS) for (const shape of Object.keys(CAGED_SHAPES)) {
+    const triad = new Set(chordTones(root, 'm').map(pitchClass));
+    const marks = cagedMarks({ root, shape, quality: 'm' });
+    for (const m of marks) expect(triad.has(noteAt(m.string, m.fret).pc)).toBe(true);
+    expect(marks.some((m) => m.root)).toBe(true);
+  }
+});

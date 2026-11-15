@@ -14,6 +14,7 @@ export const CHORDS = {
 
 // Open-chord templates, strings 6 -> 1; 'x' = not played.
 export const CAGED_SHAPES = { C: 'x32010', A: 'x02220', G: '320003', E: '022100', D: 'xx0232' };
+export const CAGED_MINOR_SHAPES = { C: 'x3101x', A: 'x02210', G: '310033', E: '022000', D: 'xx0231' };
 
 const mod12 = (n) => ((n % 12) + 12) % 12;
 
@@ -23,12 +24,12 @@ export function chordTones(root, quality) {
   return degrees.map((d) => spell(root, d));
 }
 
-export function cagedMarks({ root, shape }) {
-  const template = CAGED_SHAPES[shape];
+export function cagedMarks({ root, shape, quality = 'maj' }) {
+  const template = (quality === 'm' ? CAGED_MINOR_SHAPES : CAGED_SHAPES)[shape];
   if (!template) throw new Error(`unknown CAGED shape "${shape}"`);
   const shift = mod12(pitchClass(root) - pitchClass(shape));
   const rootPc = pitchClass(root);
-  const byPc = new Map(CHORDS.maj.map((d) => [mod12(rootPc + parseDegree(d).semitones), { note: spell(root, d), degree: d }]));
+  const byPc = new Map(CHORDS[quality].map((d) => [mod12(rootPc + parseDegree(d).semitones), { note: spell(root, d), degree: d }]));
   return [...template].flatMap((ch, i) => {
     if (ch === 'x') return [];
     const string = 6 - i;
