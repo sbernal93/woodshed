@@ -1,0 +1,39 @@
+import { parseDegree, pitchClass, spell } from './notes.js';
+import { STANDARD_TUNING } from './tuning.js';
+
+export const CHORDS = {
+  maj: ['1', '3', '5'],
+  m: ['1', 'b3', '5'],
+  7: ['1', '3', '5', 'b7'],
+  maj7: ['1', '3', '5', '7'],
+  m7: ['1', 'b3', '5', 'b7'],
+  9: ['1', '3', '5', 'b7', '9'],
+  sus2: ['1', '2', '5'],
+  sus4: ['1', '4', '5'],
+};
+
+// Open-chord templates, strings 6 -> 1; 'x' = not played.
+export const CAGED_SHAPES = { C: 'x32010', A: 'x02220', G: '320003', E: '022100', D: 'xx0232' };
+
+const mod12 = (n) => ((n % 12) + 12) % 12;
+
+export function chordTones(root, quality) {
+  const degrees = CHORDS[quality];
+  if (!degrees) throw new Error(`unknown chord quality "${quality}"`);
+  return degrees.map((d) => spell(root, d));
+}
+
+export function cagedMarks({ root, shape }) {
+  const template = CAGED_SHAPES[shape];
+  if (!template) throw new Error(`unknown CAGED shape "${shape}"`);
+  const shift = mod12(pitchClass(root) - pitchClass(shape));
+  const rootPc = pitchClass(root);
+  const byPc = new Map(CHORDS.maj.map((d) => [mod12(rootPc + parseDegree(d).semitones), { note: spell(root, d), degree: d }]));
+  return [...template].flatMap((ch, i) => {
+    if (ch === 'x') return [];
+    const string = 6 - i;
+    const fret = Number(ch) + shift;
+    const info = byPc.get(mod12(STANDARD_TUNING[string] + fret));
+    return [{ string, fret, note: info.note, degree: info.degree, finger: null, root: info.degree === '1' }];
+  });
+}
