@@ -3,14 +3,13 @@ import { fretboardLayout } from '../fretboard/layout.js';
 import { countLabels, hzOf } from '../session/grid.js';
 import { demoStepMs, SUBDIVISION_NAME } from '../session/patterns.js';
 import { getAudioContext } from '../audio/context.js';
-import { ArrowIcon } from './icons.jsx';
+import GuideHeader from './GuideHeader.jsx';
 import { useFollowClick } from '../hooks/useFollowClick.js';
 
 const TAB = { 6: 'E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'e' };
 const SPOKEN = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high e' };
 const HAND = { p: 'Thumb', i: 'Index', m: 'Middle', a: 'Ring' };
 const ROW = 22;
-const chip = (on) => `min-h-10 rounded-full px-3 font-display text-sm font-extrabold uppercase italic ${on ? 'bg-ink text-bg' : 'bg-fill hover:bg-fill-hover'}`;
 
 function pluck(notes) {
   const ctx = getAudioContext();
@@ -92,46 +91,22 @@ export default function GridGuide({ grid, metronome, frozen, prefs, onPrefs }) {
     if (sound && notes.length) pluck(notes);
   }, [slot, sound]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const step = (d) => {
-    setPlaying(false);
-    setSlot((s) => (s + d + length) % length);
-  };
   const isBeat = (i) => i % grid.slotsPerBeat === 0;
 
   return (
-    <figure className="mt-6">
-      {following ? (
-        <p className="flex min-h-12 items-center gap-2 font-display text-lg font-extrabold uppercase italic">
-          <span className="size-3 animate-pulse rounded-full bg-brand motion-reduce:animate-none" />
-          Following the click
-          <span className="font-sans text-[15px] font-semibold normal-case not-italic text-ink-soft">· stop the metronome for the demo</span>
-        </p>
-      ) : (
-        <>
-      <div className="flex items-center gap-2">
-        <button type="button" onClick={() => step(-1)} aria-label="Previous count" className="grid size-12 place-items-center rounded-full bg-fill hover:bg-fill-hover"><ArrowIcon direction="prev" className="size-5" /></button>
-        <button type="button" onClick={() => setPlaying((p) => !p)} aria-pressed={playing}
-          className={`min-h-12 rounded-full px-5 font-display text-lg font-extrabold uppercase italic ${playing ? 'bg-brand text-on-brand' : 'bg-fill hover:bg-fill-hover'}`}>
-          {playing ? 'Pause demo' : 'Play demo'}
-        </button>
-        <button type="button" onClick={() => step(1)} aria-label="Next count" className="grid size-12 place-items-center rounded-full bg-fill hover:bg-fill-hover"><ArrowIcon direction="next" className="size-5" /></button>
-      </div>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        <button type="button" aria-pressed={speed === 'slow'} onClick={() => setSpeed('slow')} className={chip(speed === 'slow')}>Slow</button>
-        <button type="button" aria-pressed={speed === 'tempo'} onClick={() => setSpeed('tempo')} className={chip(speed === 'tempo')}>
-          At tempo · {SUBDIVISION_NAME[grid.slotsPerBeat]}
-        </button>
-        <button type="button" aria-pressed={sound} onClick={() => setSound((s) => !s)} className={chip(sound)}>Hear it</button>
-      </div>
-
-        </>
-      )}
+    <figure>
+      <GuideHeader following={following} playing={playing} speed={speed} onSpeed={setSpeed}
+        tempoLabel={`At tempo · ${SUBDIVISION_NAME[grid.slotsPerBeat]}`}
+        extras={[{ label: 'Hear it', on: sound, onToggle: () => setSound((v) => !v) }]} />
       <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[15px] text-ink-soft">
         <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-ink" /> Thumb (p)</span>
         <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-brand" /> Fingers (i m a)</span>
       </p>
 
-      <div className="mt-3"><GridBoard shape={grid.shape} notes={notes} /></div>
+      <button type="button" disabled={following} onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pause the demo' : 'Play the demo'}
+        className="mt-3 block w-full">
+        <GridBoard shape={grid.shape} notes={notes} />
+      </button>
 
       <figcaption className="mt-2 text-center">
         <span className="block font-display text-5xl font-extrabold italic leading-none">
