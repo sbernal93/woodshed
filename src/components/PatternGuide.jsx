@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { ArrowIcon } from './icons.jsx';
 import { fretboardLayout } from '../fretboard/layout.js';
-import { demoStepMs, groupStart } from '../session/patterns.js';
+import { demoStepMs, groupStart, SUBDIVISION_NAME } from '../session/patterns.js';
 
 const STRING_NAME = { 6: 'Low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'High e' };
 const TAB_NAME = { 6: 'E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'e' };
-const ORDINAL = ['1st', '2nd', '3rd', '4th', '5th', '6th'];
-const SPEEDS = [['slow', 'Slow'], ['medium', 'Medium'], ['tempo', 'At tempo']];
 const TAB_STEP = 38;
 const TAB_ROW = 21;
 const keyOf = (n) => `${n.string}-${n.fret}`;
 
-function GuideBoard({ pattern, index, groupSize, labelOf }) {
+// `shape` (e.g. the whole box) stays fully visible under the current group; without it, other notes show as faint dots.
+function GuideBoard({ pattern, shape, index, groupSize, labelOf }) {
   const frets = pattern.map((n) => n.fret);
   const fromFret = Math.min(...frets);
   const L = fretboardLayout({ fromFret, toFret: Math.max(Math.max(...frets), fromFret + 3), cell: 50, stringGap: 42 });
@@ -19,7 +18,7 @@ function GuideBoard({ pattern, index, groupSize, labelOf }) {
   const start = groupStart(index, groupSize);
   const group = pattern.slice(start, start + groupSize);
   const groupKeys = new Set(group.map(keyOf));
-  const ghosts = [...new Map(pattern.map((n) => [keyOf(n), n])).values()].filter((n) => !groupKeys.has(keyOf(n)));
+  const background = [...new Map((shape ?? pattern).map((n) => [keyOf(n), n])).values()].filter((n) => !groupKeys.has(keyOf(n)));
   const prev = index > 0 ? pattern[index - 1] : null;
   const wires = Array.from({ length: L.cells + 1 }, (_, i) => L.firstWire + i);
   const [top, bottom] = [L.wirePos(L.firstWire), L.boardEnd];
@@ -46,9 +45,14 @@ function GuideBoard({ pattern, index, groupSize, labelOf }) {
           </g>
         );
       })}
-      {ghosts.map((n) => {
+      {background.map((n) => {
         const p = L.markPos(n.string, n.fret);
-        return <circle key={keyOf(n)} cx={p.x} cy={p.y} r="5" className="fill-line opacity-40" />;
+        return shape ? (
+          <g key={keyOf(n)}>
+            <circle cx={p.x} cy={p.y} r="15" strokeWidth="2" className={n.root ? 'fill-fill stroke-line' : 'fill-bg stroke-line'} />
+            <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className="fill-ink-soft text-[15px] font-extrabold">{labelOf(n)}</text>
+          </g>
+        ) : <circle key={keyOf(n)} cx={p.x} cy={p.y} r="5" className="fill-line opacity-40" />;
       })}
       {trail && (
         <line key={`t${index}`} {...trail} className="wd-trail stroke-brand" strokeWidth="4" strokeLinecap="round"
@@ -64,7 +68,10 @@ function GuideBoard({ pattern, index, groupSize, labelOf }) {
             {isNow && <circle key={`r${index}`} cx={p.x} cy={p.y} r="16" className="wd-pulse fill-none stroke-brand" strokeWidth="3" />}
             <circle cx={p.x} cy={p.y} r="16" strokeWidth="2" className={isNow ? 'fill-brand stroke-brand' : 'fill-bg stroke-ink'} />
             <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className={`text-[17px] font-extrabold ${isNow ? 'fill-on-brand' : 'fill-ink'}`}>{labelOf(n)}</text>
-            <text x={p.x + 22} y={p.y} dy="0.35em" className="fill-ink-soft text-xs font-semibold">{ORDINAL[k]}</text>
+            <g aria-hidden="true">
+              <circle cx={p.x + 14} cy={p.y - 14} r="9" className="fill-ink" />
+              <text x={p.x + 14} y={p.y - 14} dy="0.35em" textAnchor="middle" className="fill-bg text-[11px] font-extrabold">{k + 1}</text>
+            </g>
           </g>
         );
       })}
@@ -72,19 +79,28 @@ function GuideBoard({ pattern, index, groupSize, labelOf }) {
   );
 }
 
-function TabStrip({ pattern, index, groupSize, stepMs }) {
+function TabStrip({ pattern, index, groupSize, notesPerBeat, stepMs }) {
   return (
-    <div aria-hidden="true" className="relative mt-4 h-[134px] overflow-hidden bg-fill font-mono">
+    <div aria-hidden="true" className="relative mt-4 h-[160px] overflow-hidden bg-fill font-mono">
+      <p className="absolute left-8 top-1.5 flex items-center gap-1.5 font-sans text-xs font-semibold text-ink-soft">
+        <span className="size-2.5 rounded-full bg-brand" /> = metronome click
+      </p>
       {[1, 2, 3, 4, 5, 6].map((s) => (
-        <div key={s} className="absolute inset-x-0 h-px bg-line" style={{ top: 14 + (s - 1) * TAB_ROW }}>
+        <div key={s} className="absolute inset-x-0 h-px bg-line" style={{ top: 40 + (s - 1) * TAB_ROW }}>
           <span className="absolute left-1.5 -translate-y-1/2 bg-bg px-0.5 text-xs text-ink-soft">{TAB_NAME[s]}</span>
         </div>
       ))}
-      <div className="wd-tab absolute left-1/2 top-[14px]"
+      <div className="wd-tab absolute left-1/2 top-[40px]"
         style={{ transform: `translateX(${-index * TAB_STEP}px)`, transitionDuration: `${stepMs}ms` }}>
         {pattern.map((n, i) => (
           <span key={i}>
-            {i % groupSize === 0 && <span className="absolute -top-2 h-[124px] w-px bg-line/50" style={{ left: i * TAB_STEP - TAB_STEP / 2 }} />}
+            {i % notesPerBeat === 0 && (
+              <>
+                <span className="absolute -top-[22px] -ml-[5px] size-2.5 rounded-full bg-brand" style={{ left: i * TAB_STEP - TAB_STEP / 2 }} />
+                <span className="absolute -top-2.5 h-[122px] w-px bg-brand/45" style={{ left: i * TAB_STEP - TAB_STEP / 2 }} />
+              </>
+            )}
+            {i % groupSize === 0 && i % notesPerBeat !== 0 && <span className="absolute -top-2 h-[118px] w-px bg-line/50" style={{ left: i * TAB_STEP - TAB_STEP / 2 }} />}
             <span className={`absolute -ml-3 -mt-[9px] h-[18px] w-6 text-center text-[13px] font-bold leading-[18px] ${
               i === index ? 'bg-brand text-on-brand' : i < index ? 'bg-bg text-ink-soft/60' : 'bg-bg text-ink'}`}
               style={{ left: i * TAB_STEP, top: (n.string - 1) * TAB_ROW }}>
@@ -93,13 +109,13 @@ function TabStrip({ pattern, index, groupSize, stepMs }) {
           </span>
         ))}
       </div>
-      <div className="absolute inset-y-1.5 left-1/2 -ml-px w-[3px] bg-brand" />
+      <div className="absolute bottom-1.5 left-1/2 top-7 -ml-px w-[3px] bg-ink" />
     </div>
   );
 }
 
 // Demonstration of a pattern: the board shows the current group in play order, the tab scrolls past a playhead.
-export default function PatternGuide({ pattern, groupSize, notesPerBeat, bpm, frozen, labelOf, describe }) {
+export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, bpm, frozen, labelOf, describe, clickEveryNote, onClickEveryNote }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState('medium');
@@ -130,23 +146,29 @@ export default function PatternGuide({ pattern, groupSize, notesPerBeat, bpm, fr
         </button>
         <button type="button" onClick={() => step(1)} aria-label="Next note" className="grid size-12 place-items-center rounded-full bg-fill hover:bg-fill-hover"><ArrowIcon direction="next" className="size-5" /></button>
       </div>
-      <div role="group" aria-label="Demo speed" className="mt-2 flex gap-1.5">
-        {SPEEDS.map(([v, l]) => (
+      <div role="group" aria-label="Demo speed" className="mt-2 flex flex-wrap gap-1.5">
+        {[['slow', 'Slow'], ['medium', 'Medium'], ['tempo', `At tempo · ${SUBDIVISION_NAME[notesPerBeat]}`]].map(([v, l]) => (
           <button key={v} type="button" aria-pressed={speed === v} onClick={() => setSpeed(v)}
             className={`min-h-10 rounded-full px-3 font-display text-sm font-extrabold uppercase italic ${speed === v ? 'bg-ink text-bg' : 'bg-fill hover:bg-fill-hover'}`}>
             {l}
           </button>
         ))}
+        <button type="button" aria-pressed={clickEveryNote} onClick={() => onClickEveryNote(!clickEveryNote)}
+          className={`min-h-10 rounded-full px-3 font-display text-sm font-extrabold uppercase italic ${clickEveryNote ? 'bg-ink text-bg' : 'bg-fill hover:bg-fill-hover'}`}>
+          Click every note
+        </button>
       </div>
 
       <div className="mt-4">
-        <GuideBoard pattern={pattern} index={index} groupSize={groupSize} labelOf={labelOf} />
+        <GuideBoard pattern={pattern} shape={shape} index={index} groupSize={groupSize} labelOf={labelOf} />
       </div>
       <figcaption className="mt-3 text-center">
-        <span className="block font-display text-[15px] font-semibold uppercase italic text-ink-soft">{STRING_NAME[now.string]} string</span>
+        <span className="block font-display text-[15px] font-semibold uppercase italic text-ink-soft">
+          {STRING_NAME[now.string]} string · note {(index % notesPerBeat) + 1} of {notesPerBeat} in this click
+        </span>
         <span className="block font-display text-3xl font-extrabold italic leading-tight">{describe(now)}</span>
       </figcaption>
-      <TabStrip pattern={pattern} index={index} groupSize={groupSize} stepMs={wraps ? 0 : stepMs} />
+      <TabStrip pattern={pattern} index={index} groupSize={groupSize} notesPerBeat={notesPerBeat} stepMs={wraps ? 0 : stepMs} />
     </figure>
   );
 }

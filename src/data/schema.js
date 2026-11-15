@@ -28,14 +28,15 @@ function validateStep(s, where) {
   if (s.drone !== undefined) check(isNote(s.drone?.root), where, 'drone.root must be a note name');
   if (s.pattern !== undefined) {
     const p = s.pattern;
-    const known = (spec) => ['spider', 'sequence'].includes(spec?.type);
+    const known = (spec) => ['spider', 'sequence'].includes(spec?.type)
+      && (spec.notesPerBeat === undefined || (Number.isInteger(spec.notesPerBeat) && spec.notesPerBeat > 0 && spec.notesPerBeat <= 4));
     check(Number.isInteger(p?.notesPerBeat) && p.notesPerBeat > 0, where, 'pattern.notesPerBeat must be a positive integer');
     if (p.byPrompt) {
       const keys = Object.keys(p.byPrompt);
       check(keys.every((k) => s.prompt?.items.includes(k)), where, 'pattern.byPrompt keys must be prompt items');
-      check(keys.every((k) => known(p.byPrompt[k])), where, 'pattern specs must be spider or sequence');
+      check(keys.every((k) => known(p.byPrompt[k])), where, 'pattern specs must be spider or sequence, notesPerBeat 1-4');
     } else {
-      check(known(p.spec), where, 'pattern.spec must be spider or sequence');
+      check(known(p.spec), where, 'pattern.spec must be spider or sequence, notesPerBeat 1-4');
     }
   }
   if (s.ladder !== undefined) check(Number.isInteger(s.ladder?.by) && s.ladder.by > 0, where, 'ladder.by must be a positive integer');

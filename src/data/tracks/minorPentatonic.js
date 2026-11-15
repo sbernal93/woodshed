@@ -16,16 +16,16 @@ const steps = ([warmup, review, focus, apply, cooldown]) => [
   },
   {
     kind: 'focus', title: 'Sequences, not scales', seconds: focus,
-    instruction: 'Box 1, never straight up and down. Follow the pattern on screen and switch without stopping when it changes. Groups of 3 = A-C-D, C-D-E, D-E-G… Skip a note = A-D, C-E, D-G…',
+    instruction: 'Box 1, never straight up and down. Follow the pattern on screen and switch without stopping when it changes. Each group starts on a click: groups of 3 as triplets (A-C-D, C-D-E, D-E-G…), groups of 4 as 16ths, skip-a-note pairs as 8ths (A-D, C-E, D-G…).',
     bpm: { min: 72, max: 100 }, ladder: { by: 4 }, fretboard: box(1),
     prompt: { label: 'Play', items: ['Groups of 3 up', 'Groups of 4 down', 'Skip a note up', 'Groups of 3 down'], everyBars: 4, order: 'cycle' },
     pattern: {
       notesPerBeat: 2,
       byPrompt: {
-        'Groups of 3 up': { type: 'sequence', of: box(1), group: 3, direction: 'up' },
-        'Groups of 4 down': { type: 'sequence', of: box(1), group: 4, direction: 'down' },
-        'Skip a note up': { type: 'sequence', of: box(1), skip: true, direction: 'up' },
-        'Groups of 3 down': { type: 'sequence', of: box(1), group: 3, direction: 'down' },
+        'Groups of 3 up': { type: 'sequence', of: box(1), group: 3, direction: 'up', notesPerBeat: 3 },
+        'Groups of 4 down': { type: 'sequence', of: box(1), group: 4, direction: 'down', notesPerBeat: 4 },
+        'Skip a note up': { type: 'sequence', of: box(1), skip: true, direction: 'up', notesPerBeat: 2 },
+        'Groups of 3 down': { type: 'sequence', of: box(1), group: 3, direction: 'down', notesPerBeat: 3 },
       },
     },
     success: '8 bars in a row with no hesitation when the pattern switches.',

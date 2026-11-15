@@ -34,6 +34,11 @@ export function groupSizeOf(spec) {
   return spec.skip ? 2 : spec.group ?? 3;
 }
 
+export const SUBDIVISION_NAME = { 1: 'quarters', 2: '8ths', 3: 'triplets', 4: '16ths' };
+
+// Each pattern can carry its own subdivision (groups of 3 in triplets, of 4 in 16ths); otherwise the step's.
+export const notesPerBeatOf = (stepPattern, spec) => spec.notesPerBeat ?? stepPattern.notesPerBeat;
+
 export const groupStart = (index, size) => Math.floor(index / size) * size;
 
 const DEMO_MS = { slow: 1100, medium: 650 };

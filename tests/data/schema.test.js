@@ -63,3 +63,5 @@ test('rejects a pattern keyed by a prompt item that does not exist', () =>
   }))).toThrow(/pattern/));
 test('rejects a pattern with an unknown type', () =>
   expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: { type: 'tapdance' } } }))).toThrow(/pattern/));
+test('rejects a pattern spec with a bad notesPerBeat', () =>
+  expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: { type: 'spider', notesPerBeat: 0 } } }))).toThrow(/notesPerBeat/));

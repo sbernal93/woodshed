@@ -9,7 +9,7 @@ import { playChime } from '../audio/chime.js';
 import { useDrone } from '../audio/useDrone.js';
 import StepPrompt from '../components/StepPrompt.jsx';
 import { trackBars, promptState } from '../session/prompts.js';
-import { resolvePattern, groupSizeOf } from '../session/patterns.js';
+import { resolvePattern, groupSizeOf, notesPerBeatOf } from '../session/patterns.js';
 import PatternGuide from '../components/PatternGuide.jsx';
 import { resolveFretboard } from '../music/resolve.js';
 import ArrowButton from '../components/ArrowButton.jsx';
@@ -41,6 +41,13 @@ export default function Session({ trackId, minutes }) {
   const prompt = step.prompt ? promptState(step.prompt, barsRef.current.bars, seed + state.index) : null;
   const patternSpec = step.pattern && (step.pattern.byPrompt ? step.pattern.byPrompt[prompt?.item] : step.pattern.spec);
   const pattern = useMemo(() => (patternSpec ? resolvePattern(patternSpec) : null), [patternSpec]);
+  const shape = useMemo(() => (patternSpec?.of ? resolveFretboard(patternSpec.of).marks : null), [patternSpec]);
+  const patternBeat = pattern ? notesPerBeatOf(step.pattern, patternSpec) : 1;
+  // Opt-in: the metronome also clicks the pattern's subdivision, so you hear where each note falls.
+  const [clickEveryNote, setClickEveryNote] = useState(false);
+  useEffect(() => {
+    if (clickEveryNote) metronome.setSubdivision(pattern ? patternBeat : 1);
+  }, [clickEveryNote, patternBeat, pattern]); // eslint-disable-line react-hooks/exhaustive-deps
   useDrone(step.drone?.root, Boolean(step.drone) && droneOn && !state.paused && !state.finished);
 
   // Each step suggests its own tempo; the click keeps running across the change.
@@ -121,8 +128,10 @@ export default function Session({ trackId, minutes }) {
           )}
 
           {pattern && (
-            <PatternGuide key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} groupSize={groupSizeOf(patternSpec)}
-              notesPerBeat={step.pattern.notesPerBeat} bpm={metronome.bpm} frozen={state.paused}
+            <PatternGuide key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} shape={shape} groupSize={groupSizeOf(patternSpec)}
+              notesPerBeat={patternBeat} bpm={metronome.bpm} frozen={state.paused}
+              clickEveryNote={clickEveryNote}
+              onClickEveryNote={(on) => { setClickEveryNote(on); if (!on) metronome.setSubdivision(1); }}
               labelOf={(n) => (patternSpec.type === 'spider' ? n.finger : n.degree)}
               describe={(n) => (patternSpec.type === 'spider'
                 ? `Fret ${n.fret} · finger ${n.finger}`

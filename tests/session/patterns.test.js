@@ -55,3 +55,12 @@ test('demo speeds: slow, medium, and at tempo from the BPM', () => {
   expect(demoStepMs('medium', 80, 2)).toBe(650);
   expect(demoStepMs('tempo', 80, 2)).toBe(375);
 });
+
+import { notesPerBeatOf, SUBDIVISION_NAME } from '../../src/session/patterns.js';
+
+test('a pattern can set its own notes per click, else the step default applies', () => {
+  expect(notesPerBeatOf({ notesPerBeat: 2 }, { type: 'sequence', group: 3, notesPerBeat: 3 })).toBe(3);
+  expect(notesPerBeatOf({ notesPerBeat: 2 }, { type: 'spider' })).toBe(2);
+});
+test('subdivisions have musician names', () =>
+  expect([1, 2, 3, 4].map((n) => SUBDIVISION_NAME[n])).toEqual(['quarters', '8ths', 'triplets', '16ths']));
