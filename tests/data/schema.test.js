@@ -65,3 +65,11 @@ test('rejects a pattern with an unknown type', () =>
   expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: { type: 'tapdance' } } }))).toThrow(/pattern/));
 test('rejects a pattern spec with a bad notesPerBeat', () =>
   expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: { type: 'spider', notesPerBeat: 0 } } }))).toThrow(/notesPerBeat/));
+
+const gridSpec = (extra = {}) => ({ type: 'grid', slotsPerBeat: 2, beats: 4, shape: [[6, 0]], events: { 0: [[6, 0, 'p']] }, ...extra });
+test('accepts a grid pattern', () =>
+  expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: gridSpec() } }))).not.toThrow());
+test('rejects a grid event outside the bar', () =>
+  expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: gridSpec({ events: { 8: [[6, 0, 'p']] } }) } }))).toThrow(/grid/));
+test('rejects a grid note with an unknown hand', () =>
+  expect(() => validateTrack(withStep({ pattern: { notesPerBeat: 2, spec: gridSpec({ events: { 0: [[6, 0, 'x']] } }) } }))).toThrow(/grid/));

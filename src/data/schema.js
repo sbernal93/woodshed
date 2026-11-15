@@ -28,7 +28,7 @@ function validateStep(s, where) {
   if (s.drone !== undefined) check(isNote(s.drone?.root), where, 'drone.root must be a note name');
   if (s.pattern !== undefined) {
     const p = s.pattern;
-    const known = (spec) => ['spider', 'sequence'].includes(spec?.type)
+    const known = (spec) => (spec?.type === 'grid' ? validGrid(spec, where) : ['spider', 'sequence'].includes(spec?.type))
       && (spec.notesPerBeat === undefined || (Number.isInteger(spec.notesPerBeat) && spec.notesPerBeat > 0 && spec.notesPerBeat <= 4));
     check(Number.isInteger(p?.notesPerBeat) && p.notesPerBeat > 0, where, 'pattern.notesPerBeat must be a positive integer');
     if (p.byPrompt) {
@@ -40,6 +40,19 @@ function validateStep(s, where) {
     }
   }
   if (s.ladder !== undefined) check(Number.isInteger(s.ladder?.by) && s.ladder.by > 0, where, 'ladder.by must be a positive integer');
+}
+
+const isPosition = (string, fret) => Number.isInteger(string) && string >= 1 && string <= 6 && Number.isInteger(fret) && fret >= 0 && fret <= 24;
+
+function validGrid(g, where) {
+  const slots = g.slotsPerBeat * g.beats;
+  check([2, 3, 4].includes(g.slotsPerBeat) && Number.isInteger(g.beats) && g.beats > 0, where, 'grid needs slotsPerBeat 2-4 and whole beats');
+  check(Array.isArray(g.shape) && g.shape.every(([s, f]) => isPosition(s, f)), where, 'grid shape must be [string, fret] pairs');
+  for (const [slot, notes] of Object.entries(g.events ?? {})) {
+    check(Number.isInteger(Number(slot)) && Number(slot) >= 0 && Number(slot) < slots, where, `grid event slot ${slot} is outside the bar`);
+    check(notes.every(([s, f, hand]) => isPosition(s, f) && ['p', 'i', 'm', 'a'].includes(hand)), where, `grid notes at slot ${slot} need string, fret and hand p/i/m/a`);
+  }
+  return true;
 }
 
 function isNote(name) {

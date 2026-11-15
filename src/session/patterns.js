@@ -31,6 +31,7 @@ export function resolvePattern(spec) {
 // How many notes the guide groups together: one string for spider, the sequence group, or a skipped pair.
 export function groupSizeOf(spec) {
   if (spec.type === 'spider') return (spec.order ?? [1, 2, 3, 4]).length;
+  if (spec.type === 'grid') return spec.slotsPerBeat;
   return spec.skip ? 2 : spec.group ?? 3;
 }
 

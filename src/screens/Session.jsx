@@ -11,6 +11,8 @@ import StepPrompt from '../components/StepPrompt.jsx';
 import { trackBars, promptState } from '../session/prompts.js';
 import { resolvePattern, groupSizeOf, notesPerBeatOf } from '../session/patterns.js';
 import PatternGuide from '../components/PatternGuide.jsx';
+import GridGuide from '../components/GridGuide.jsx';
+import { resolveGrid } from '../session/grid.js';
 import { resolveFretboard } from '../music/resolve.js';
 import ArrowButton from '../components/ArrowButton.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
@@ -40,7 +42,8 @@ export default function Session({ trackId, minutes }) {
   barsRef.current = trackBars(barsRef.current, step.seconds * 1000 - state.remainingMs, metronome.bpm, state.index);
   const prompt = step.prompt ? promptState(step.prompt, barsRef.current.bars, seed + state.index) : null;
   const patternSpec = step.pattern && (step.pattern.byPrompt ? step.pattern.byPrompt[prompt?.item] : step.pattern.spec);
-  const pattern = useMemo(() => (patternSpec ? resolvePattern(patternSpec) : null), [patternSpec]);
+  const grid = useMemo(() => (patternSpec?.type === 'grid' ? resolveGrid(patternSpec) : null), [patternSpec]);
+  const pattern = useMemo(() => (patternSpec && !grid ? resolvePattern(patternSpec) : null), [patternSpec, grid]);
   const shape = useMemo(() => (patternSpec?.of ? resolveFretboard(patternSpec.of).marks : null), [patternSpec]);
   const patternBeat = pattern ? notesPerBeatOf(step.pattern, patternSpec) : 1;
   // Opt-in: the metronome also clicks the pattern's subdivision, so you hear where each note falls.
@@ -80,7 +83,7 @@ export default function Session({ trackId, minutes }) {
 
   if (state.finished) return <SessionDone track={track} session={session} steps={steps} />;
 
-  const board = step.fretboard && !pattern ? resolveFretboard(step.fretboard) : null;
+  const board = step.fretboard && !pattern && !grid ? resolveFretboard(step.fretboard) : null;
   const total = steps.reduce((sum, s) => sum + s.seconds, 0);
 
   return (
@@ -127,6 +130,7 @@ export default function Session({ trackId, minutes }) {
             <StepPrompt prompt={step.prompt} state={prompt} />
           )}
 
+          {grid && <GridGuide key={`${state.index}-${prompt?.index ?? 0}`} grid={grid} bpm={metronome.bpm} frozen={state.paused} />}
           {pattern && (
             <PatternGuide key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} shape={shape} groupSize={groupSizeOf(patternSpec)}
               notesPerBeat={patternBeat} bpm={metronome.bpm} frozen={state.paused}
