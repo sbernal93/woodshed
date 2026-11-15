@@ -28,6 +28,17 @@ export function resolvePattern(spec) {
   throw new Error(`unknown pattern type "${spec.type}"`);
 }
 
-export function playheadIndex(beats, notesPerBeat, length) {
-  return Math.floor(Math.max(0, beats) * notesPerBeat) % length;
+// How many notes the guide groups together: one string for spider, the sequence group, or a skipped pair.
+export function groupSizeOf(spec) {
+  if (spec.type === 'spider') return (spec.order ?? [1, 2, 3, 4]).length;
+  return spec.skip ? 2 : spec.group ?? 3;
+}
+
+export const groupStart = (index, size) => Math.floor(index / size) * size;
+
+const DEMO_MS = { slow: 1100, medium: 650 };
+
+// The guide is a demonstration, not a sync: slow and medium are fixed, 'tempo' matches the step's BPM.
+export function demoStepMs(speed, bpm, notesPerBeat) {
+  return DEMO_MS[speed] ?? Math.round(60000 / bpm / notesPerBeat);
 }

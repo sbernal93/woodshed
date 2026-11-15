@@ -57,8 +57,5 @@ export function useMetronome(initialBpm = 80) {
     if (next !== null) setBpmState(next);
   }, [engine, bpm]);
 
-  // Listen to scheduled beats (beatInBar, isAccent, audioTime); a no-op until the click has been started once.
-  const subscribe = useCallback((cb) => (ref.current ? ref.current.onBeat(cb) : () => {}), []);
-
-  return { bpm, setBpm, running, toggle, tap, subdivision, setSubdivision, accent, setAccent, subscribe };
+  return { bpm, setBpm, running, toggle, tap, subdivision, setSubdivision, accent, setAccent };
 }

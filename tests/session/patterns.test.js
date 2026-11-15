@@ -1,4 +1,4 @@
-import { spiderPattern, sequencePattern, resolvePattern, playheadIndex } from '../../src/session/patterns.js';
+import { spiderPattern, sequencePattern, resolvePattern } from '../../src/session/patterns.js';
 import { positionMarks } from '../../src/music/scales.js';
 import { noteAt } from '../../src/music/tuning.js';
 
@@ -36,10 +36,22 @@ test('resolvePattern builds a sequence from a fretboard spec', () => {
   expect(names(p.slice(0, 3))).toEqual(['A', 'C', 'D']);
 });
 
-test('playhead index follows beats at the given notes per beat and wraps', () => {
-  expect(playheadIndex(0, 2, 48)).toBe(0);
-  expect(playheadIndex(0.49, 2, 48)).toBe(0);
-  expect(playheadIndex(0.5, 2, 48)).toBe(1);
-  expect(playheadIndex(24, 2, 48)).toBe(0);
-  expect(playheadIndex(-1, 2, 48)).toBe(0);
+
+
+import { groupSizeOf, groupStart, demoStepMs } from '../../src/session/patterns.js';
+
+test('group size: one string for spider, the group for sequences, a pair for skips', () => {
+  expect(groupSizeOf({ type: 'spider', order: [1, 3, 2, 4] })).toBe(4);
+  expect(groupSizeOf({ type: 'sequence', group: 3 })).toBe(3);
+  expect(groupSizeOf({ type: 'sequence', skip: true })).toBe(2);
+});
+test('group start snaps the note index to its group', () => {
+  expect(groupStart(0, 4)).toBe(0);
+  expect(groupStart(7, 4)).toBe(4);
+  expect(groupStart(5, 3)).toBe(3);
+});
+test('demo speeds: slow, medium, and at tempo from the BPM', () => {
+  expect(demoStepMs('slow', 80, 2)).toBe(1100);
+  expect(demoStepMs('medium', 80, 2)).toBe(650);
+  expect(demoStepMs('tempo', 80, 2)).toBe(375);
 });

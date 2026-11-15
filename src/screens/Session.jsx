@@ -9,8 +9,8 @@ import { playChime } from '../audio/chime.js';
 import { useDrone } from '../audio/useDrone.js';
 import StepPrompt from '../components/StepPrompt.jsx';
 import { trackBars, promptState } from '../session/prompts.js';
-import { resolvePattern } from '../session/patterns.js';
-import PlayAlong from '../components/PlayAlong.jsx';
+import { resolvePattern, groupSizeOf } from '../session/patterns.js';
+import PatternGuide from '../components/PatternGuide.jsx';
 import { resolveFretboard } from '../music/resolve.js';
 import ArrowButton from '../components/ArrowButton.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
@@ -121,9 +121,12 @@ export default function Session({ trackId, minutes }) {
           )}
 
           {pattern && (
-            <PlayAlong key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} notesPerBeat={step.pattern.notesPerBeat}
-              metronome={metronome} frozen={state.paused}
-              labelMode={patternSpec.type === 'spider' ? 'finger' : 'degree'} title={`${step.title}: play-along guide`} />
+            <PatternGuide key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} groupSize={groupSizeOf(patternSpec)}
+              notesPerBeat={step.pattern.notesPerBeat} bpm={metronome.bpm} frozen={state.paused}
+              labelOf={(n) => (patternSpec.type === 'spider' ? n.finger : n.degree)}
+              describe={(n) => (patternSpec.type === 'spider'
+                ? `Fret ${n.fret} · finger ${n.finger}`
+                : `Fret ${n.fret} · ${n.note} (${n.degree})${n.finger ? ` · finger ${n.finger}` : ''}`)} />
           )}
 
           <p className="mt-6 text-lg leading-relaxed">{step.instruction}</p>
