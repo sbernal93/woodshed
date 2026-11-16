@@ -5,6 +5,7 @@ import ArrowButton from '../components/ArrowButton.jsx';
 import KeyPicker from '../components/KeyPicker.jsx';
 import Chip from '../components/Chip.jsx';
 import FretboardViewer from '../components/FretboardViewer.jsx';
+import CagedNeck from '../components/CagedNeck.jsx';
 import { cagedHref } from '../routes.js';
 
 const VIEWS = [
@@ -37,7 +38,9 @@ export default function CagedDetail({ root }) {
           the pink dot is the root, solid dots are the rest of the chord (3 and 5), and outlined dots are the notes in between.
         </p>
       )}
-      <div className="mt-10 grid gap-14 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-10"><CagedNeck root={root} view={view} /></div>
+      <h3 className="mt-14 font-display text-2xl font-extrabold uppercase italic">One position at a time</h3>
+      <div className="mt-6 grid gap-14 md:grid-cols-2 xl:grid-cols-3">
         {['C', 'A', 'G', 'E', 'D'].map((shape) => (
           <FretboardViewer key={`${root}-${view}-${shape}`} title={`${shape} shape`} spec={spec(shape)} />
         ))}
