@@ -31,7 +31,7 @@ Each step has a get-ready phase, a countdown, a target tempo, a built-in metrono
 
 | | |
 |---|---|
-| **Tracks** | Advanced Fingerstyle, Minor Pentatonic, the CAGED System, Triads and Style Studies (Mayer and Hendrix) so far. Jazz and funk are on the way. |
+| **Tracks** | Advanced Fingerstyle, Minor Pentatonic, the CAGED System, Triads and Style Studies so far. Jazz and funk are on the way. |
 | **Sessions** | 15, 20 or 30 minutes in five steps. Every step has a twist, a goal or a musical context: live prompts that change every few bars, a drone to play over, a tempo ladder. |
 | **Guides** | Fretboard with play order and a scrolling tab, or a fingerstyle rhythm grid. They play as a demo, or follow the metronome's click. |
 | **Progress** | Rate each step Struggled, Okay or Clean, and the next session starts at the right tempo. A streak, and sync across devices with no account. |
@@ -39,7 +39,7 @@ Each step has a get-ready phase, a countdown, a target tempo, a built-in metrono
 
 ## Running it
 
-Needs Node 20.19+ (Vite 8).
+Needs Node 22.12+; the deploy builds on Node 26 (the current LTS), and `.nvmrc` pins it for `nvm use`.
 
 ```bash
 npm install
