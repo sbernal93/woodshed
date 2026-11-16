@@ -5,6 +5,8 @@ import { scaleMarks } from './scales.js';
 export const CHORDS = {
   maj: ['1', '3', '5'],
   m: ['1', 'b3', '5'],
+  dim: ['1', 'b3', 'b5'],
+  aug: ['1', '3', '#5'],
   7: ['1', '3', '5', 'b7'],
   maj7: ['1', '3', '5', '7'],
   m7: ['1', 'b3', '5', 'b7'],

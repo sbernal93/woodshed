@@ -1,5 +1,6 @@
 import { positionMarks, scaleMarks } from './scales.js';
 import { cagedMarks, cagedScaleMarks } from './chords.js';
+import { triadVoicings } from './triads.js';
 
 const frame = (marks) => {
   const frets = marks.map((m) => m.fret);
@@ -15,6 +16,16 @@ export function resolveFretboard(spec) {
     case 'scale':
       if (spec.position) return frame(positionMarks({ root: spec.root, scale: spec.scale, position: spec.position, perString: spec.perString }));
       return { marks: scaleMarks(spec), fromFret: spec.fromFret ?? 0, toFret: spec.toFret ?? 12 };
+    case 'triad': {
+      // A named inversion (its lowest place on the neck), or whichever voicing sits closest to `near`.
+      const voicings = triadVoicings(spec);
+      const mid = (v) => (v.from + v.to) / 2;
+      const pick = spec.near === undefined
+        ? voicings.find((v) => v.inversion === spec.inversion)
+        : voicings.reduce((best, v) => (Math.abs(mid(v) - spec.near) < Math.abs(mid(best) - spec.near) ? v : best));
+      if (!pick) throw new Error(`no ${spec.root} ${spec.quality} triad for ${JSON.stringify(spec)}`);
+      return frame(pick.marks);
+    }
     case 'caged-scale':
       return frame(cagedScaleMarks(spec));
     case 'caged':

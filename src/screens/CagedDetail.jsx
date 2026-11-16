@@ -5,8 +5,9 @@ import ArrowButton from '../components/ArrowButton.jsx';
 import KeyPicker from '../components/KeyPicker.jsx';
 import Chip from '../components/Chip.jsx';
 import FretboardViewer from '../components/FretboardViewer.jsx';
-import CagedNeck from '../components/CagedNeck.jsx';
-import { cagedHref } from '../routes.js';
+import NeckMap from '../components/NeckMap.jsx';
+import { cagedNeck } from '../music/chords.js';
+import { cagedHref, triadsHref } from '../routes.js';
 
 const VIEWS = [
   { value: 'maj', label: 'Major' },
@@ -17,6 +18,12 @@ const VIEWS = [
 export default function CagedDetail({ root }) {
   const [view, setView] = useState('maj');
   const [shape, setShape] = useState(null);
+  const neck = cagedNeck({ root, view });
+  // A picked shape stays bright wherever it appears; everything else dims.
+  const marks = shape ? neck.marks.map((m) => ({ ...m, muted: !m.shapes.includes(shape) })) : neck.marks;
+  const regions = neck.regions.map((r) => ({
+    ...r, key: `${r.shape}-${r.from}`, label: r.shape, selected: r.shape === shape, ariaLabel: `${r.shape} shape, frets ${r.from} to ${r.to}`,
+  }));
   const spec = view === 'scale' ? { type: 'caged-scale', root, shape } : { type: 'caged', root, shape, quality: view };
   return (
     <main className="mx-auto w-full max-w-[1400px] px-5 pb-16 pt-6 lg:px-12 lg:pt-10">
@@ -35,12 +42,16 @@ export default function CagedDetail({ root }) {
 
       <div className="mt-10 xl:flex xl:items-start xl:gap-8">
         <div className="min-w-0">
-          <CagedNeck root={root} view={view} selected={shape} onSelect={setShape} />
+          <NeckMap marks={marks} regions={regions} onPick={(r) => setShape(r.selected ? null : r.shape)}
+            title={`${root} ${view === 'scale' ? 'major scale' : view === 'm' ? 'minor' : 'major'}: all five CAGED positions on one neck`} />
           <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
             {view === 'scale'
               ? 'Pink is the root, solid dots are the rest of the chord (3 and 5), outlined dots are the notes in between. Tap a shape above the neck to see one position.'
               : 'Tap a shape above the neck to light it up and see it up close. Tap it again to see them all.'}
           </p>
+          <a href={triadsHref(root)} className="mt-2 inline-block min-h-11 py-2 font-display text-lg font-extrabold uppercase italic underline decoration-2 underline-offset-4 hover:text-brand">
+            The triads inside these shapes
+          </a>
         </div>
         {shape && (
           <div className="mt-10 max-w-sm shrink-0 xl:mt-0 xl:w-72">
