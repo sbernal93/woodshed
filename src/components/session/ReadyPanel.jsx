@@ -3,7 +3,7 @@ import { PREP_MS } from '../../session/runner.js';
 const RING = 2 * Math.PI * 34;
 
 // The get-ready state: what to play and what good looks like, with a ring emptying as the seconds run out.
-export default function ReadyPanel({ step, state, onStart, onMore }) {
+export default function ReadyPanel({ step, state, note, onStart, onMore }) {
   const seconds = Math.ceil(state.prepMs / 1000);
   const left = Math.min(1, state.prepMs / PREP_MS);
   return (
@@ -20,6 +20,7 @@ export default function ReadyPanel({ step, state, onStart, onMore }) {
           </div>
           <div>
             <p className="font-display text-lg font-extrabold uppercase italic text-brand">Get ready</p>
+            {note && <p className="mt-1 font-display text-lg font-semibold italic">{note}</p>}
             <p className="mt-1 text-[16px] leading-relaxed">{step.instruction}</p>
             <p className="mt-3 font-display text-sm font-semibold uppercase italic text-ink-soft">What good looks like</p>
             <p className="mt-0.5 text-[16px] leading-relaxed">{step.success}</p>

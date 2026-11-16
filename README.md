@@ -162,6 +162,19 @@ The rules live in `src/data/schema.js` (steps and tracks) and `src/data/library.
 - Every step needs a twist, a goal or a musical context. Running a box up and down is not a step.
 - Theory comes from the generators in `src/music/`. Add a test when you add a generator.
 
+## Progress and sync
+
+Each step you play for at least 15 seconds is logged with the exercise, the variant and the tempo you finished at. During the next step's get-ready, and on the done screen, you rate it: Struggled, Okay or Clean. Next time that exercise and variant come up, the session starts 4 BPM faster after Clean, 4 BPM slower after Struggled, and at the same tempo otherwise. The step's range sets the limits, and it never drops you below a tempo you've already passed. Home shows your streak.
+
+History is saved in the browser first, then synced to Supabase when it's reachable, so practising offline is fine. There are no accounts. Each device gets a **sync code** (a random UUID), and putting the same code on another device under Home › Sync devices shares one history. Row-level security only lets a request read and write rows matching the code it sends.
+
+To set it up:
+
+1. Run `supabase/schema.sql` once in the Supabase SQL editor.
+2. Copy `.env.example` to `.env.local` and fill in the project URL and the publishable (or legacy anon) key. That key is public by design.
+
+Without those variables the app still works and keeps history on the device.
+
 ## Deploying
 
 The build in `dist/` is static, so any static host works. The plan is GitHub Pages at `woodshed.bernaland.com`, with a CNAME record at the DNS provider pointing to `sbernal93.github.io`. The deploy workflow and PWA manifest are not set up yet.
