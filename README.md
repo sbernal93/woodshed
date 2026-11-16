@@ -1,12 +1,41 @@
-<img src="assets/icon.svg" width="64" height="64" alt="">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
+  <img src="assets/banner.svg" alt="Woodshed: structured guitar practice for the music stand. 15, 20 and 30 minute sessions." width="100%">
+</picture>
 
-# Woodshed
+<p>
+  <img src="assets/icon.svg" width="20" height="20" alt="" align="absmiddle">
+  &nbsp;<b>A personal guitar practice app.</b> Pick a track and a length, and Woodshed runs the session for you: warm-up, review, focus, apply, cool-down.
+</p>
 
-A personal guitar practice app. Pick a track and a length (15, 20 or 30 minutes) and Woodshed runs a structured session for you: warm-up, review, focus, apply, cool-down. Each step has a countdown, a get-ready phase, a target tempo, a built-in metronome and a visual guide (fretboard, scrolling tab or fingerstyle rhythm grid).
+Each step has a get-ready phase, a countdown, a target tempo, a built-in metronome and a visual guide: a fretboard with a scrolling tab, or a fingerstyle rhythm grid. It's built to be read from a phone or tablet on a music stand, one to two metres away. Type and tap targets are big, the screen stays awake, and there are keyboard shortcuts.
 
-It is built to be read from a phone or tablet on a music stand, one to two metres away. Type is big, tap targets are big, the screen stays awake and there are keyboard shortcuts.
+<table>
+  <tr>
+    <td width="50%"><img src="assets/screens/session-light.png" alt="A Minor Pentatonic focus step in the light Ocean Drive theme: the Groups of 3 up prompt, the box 1 fretboard showing play order, and a scrolling tab with metronome clicks."></td>
+    <td width="50%"><img src="assets/screens/session-dark.png" alt="A fingerstyle focus step in the dark Night Drive theme: the Every & prompt, thumb and finger notes on the open E minor shape, and a one-bar rhythm grid."></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Ocean Drive</b> · light</td>
+    <td align="center"><b>Night Drive</b> · dark</td>
+  </tr>
+</table>
 
-Tracks so far: **Advanced Fingerstyle** and **Minor Pentatonic**. More are planned: CAGED, scales, fretboard knowledge, electric technique, rhythm and application. There is also a reference library of scales and CAGED shapes in any key.
+<p align="center">
+  <img src="assets/screens/home-light.png" width="240" alt="Home screen on a phone, light theme: pick a track, choose 15, 20 or 30 minutes, start.">
+  &nbsp;&nbsp;
+  <img src="assets/screens/home-dark.png" width="240" alt="The same home screen in the dark theme.">
+</p>
+
+### What's in it
+
+| | |
+|---|---|
+| **Tracks** | Advanced Fingerstyle and Minor Pentatonic so far. CAGED, scales, fretboard knowledge, electric technique, rhythm and application are planned. |
+| **Sessions** | 15, 20 or 30 minutes in five steps. Every step has a twist, a goal or a musical context: live prompts that change every few bars, a drone to play over, a tempo ladder. |
+| **Guides** | Fretboard with play order and a scrolling tab, or a fingerstyle rhythm grid. They play as a demo, or follow the metronome's click. |
+| **Progress** | Rate each step Struggled, Okay or Clean, and the next session starts at the right tempo. A streak, and sync across devices with no account. |
+| **Library** | Every scale and CAGED shape in any key, with the chords that go with it. |
 
 ## Running it
 
