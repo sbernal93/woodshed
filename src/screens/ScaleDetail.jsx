@@ -40,15 +40,12 @@ export default function ScaleDetail({ scale, root }) {
       <div className="mt-8 flex items-center gap-3">
         <ArrowButton direction="prev" href="#library" label="Back to scale library" />
         <div>
-          <h2 className="font-display text-3xl font-extrabold uppercase italic leading-none">{root} {info.title}</h2>
+          <h2 className="flex flex-wrap items-center gap-x-3 gap-y-1 font-display text-3xl font-extrabold uppercase italic leading-none">
+            <KeyPicker value={root} onChange={changeKey} /> {info.title}
+          </h2>
           <p className="mt-1 text-[15px] text-ink-soft">{info.blurb}</p>
         </div>
       </div>
-
-      <section aria-labelledby="key-h" className="mt-8">
-        <h3 id="key-h" className={heading}>Key</h3>
-        <div className="mt-3"><KeyPicker value={root} onChange={changeKey} /></div>
-      </section>
 
       <section aria-labelledby="notes-h" className="mt-8">
         <h3 id="notes-h" className={heading}>Notes and degrees</h3>

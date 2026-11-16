@@ -11,10 +11,8 @@ import { cagedHref } from '../routes.js';
 const VIEWS = [
   { value: 'maj', label: 'Major' },
   { value: 'm', label: 'Minor' },
-  { value: 'scale', label: 'Major scale' },
+  { value: 'scale', label: 'Scale' },
 ];
-
-const SHAPES = ['C', 'A', 'G', 'E', 'D'];
 
 export default function CagedDetail({ root }) {
   const [view, setView] = useState('maj');
@@ -25,23 +23,14 @@ export default function CagedDetail({ root }) {
       <Header right={<ThemeToggle />} />
       <div className="mt-8 flex items-center gap-3">
         <ArrowButton direction="prev" href="#library" label="Back to scale library" />
-        <h2 className="font-display text-3xl font-extrabold uppercase italic leading-none">
-          {root}{view === 'm' ? 'm' : ''}{view === 'scale' ? ' major scale' : ''} · CAGED
+        <h2 className="flex items-center gap-3 font-display text-3xl font-extrabold uppercase italic leading-none">
+          CAGED in <KeyPicker value={root} onChange={(k) => location.replace(cagedHref(k))} />
         </h2>
       </div>
-      <div className="mt-8"><KeyPicker value={root} onChange={(k) => location.replace(cagedHref(k))} /></div>
-      <div className="mt-3 flex flex-wrap gap-x-8 gap-y-3">
-        <div role="group" aria-label="Show" className="grid w-full max-w-md grid-cols-3 gap-2 px-2">
-          {VIEWS.map((v) => (
-            <Chip key={v.value} selected={view === v.value} onClick={() => setView(v.value)} size="sm">{v.label}</Chip>
-          ))}
-        </div>
-        <div role="group" aria-label="Highlight a shape" className="grid w-full max-w-md grid-cols-6 gap-2 px-2">
-          <Chip selected={!shape} onClick={() => setShape(null)} size="sm" className="px-0">All</Chip>
-          {SHAPES.map((s) => (
-            <Chip key={s} selected={shape === s} onClick={() => setShape(shape === s ? null : s)} size="sm" className="px-0">{s}</Chip>
-          ))}
-        </div>
+      <div role="group" aria-label="Show" className="mt-6 grid w-full max-w-md grid-cols-3 gap-2 px-2">
+        {VIEWS.map((v) => (
+          <Chip key={v.value} selected={view === v.value} onClick={() => setView(v.value)} size="sm">{v.label}</Chip>
+        ))}
       </div>
 
       <div className="mt-10 xl:flex xl:items-start xl:gap-8">
@@ -49,8 +38,8 @@ export default function CagedDetail({ root }) {
           <CagedNeck root={root} view={view} selected={shape} onSelect={setShape} />
           <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
             {view === 'scale'
-              ? 'Pink is the root, solid dots are the rest of the chord (3 and 5), outlined dots are the notes in between. Pick a shape to see one position.'
-              : 'Pick a shape to light it up on the neck and see it up close.'}
+              ? 'Pink is the root, solid dots are the rest of the chord (3 and 5), outlined dots are the notes in between. Tap a shape above the neck to see one position.'
+              : 'Tap a shape above the neck to light it up and see it up close. Tap it again to see them all.'}
           </p>
         </div>
         {shape && (

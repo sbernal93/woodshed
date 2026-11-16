@@ -4,7 +4,7 @@ import { fretboardLayout } from '../fretboard/layout.js';
 import Fretboard from './Fretboard.jsx';
 
 const TO_FRET = 15;
-const ROW = 28;
+const ROW = 30;
 
 // The whole neck with every CAGED position on it, and a bracket above showing where each shape sits.
 // With a `selected` shape, only its notes (wherever it appears) stay bright.
@@ -29,20 +29,24 @@ export default function CagedNeck({ root, view, selected, onSelect }) {
     <figure>
       <div ref={scroller} className="overflow-x-auto pb-2">
         <div className="w-max">
-          <svg viewBox={`0 0 ${L.width} ${ROW * 2 + 6}`} width={L.width} height={ROW * 2 + 6} aria-hidden="true" className="block font-display italic">
+          <div role="group" aria-label="Shapes on the neck" className="relative" style={{ width: L.width, height: ROW * 2 + 8 }}>
             {regions.map((r, i) => {
-              const y = (i % 2) * ROW + 6;
               const [x1, x2] = [left(r), right(r)];
+              const on = r.shape === selected;
               return (
-                <g key={`${r.shape}-${r.from}`} onClick={() => onSelect(r.shape === selected ? null : r.shape)}
-                  className={`cursor-pointer ${selected && r.shape !== selected ? 'opacity-30' : ''}`}>
-                  <path d={`M${x1} ${y + 18} V${y + 10} H${x2} V${y + 18}`} fill="none" strokeWidth="2.5" className={i % 2 ? 'stroke-ink' : 'stroke-brand'} />
-                  <rect x={(x1 + x2) / 2 - 15} y={y} width="30" height="20" className="fill-bg" />
-                  <text x={(x1 + x2) / 2} y={y + 10} dy="0.35em" textAnchor="middle" className="fill-ink text-[17px] font-extrabold">{r.shape}</text>
-                </g>
+                <button key={`${r.shape}-${r.from}`} type="button" aria-pressed={on} onClick={() => onSelect(on ? null : r.shape)}
+                  aria-label={`${r.shape} shape, frets ${r.from} to ${r.to}`}
+                  className={`group absolute flex items-center justify-center transition-opacity ${selected && !on ? 'opacity-30 hover:opacity-70' : ''}`}
+                  style={{ left: x1, width: x2 - x1, top: (i % 2) * ROW + 4, height: ROW }}>
+                  <span aria-hidden="true" className={`absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 ${i % 2 ? 'bg-ink' : 'bg-brand'}`} />
+                  <span aria-hidden="true" className={`relative min-w-9 -skew-x-12 px-2 font-display text-lg font-extrabold uppercase italic leading-7 ${
+                    on ? 'bg-brand text-on-brand shadow-flat' : 'bg-bg text-ink outline-2 outline-line group-hover:bg-fill-hover'}`}>
+                    <span className="inline-block skew-x-12">{r.shape}</span>
+                  </span>
+                </button>
               );
             })}
-          </svg>
+          </div>
           <Fretboard marks={marks} fromFret={0} toFret={TO_FRET} orientation="horizontal" labelMode="degree"
             title={`${root} ${view === 'scale' ? 'major scale' : view === 'm' ? 'minor' : 'major'}: all five CAGED positions on one neck`} />
         </div>
