@@ -1,4 +1,4 @@
-import { chordTones, cagedMarks, cagedScaleMarks, CAGED_SHAPES } from '../../src/music/chords.js';
+import { chordTones, cagedMarks, cagedScaleMarks, cagedNeck, CAGED_SHAPES } from '../../src/music/chords.js';
 import { pitchClass, spell } from '../../src/music/notes.js';
 import { noteAt } from '../../src/music/tuning.js';
 
@@ -64,4 +64,34 @@ test('chord tones are flagged so the shape stands out inside the scale', () => {
   const marks = cagedScaleMarks({ root: 'G', shape: 'E' });
   expect(marks.filter((m) => m.chordTone).map((m) => m.degree).every((d) => ['1', '3', '5'].includes(d))).toBe(true);
   expect(marks.find((m) => m.string === 4 && m.fret === 4)).toMatchObject({ note: 'F#', degree: '7', chordTone: false });
+});
+
+test('the CAGED neck for G marks each shape where it sits, repeating past the 12th fret', () => {
+  const { regions } = cagedNeck({ root: 'G', view: 'maj' });
+  expect(regions.map((r) => `${r.shape} ${r.from}-${r.to}`)).toEqual(['G 0-3', 'E 3-5', 'D 5-8', 'C 7-10', 'A 10-12', 'G 12-15']);
+});
+
+test('the CAGED neck has each note once, and only notes from the view', () => {
+  for (const view of ['maj', 'm', 'scale']) {
+    const { marks } = cagedNeck({ root: 'D', view });
+    const keys = marks.map((m) => `${m.string}-${m.fret}`);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(marks.every((m) => m.fret >= 0 && m.fret <= 15)).toBe(true);
+    const allowed = view === 'scale' ? ['1', '2', '3', '4', '5', '6', '7'] : view === 'm' ? ['1', 'b3', '5'] : ['1', '3', '5'];
+    expect(marks.every((m) => allowed.includes(m.degree))).toBe(true);
+  }
+});
+
+test('in the scale view each region spans the scale window around its chord shape', () => {
+  const g = cagedNeck({ root: 'G', view: 'scale' }).regions.find((r) => r.shape === 'E');
+  expect([g.from, g.to]).toEqual([2, 5]);
+});
+
+test('each note on the CAGED neck knows which shapes it belongs to', () => {
+  const { marks } = cagedNeck({ root: 'G', view: 'maj' });
+  const at = (string, fret) => marks.find((m) => m.string === string && m.fret === fret);
+  expect(at(6, 3).shapes.sort()).toEqual(['E', 'G']);
+  expect(at(5, 10).shapes.sort()).toEqual(['A', 'C']);
+  expect(at(4, 9).shapes).toEqual(['C']);
+  expect(at(6, 15).shapes).toEqual(['G']);
 });

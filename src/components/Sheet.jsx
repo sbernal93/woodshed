@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { CloseIcon } from './icons.jsx';
 
 // Bottom sheet on a native <dialog>: focus trapping and Escape-to-close for free.
+// Portalled to <body> so a sheet opened from inside a heading or label is not read as part of it.
 export default function Sheet({ open, onClose, title, children }) {
   const ref = useRef(null);
   const headingId = useId();
@@ -11,7 +13,7 @@ export default function Sheet({ open, onClose, title, children }) {
     if (!open && d.open) d.close();
   }, [open]);
 
-  return (
+  return createPortal(
     <dialog ref={ref} onClose={onClose} aria-labelledby={headingId}
       onClick={(e) => e.target === ref.current && onClose()}
       className="m-0 mt-auto w-full max-w-none bg-bg p-0 text-ink shadow-[0_-2px_0_var(--wd-shadow)] backdrop:bg-black/50">
@@ -24,6 +26,7 @@ export default function Sheet({ open, onClose, title, children }) {
         </div>
         <div className="mt-2">{children}</div>
       </div>
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }

@@ -97,3 +97,7 @@ html { caret-color: var(--wd-brand); scrollbar-color: var(--wd-line) var(--wd-bg
 @media (prefers-reduced-motion: reduce) {
   .wd-step-in, .wd-fade-up, .wd-clock { animation: none; }
 }
+
+/* Sideways-scrolling chip rows: the cut-off chips at the edge already say "scroll". */
+.wd-no-scrollbar { scrollbar-width: none; }
+.wd-no-scrollbar::-webkit-scrollbar { display: none; }

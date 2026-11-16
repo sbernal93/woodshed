@@ -118,4 +118,66 @@ const melodyInShape = {
   }),
 };
 
-export default [arpeggios, findTheShape, scaleSequences, connectShapes, chordTones, melodyInShape];
+const neckClimb = {
+  id: 'caged-neck-climb', title: 'Up and down the neck', roles: ['focus', 'warmup'], tags: [...tags, 'major-scale', 'position-shifts'], level: 2,
+  variants: [
+    { root: 'G', group: 1 }, { root: 'C', group: 1 }, { root: 'D', group: 1 },
+    { root: 'G', group: 3 }, { root: 'A', group: 3 },
+  ],
+  build: ({ root, group }) => {
+    const order = shapesUpTheNeck(root);
+    const legs = order.map((shape, i) => ({ shape, direction: i % 2 ? 'down' : 'up' }));
+    const label = (l) => `${l.shape} shape, ${l.direction}`;
+    const npb = group === 3 ? 3 : 2;
+    return {
+      instruction: `Climb the neck through all five ${root} major positions, ${order.join(' → ')}: up one shape, slide into the next and come down it, and so on to the top${group === 3 ? ', in groups of 3 as triplets' : ', straight 8th notes'}. Then jump back to the bottom and go again. Shift on a note the two shapes share.`,
+      bpm: { min: group === 3 ? 56 : 66, max: group === 3 ? 84 : 100 }, ladder: { by: 4 }, fretboard: null,
+      prompt: { label: 'Play', items: legs.map(label), everyBars: group === 3 ? 4 : 2, order: 'cycle' },
+      pattern: {
+        notesPerBeat: npb,
+        byPrompt: Object.fromEntries(legs.map((l) => [label(l), { type: 'sequence', of: scale(root, l.shape), group, direction: l.direction, notesPerBeat: npb }])),
+      },
+      success: 'A full lap with no stop at any shift, and you can name the shape you are in at every moment.',
+    };
+  },
+};
+
+const SWITCHES = [{ root: 'C', a: 'A', b: 'E' }, { root: 'G', a: 'E', b: 'C' }, { root: 'D', a: 'C', b: 'E' }, { root: 'A', a: 'E', b: 'C' }, { root: 'E', a: 'D', b: 'A' }];
+
+const shapeSwitch = {
+  id: 'caged-shape-switch', title: 'Switch shapes on the beat', roles: ['warmup', 'review'], tags: [...tags, 'chords', 'position-shifts'], level: 1,
+  variants: SWITCHES,
+  build: ({ root, a, b }) => ({
+    instruction: `${root} major, two places on the neck: the ${a} shape and the ${b} shape. Strum the chord on beat 1, arpeggiate it for the rest of the two bars, and land the other shape exactly on the next beat 1. Move your eyes to the new root before your hand goes.`,
+    bpm: { min: 60, max: 96 }, ladder: { by: 4 }, fretboard: null,
+    prompt: { label: 'Play', items: [`${a} shape`, `${b} shape`], everyBars: 2, order: 'cycle' },
+    pattern: {
+      notesPerBeat: 2,
+      byPrompt: Object.fromEntries([a, b].map((s) => [`${s} shape`, { type: 'sequence', of: chord(root, s), group: 1, direction: 'up', notesPerBeat: 2 }])),
+    },
+    success: 'Both shapes ring cleanly and the switch never costs a beat.',
+  }),
+};
+
+const SWAP_SCALES = [
+  { label: 'Major pentatonic', scale: 'majorPentatonic' },
+  { label: 'Major scale', scale: 'major' },
+  { label: 'Mixolydian (b7)', scale: 'mixolydian' },
+];
+
+const scaleSwap = {
+  id: 'caged-scale-swap', title: 'Three scales, one shape', roles: ['focus', 'apply'], tags: [...tags, 'major-scale', 'major-pentatonic', 'mixolydian', 'ear'], level: 2,
+  variants: POSITIONS,
+  build: ({ root, shape }) => ({
+    instruction: `Stay in the ${shape} shape over the ${root} drone and change scale when the prompt does: major pentatonic, then the full major scale (adds the 4 and the 7), then Mixolydian (the 7 drops to b7). The chord shape never moves, only the notes around it. Run it in 3s, then improvise and listen for what each scale adds.`,
+    bpm: { min: 60, max: 90 }, fretboard: scale(root, shape), drone: { root },
+    prompt: { label: 'Scale', items: SWAP_SCALES.map((x) => x.label), everyBars: 4, order: 'cycle' },
+    pattern: {
+      notesPerBeat: 3,
+      byPrompt: Object.fromEntries(SWAP_SCALES.map((x) => [x.label, { type: 'sequence', of: { type: 'caged-scale', root, shape, scale: x.scale }, group: 3, direction: 'up', notesPerBeat: 3 }])),
+    },
+    success: 'You can hear each change: the pentatonic is open, the major sweetens it, the b7 makes it bluesy.',
+  }),
+};
+
+export default [arpeggios, findTheShape, scaleSequences, connectShapes, chordTones, melodyInShape, neckClimb, shapeSwitch, scaleSwap];

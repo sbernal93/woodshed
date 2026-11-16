@@ -30,12 +30,12 @@ export default function FretboardViewer({ spec, title }) {
       <div className="grid grid-cols-3 gap-2 px-2" role="group" aria-label="Label notes by">
         {LABELS.map((l) => (
           <Chip key={l.value} selected={mode === l.value} disabled={l.value === 'finger' && !hasFingers}
-            onClick={() => setLabelMode(l.value)} className="px-0 text-base disabled:opacity-40">{l.label}</Chip>
+            onClick={() => setLabelMode(l.value)} size="sm" className="px-0 disabled:opacity-40">{l.label}</Chip>
         ))}
       </div>
       <div className="grid grid-cols-3 gap-2 px-2" role="group" aria-label="Show">
         {RANGES.map((r) => (
-          <Chip key={r.value} selected={range === r.value} onClick={() => setRange(r.value)} className="px-0 text-base">{r.label}</Chip>
+          <Chip key={r.value} selected={range === r.value} onClick={() => setRange(r.value)} size="sm" className="px-0">{r.label}</Chip>
         ))}
       </div>
       <div className="overflow-x-auto">

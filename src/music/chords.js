@@ -48,3 +48,25 @@ export function cagedScaleMarks({ root, shape, scale = 'major' }) {
   return scaleMarks({ root, scale, fromFret: Math.max(0, Math.min(...frets) - 1), toFret: Math.max(...frets) })
     .map((m) => ({ ...m, chordTone: ['1', '3', '5'].includes(m.degree) }));
 }
+
+// All five positions laid along one neck (0-toFret), each placed where it sits and again an octave up if it fits.
+// view: 'maj' / 'm' chord shapes, or 'scale' for the major scale in each position.
+export function cagedNeck({ root, view, toFret = 15 }) {
+  const regions = [];
+  const marks = new Map();
+  for (const shape of Object.keys(CAGED_SHAPES)) {
+    const base = view === 'scale' ? cagedScaleMarks({ root, shape }) : cagedMarks({ root, shape, quality: view });
+    for (const octave of [0, 12]) {
+      const placed = base.map((m) => ({ ...m, fret: m.fret + octave }));
+      const frets = placed.map((m) => m.fret);
+      if (Math.max(...frets) > toFret) continue;
+      regions.push({ shape, from: Math.min(...frets), to: Math.max(...frets) });
+      for (const m of placed) {
+        const key = `${m.string}-${m.fret}`;
+        const seen = marks.get(key);
+        if (seen) { if (!seen.shapes.includes(shape)) seen.shapes.push(shape); } else marks.set(key, { ...m, shapes: [shape] });
+      }
+    }
+  }
+  return { marks: [...marks.values()], regions: regions.sort((a, b) => a.from - b.from) };
+}

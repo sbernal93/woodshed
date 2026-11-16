@@ -113,3 +113,26 @@ test('CAGED exercises walk the shapes up the neck from the lowest one for the ke
   expect(targets.drone.root).toBe('D');
   expect(targets.prompt).toMatchObject({ root: 'D', items: ['1', '3', '5'] });
 });
+
+test('neck climb snakes through every shape up the neck, alternating direction', () => {
+  const ex = exercises.get('caged-neck-climb');
+  const v = ex.variants.findIndex((x) => x.root === 'G' && x.group === 1);
+  const step = exercises.build('caged-neck-climb', v);
+  expect(step.prompt.items).toEqual(['G shape, up', 'E shape, down', 'D shape, up', 'C shape, down', 'A shape, up']);
+  expect(step.pattern.byPrompt['E shape, down']).toMatchObject({ direction: 'down', of: { type: 'caged-scale', root: 'G', shape: 'E' } });
+});
+
+test('scale swap keeps one shape and changes the scale', () => {
+  const step = exercises.build('caged-scale-swap', 0);
+  const specs = Object.values(step.pattern.byPrompt);
+  expect(specs.map((s) => s.of.scale)).toEqual(['majorPentatonic', 'major', 'mixolydian']);
+  expect(new Set(specs.map((s) => `${s.of.root}-${s.of.shape}`)).size).toBe(1);
+  expect(step.drone.root).toBe(specs[0].of.root);
+});
+
+test('shape switch alternates two shapes of the same chord', () => {
+  const step = exercises.build('caged-shape-switch', 0);
+  expect(step.prompt.items).toHaveLength(2);
+  const roots = Object.values(step.pattern.byPrompt).map((s) => s.of.root);
+  expect(roots[0]).toBe(roots[1]);
+});

@@ -39,5 +39,18 @@ export default {
       ],
       timing,
     }, exercises),
+    expandSession({
+      id: 'caged-3',
+      title: 'D: the whole neck',
+      focus: 'Climb through all five positions, then hear three scales inside one shape.',
+      steps: [
+        { kind: 'warmup', exercise: 'caged-shape-switch', variant: 2 },
+        { kind: 'review', exercise: 'caged-arpeggios', variant: 2 },
+        { kind: 'focus', exercise: 'caged-neck-climb', variant: 2 },
+        { kind: 'apply', exercise: 'caged-scale-swap', variant: 3 },
+        { kind: 'cooldown', exercise: 'caged-melody-in-shape', variant: 3 },
+      ],
+      timing,
+    }, exercises),
   ],
 };

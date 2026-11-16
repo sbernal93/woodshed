@@ -40,15 +40,12 @@ export default function ScaleDetail({ scale, root }) {
       <div className="mt-8 flex items-center gap-3">
         <ArrowButton direction="prev" href="#library" label="Back to scale library" />
         <div>
-          <h2 className="font-display text-3xl font-extrabold uppercase italic leading-none">{root} {info.title}</h2>
+          <h2 className="flex flex-wrap items-center gap-x-3 gap-y-1 font-display text-3xl font-extrabold uppercase italic leading-none">
+            <KeyPicker value={root} onChange={changeKey} /> {info.title}
+          </h2>
           <p className="mt-1 text-[15px] text-ink-soft">{info.blurb}</p>
         </div>
       </div>
-
-      <section aria-labelledby="key-h" className="mt-8">
-        <h3 id="key-h" className={heading}>Key</h3>
-        <div className="mt-3"><KeyPicker value={root} onChange={changeKey} /></div>
-      </section>
 
       <section aria-labelledby="notes-h" className="mt-8">
         <h3 id="notes-h" className={heading}>Notes and degrees</h3>
@@ -68,15 +65,15 @@ export default function ScaleDetail({ scale, root }) {
           <div role="group" aria-label="Label notes by" className="grid grid-cols-3 gap-2 px-2 lg:w-96">
             {[['degree', 'Degrees'], ['note', 'Notes'], ['finger', 'Fingers']].map(([v, l]) => (
               <Chip key={v} selected={mode === v} disabled={v === 'finger' && !position} onClick={() => setLabelMode(v)}
-                className="min-h-12 px-0 text-base disabled:opacity-40">{l}</Chip>
+                size="sm" className="px-0 disabled:opacity-40">{l}</Chip>
             ))}
           </div>
           {positions.length > 0 && (
             <div role="group" aria-label="Highlight position"
               className={`grid gap-2 px-2 lg:flex ${positions.length > 5 ? 'grid-cols-4' : 'grid-cols-6'}`}>
-              <Chip selected={!position} onClick={() => setPosition(null)} className="min-h-12 px-0 text-base lg:px-4">All</Chip>
+              <Chip selected={!position} onClick={() => setPosition(null)} size="sm" className="px-0 lg:px-4">All</Chip>
               {positions.map((p) => (
-                <Chip key={p} selected={position === p} onClick={() => setPosition(p)} className="min-h-12 px-0 text-base lg:w-12">{p}</Chip>
+                <Chip key={p} selected={position === p} onClick={() => setPosition(p)} size="sm" className="px-0 lg:w-12">{p}</Chip>
               ))}
             </div>
           )}
