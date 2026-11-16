@@ -1,4 +1,5 @@
 import { pitchClass } from '../music/notes.js';
+import { TECHNIQUES } from '../music/phrase.js';
 
 export const DURATIONS = [15, 20, 30];
 export const CATEGORIES = ['fingerstyle', 'caged', 'scales', 'fretboard', 'electric', 'rhythm', 'application'];
@@ -28,7 +29,7 @@ export function validateStep(s, where) {
   if (s.drone !== undefined) check(isNote(s.drone?.root), where, 'drone.root must be a note name');
   if (s.pattern !== undefined) {
     const p = s.pattern;
-    const known = (spec) => (spec?.type === 'grid' ? validGrid(spec, where) : ['spider', 'sequence'].includes(spec?.type))
+    const known = (spec) => (spec?.type === 'grid' ? validGrid(spec, where) : spec?.type === 'phrase' ? validPhrase(spec, where) : ['spider', 'sequence'].includes(spec?.type))
       && (spec.notesPerBeat === undefined || (Number.isInteger(spec.notesPerBeat) && spec.notesPerBeat > 0 && spec.notesPerBeat <= 4));
     check(Number.isInteger(p?.notesPerBeat) && p.notesPerBeat > 0, where, 'pattern.notesPerBeat must be a positive integer');
     if (p.byPrompt) {
@@ -53,6 +54,14 @@ function validGrid(g, where) {
     check(Number.isInteger(Number(slot)) && Number(slot) >= 0 && Number(slot) < slots, where, `grid event slot ${slot} is outside the bar`);
     check(notes.every(([s, f, hand]) => isPosition(s, f) && ['p', 'i', 'm', 'a'].includes(hand)), where, `grid notes at slot ${slot} need string, fret and hand p/i/m/a`);
   }
+  return true;
+}
+
+function validPhrase(p, where) {
+  check(isNote(p.key) && (p.root === undefined || isNote(p.root)), where, 'phrase needs a key (and optional root) note');
+  check(Array.isArray(p.notes) && p.notes.length > 0, where, 'phrase needs notes');
+  check(p.notes.every(([s, f, tech]) => isPosition(s, f) && (tech === undefined || tech in TECHNIQUES)), where,
+    `phrase notes need [string, fret, technique?] with technique one of ${Object.keys(TECHNIQUES).join(' ')}`);
   return true;
 }
 

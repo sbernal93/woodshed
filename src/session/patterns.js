@@ -1,5 +1,6 @@
 import { noteAt, STANDARD_TUNING } from '../music/tuning.js';
 import { resolveFretboard } from '../music/resolve.js';
+import { resolvePhrase } from '../music/phrase.js';
 
 const UP = [6, 5, 4, 3, 2, 1];
 
@@ -25,6 +26,7 @@ export function sequencePattern(marks, { group = 3, direction = 'up', skip = fal
 export function resolvePattern(spec) {
   if (spec.type === 'spider') return spiderPattern(spec);
   if (spec.type === 'sequence') return sequencePattern(resolveFretboard(spec.of).marks, spec);
+  if (spec.type === 'phrase') return resolvePhrase(spec);
   throw new Error(`unknown pattern type "${spec.type}"`);
 }
 
@@ -32,6 +34,7 @@ export function resolvePattern(spec) {
 export function groupSizeOf(spec) {
   if (spec.type === 'spider') return (spec.order ?? [1, 2, 3, 4]).length;
   if (spec.type === 'grid') return spec.slotsPerBeat;
+  if (spec.type === 'phrase') return spec.notesPerBeat ?? 2;
   return spec.skip ? 2 : spec.group ?? 3;
 }
 

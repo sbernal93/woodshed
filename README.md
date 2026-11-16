@@ -31,7 +31,7 @@ Each step has a get-ready phase, a countdown, a target tempo, a built-in metrono
 
 | | |
 |---|---|
-| **Tracks** | Advanced Fingerstyle, Minor Pentatonic, the CAGED System and Triads so far. Style studies, jazz and funk are on the way. |
+| **Tracks** | Advanced Fingerstyle, Minor Pentatonic, the CAGED System, Triads and Style Studies (Mayer and Hendrix) so far. Jazz and funk are on the way. |
 | **Sessions** | 15, 20 or 30 minutes in five steps. Every step has a twist, a goal or a musical context: live prompts that change every few bars, a drone to play over, a tempo ladder. |
 | **Guides** | Fretboard with play order and a scrolling tab, or a fingerstyle rhythm grid. They play as a demo, or follow the metronome's click. |
 | **Progress** | Rate each step Struggled, Okay or Clean, and the next session starts at the right tempo. A streak, and sync across devices with no account. |
@@ -131,8 +131,8 @@ Without `variants`, `build` is called with `{}`. Write instruction text from the
 | `instruction` | yes | Full how-to. The first sentence is shown on its own, so make it the gist. |
 | `success` | yes | What good looks like. |
 | `bpm` | yes | `{ min, max }` or `null`. The metronome starts at `min`. |
-| `fretboard` | one of these two | A diagram spec: `{ type: 'pentatonic', root, quality, position }`, `{ type: 'scale', root, scale, position? }` or `{ type: 'caged', root, shape, quality }`. |
-| `pattern` | one of these two | Animated guide. `{ notesPerBeat, spec }` or `{ notesPerBeat, byPrompt: { [promptItem]: spec } }`. A spec is a `spider` (`startFret`, `order`), a `sequence` (`of`: a fretboard spec, `group` or `skip`, `direction`) or a fingerstyle `grid` (`slotsPerBeat`, `beats`, `shape`, `events`). A spec may set its own `notesPerBeat` (1-4). |
+| `fretboard` | one of these two | A diagram spec: `{ type: 'pentatonic', root, quality, position }`, `{ type: 'scale', root, scale, position? }`, `{ type: 'caged', root, shape, quality }`, `{ type: 'caged-scale', root, shape, scale? }` or `{ type: 'triad', root, quality, set, inversion \| near }`. |
+| `pattern` | one of these two | Animated guide. `{ notesPerBeat, spec }` or `{ notesPerBeat, byPrompt: { [promptItem]: spec } }`. A spec is a `spider` (`startFret`, `order`), a `sequence` (`of`: a fretboard spec, `group` or `skip`, `direction`), a written `phrase` (`key`, `root`, `notes: [[string, fret, technique?]]` with techniques `h p s b v`, optional `of` shape to show behind it) or a fingerstyle `grid` (`slotsPerBeat`, `beats`, `shape`, `events`). A spec may set its own `notesPerBeat` (1-4). |
 | `prompt` | no | `{ label, items, everyBars, order: 'cycle' \| 'random', root? }`. A big cue that changes every few bars. With `root`, degree items also show the note name. |
 | `drone` | no | `{ root }`. A low drone while the step runs. |
 | `ladder` | no | `{ by }`. Adds a "Clean pass · +N BPM" button. |

@@ -77,3 +77,11 @@ test('rejects a grid note with an unknown hand', () =>
 
 test('every step needs a diagram or a pattern to show', () =>
   expect(() => validateTrack(withStep({ fretboard: null }))).toThrow(/diagram or a pattern/));
+
+test('a phrase pattern needs [string, fret] notes with known techniques', () => {
+  const phrase = (notes) => withStep({ pattern: { notesPerBeat: 2, spec: { type: 'phrase', key: 'A', notes } } });
+  expect(() => validateTrack(phrase([[3, 5], [2, 5, 'h']]))).not.toThrow();
+  expect(() => validateTrack(phrase([[7, 5]]))).toThrow(/phrase/);
+  expect(() => validateTrack(phrase([[3, 5, 'x']]))).toThrow(/phrase/);
+  expect(() => validateTrack(phrase([]))).toThrow(/phrase/);
+});
