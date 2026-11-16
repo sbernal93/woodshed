@@ -1,4 +1,4 @@
-import { parseRoute, scaleHref, cagedHref, sessionHref } from '../src/routes.js';
+import { parseRoute, scaleHref, cagedHref, sessionHref, triadsHref } from '../src/routes.js';
 
 test('empty hash is home', () => expect(parseRoute('')).toEqual({ name: 'home' }));
 test('#library is the library', () => expect(parseRoute('#library')).toEqual({ name: 'library' }));
@@ -20,3 +20,5 @@ test('unknown track or duration goes home', () => {
 });
 test('session route can name a session', () =>
   expect(parseRoute(sessionHref('caged', 20, 'caged-2'))).toEqual({ name: 'session', trackId: 'caged', minutes: 20, sessionId: 'caged-2' }));
+test('triads route carries the key', () => expect(parseRoute(triadsHref('F#'))).toEqual({ name: 'triads', root: 'F#' }));
+test('triads route with a bad key goes to the library', () => expect(parseRoute('#triads/H')).toEqual({ name: 'library' }));

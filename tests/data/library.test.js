@@ -136,3 +136,22 @@ test('shape switch alternates two shapes of the same chord', () => {
   const roots = Object.values(step.pattern.byPrompt).map((s) => s.of.root);
   expect(roots[0]).toBe(roots[1]);
 });
+
+test('triad exercises: inversions climb the neck, chords move to the nearest voicing', () => {
+  const up = exercises.build('triads-inversions-up', 0);
+  expect(up.prompt.items).toEqual(['2nd inversion', 'Root position', '1st inversion']);
+  expect(up.instruction).toMatch(/C major.*G B e/);
+
+  const swap = exercises.build('triads-quality-swap', 0);
+  expect(Object.values(swap.pattern.byPrompt).map((s) => s.of.quality)).toEqual(['maj', 'm', 'dim', 'aug']);
+
+  const g = exercises.get('triads-one-four-five').variants.findIndex((v) => v.root === 'G');
+  const ifv = exercises.build('triads-one-four-five', g);
+  expect(ifv.prompt.items).toEqual(['G (I)', 'C (IV)', 'D (V)']);
+  expect(Object.values(ifv.pattern.byPrompt).map((s) => s.of.root)).toEqual(['G', 'C', 'D']);
+  expect(new Set(Object.values(ifv.pattern.byPrompt).map((s) => s.of.near)).size).toBe(1);
+
+  const pairs = exercises.build('triads-pairs', 0);
+  expect(pairs.drone.root).toBe('A');
+  expect(pairs.prompt.items).toEqual(['D triad', 'E triad']);
+});

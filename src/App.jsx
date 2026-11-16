@@ -3,6 +3,7 @@ import { parseRoute } from './routes.js';
 import Home from './screens/Home.jsx';
 import Library from './screens/Library.jsx';
 import ScaleDetail from './screens/ScaleDetail.jsx';
+import TriadsDetail from './screens/TriadsDetail.jsx';
 import CagedDetail from './screens/CagedDetail.jsx';
 import Session from './screens/Session.jsx';
 
@@ -13,6 +14,7 @@ export default function App() {
   if (route.name === 'library') return <Library />;
   if (route.name === 'scale') return <ScaleDetail key={`${route.scale}-${route.root}`} scale={route.scale} root={route.root} />;
   if (route.name === 'caged') return <CagedDetail root={route.root} />;
+  if (route.name === 'triads') return <TriadsDetail root={route.root} />;
   if (route.name === 'session') return <Session key={location.hash} trackId={route.trackId} minutes={route.minutes} sessionId={route.sessionId} />;
   return <Home />;
 }

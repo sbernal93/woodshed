@@ -23,3 +23,9 @@ test('caged-scale spec gives the major scale in that CAGED position', () => {
   expect([r.fromFret, r.toFret]).toEqual([2, 5]);
   expect(r.marks.filter((m) => m.chordTone).length).toBeGreaterThan(0);
 });
+test('triad spec picks an inversion, or the voicing nearest a fret', () => {
+  const frets = (spec) => resolveFretboard(spec).marks.map((m) => m.fret).join('-');
+  expect(frets({ type: 'triad', root: 'C', quality: 'maj', set: '321', inversion: 0 })).toBe('5-5-3');
+  expect(frets({ type: 'triad', root: 'F', quality: 'maj', set: '321', near: 5 })).toBe('5-6-5');
+  expect(frets({ type: 'triad', root: 'G', quality: 'maj', set: '321', near: 5 })).toBe('4-3-3');
+});
