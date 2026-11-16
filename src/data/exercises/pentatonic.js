@@ -1,19 +1,7 @@
-import { resolveFretboard } from '../../music/resolve.js';
-import { resolvePattern } from '../../session/patterns.js';
+import { firstGroups, fretSpan, article } from './text.js';
 
 const box = (root, position) => ({ type: 'pentatonic', root, quality: 'minor', position });
 const BOXES = [{ root: 'A', position: 1 }, { root: 'A', position: 2 }, { root: 'E', position: 1 }];
-
-// The first few groups of a sequence spelled out, e.g. "A-C-D, C-D-E, D-E-G", so the text always matches the key.
-function firstGroups(spec, size, count = 3) {
-  const notes = resolvePattern(spec).map((n) => n.note);
-  return Array.from({ length: count }, (_, i) => notes.slice(i * size, i * size + size).join('-')).join(', ');
-}
-
-function fretSpan(spec) {
-  const frets = resolveFretboard(spec).marks.map((m) => m.fret);
-  return `${Math.min(...frets)}–${Math.max(...frets)}`;
-}
 
 const spider = {
   id: 'spider', title: 'Spider permutations', roles: ['warmup'], tags: ['technique', 'picking', 'fretting-hand'], level: 1,
@@ -30,7 +18,7 @@ const moveALick = {
   id: 'pentatonic-move-a-lick', title: 'Move a lick', roles: ['review'], tags: ['minor-pentatonic', 'fretboard'], level: 1,
   variants: [{ root: 'A', from: 1, to: 2 }, { root: 'A', from: 2, to: 3 }, { root: 'E', from: 1, to: 2 }],
   build: ({ root, from, to }) => ({
-    instruction: `Play ${/^[AEF]/.test(root) ? 'an' : 'a'} ${root} minor pentatonic lick you already know in box ${from}. Then find the same lick in box ${to} (frets ${fretSpan(box(root, to))}, shown here) and play it there.`,
+    instruction: `Play ${article(root)} ${root} minor pentatonic lick you already know in box ${from}. Then find the same lick in box ${to} (frets ${fretSpan(box(root, to))}, shown here) and play it there.`,
     bpm: { min: 70, max: 100 }, fretboard: box(root, to),
     success: 'The lick sounds identical in both places: same notes, same rhythm.',
   }),

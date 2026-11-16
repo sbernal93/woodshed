@@ -110,3 +110,8 @@ test('pause freezes get-ready too', () => {
   const s = at(prep(), { type: 'tick', now: 2000 }, { type: 'togglePause', now: 2000 }, { type: 'tick', now: 9000 });
   expect(s.prepMs).toBe(8000);
 });
+test('pickSession uses the named session when it has that duration', () =>
+  expect(pickSession({ sessions: [...track.sessions, { id: 'c', durations: { 20: [{ seconds: 1200 }] } }] }, 20, 'c'))
+    .toMatchObject({ session: { id: 'c' }, minutes: 20 }));
+test('pickSession ignores an unknown session id', () =>
+  expect(pickSession(track, 20, 'zzz')).toMatchObject({ session: { id: 'b' } }));

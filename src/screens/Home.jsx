@@ -12,7 +12,7 @@ import MetronomeSheet from '../components/MetronomeSheet.jsx';
 import { BookIcon, MetronomeIcon, PlayIcon } from '../components/icons.jsx';
 import SyncSheet from '../components/SyncSheet.jsx';
 import { useProgress } from '../progress/useProgress.js';
-import { streak } from '../progress/history.js';
+import { streak, nextSession } from '../progress/history.js';
 
 const all = tracks.list();
 const heading = 'font-display text-2xl font-extrabold uppercase italic';
@@ -24,6 +24,10 @@ export default function Home() {
   const [syncOpen, setSyncOpen] = useState(false);
   const { entries } = useProgress();
   const days = streak(entries, new Date());
+  const track = all.find((t) => t.id === trackId);
+  const upNext = track && nextSession(track, entries).id;
+  const [chosen, setChosen] = useState({});
+  const sessionId = chosen[trackId] ?? upNext;
   const metronome = useMetronome(80);
 
   // shortcut: random pick; Stage 4 replaces this with least-recently-practised.
@@ -32,7 +36,7 @@ export default function Home() {
   const start = () => {
     getAudioContext(); // created inside this tap so iOS lets the session make sound
     if (metronome.running) metronome.toggle();
-    location.hash = sessionHref(trackId, minutes);
+    location.hash = sessionHref(trackId, minutes, sessionId);
   };
 
   const headerActions = (
@@ -83,6 +87,29 @@ export default function Home() {
         </section>
 
         <aside className="mt-12 lg:sticky lg:top-8 lg:mt-0">
+          {track?.sessions.length > 1 && (
+            <section aria-labelledby="ses-h" className="mb-10">
+              <h2 id="ses-h" className={heading}>Which session?</h2>
+              <ul className="mt-4 grid gap-2">
+                {track.sessions.map((s, i) => {
+                  const selected = s.id === sessionId;
+                  return (
+                    <li key={s.id}>
+                      <button type="button" aria-pressed={selected} onClick={() => setChosen((c) => ({ ...c, [trackId]: s.id }))}
+                        className={`flex w-full items-baseline gap-3 px-4 py-3 text-left transition-colors ${selected ? 'bg-chip text-chip-ink shadow-flat' : 'bg-fill hover:bg-fill-hover'}`}>
+                        <span className="font-display text-xl font-extrabold italic tabular-nums">{i + 1}</span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-display text-xl font-extrabold uppercase italic leading-tight">{s.title}</span>
+                          <span className="block text-[15px] leading-snug">{s.focus}</span>
+                        </span>
+                        {s.id === upNext && <span className="shrink-0 font-display text-sm font-extrabold uppercase italic">Up next</span>}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
           <section aria-labelledby="dur-h">
             <h2 id="dur-h" className={heading}>How long?</h2>
             <div className="mt-4 grid grid-cols-3 gap-3 px-2">

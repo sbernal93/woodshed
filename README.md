@@ -31,11 +31,11 @@ Each step has a get-ready phase, a countdown, a target tempo, a built-in metrono
 
 | | |
 |---|---|
-| **Tracks** | Advanced Fingerstyle and Minor Pentatonic so far. CAGED, scales, fretboard knowledge, electric technique, rhythm and application are planned. |
+| **Tracks** | Advanced Fingerstyle, Minor Pentatonic and the CAGED System so far. Triads, style studies, jazz and funk are on the way. |
 | **Sessions** | 15, 20 or 30 minutes in five steps. Every step has a twist, a goal or a musical context: live prompts that change every few bars, a drone to play over, a tempo ladder. |
 | **Guides** | Fretboard with play order and a scrolling tab, or a fingerstyle rhythm grid. They play as a demo, or follow the metronome's click. |
 | **Progress** | Rate each step Struggled, Okay or Clean, and the next session starts at the right tempo. A streak, and sync across devices with no account. |
-| **Library** | Every scale and CAGED shape in any key, with the chords that go with it. |
+| **Library** | Every scale in any key with the chords that go with it, and the CAGED system: each chord shape plus the major scale inside it. |
 
 ## Running it
 

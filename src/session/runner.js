@@ -75,7 +75,9 @@ export function formatClock(ms) {
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
 
-export function pickSession(track, minutes) {
+export function pickSession(track, minutes, sessionId) {
+  const named = track.sessions.find((s) => s.id === sessionId && s.durations[minutes]);
+  if (named) return { session: named, minutes, steps: named.durations[minutes] };
   const exact = track.sessions.find((s) => s.durations[minutes]);
   if (exact) return { session: exact, minutes, steps: exact.durations[minutes] };
   const session = track.sessions[0];

@@ -28,9 +28,9 @@ export default function Library() {
         ))}
         <li>
           <a href={cagedHref('C')} className={card}>
-            <span className="font-display text-2xl font-extrabold uppercase italic leading-tight">CAGED Chord Shapes</span>
+            <span className="font-display text-2xl font-extrabold uppercase italic leading-tight">CAGED System</span>
             <span className="font-display text-lg font-semibold italic tracking-wide text-ink-soft">C  A  G  E  D</span>
-            <span className="text-[15px] leading-snug">One chord, five shapes up the neck. Major and minor.</span>
+            <span className="text-[15px] leading-snug">One chord, five shapes up the neck: major, minor, and the major scale in each position.</span>
           </a>
         </li>
       </ul>

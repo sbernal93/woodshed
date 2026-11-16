@@ -39,3 +39,11 @@ export function mergeEntries(a, b) {
   }
   return [...byId.values()];
 }
+
+// Work through a track in order: the first session never played, then whichever was played longest ago.
+export function nextSession(track, entries) {
+  const last = new Map();
+  for (const e of entries) if (e.sessionId && !(last.get(e.sessionId) > e.practicedAt)) last.set(e.sessionId, e.practicedAt);
+  return track.sessions.find((s) => !last.has(s.id))
+    ?? track.sessions.reduce((oldest, s) => (last.get(s.id) < last.get(oldest.id) ? s : oldest));
+}

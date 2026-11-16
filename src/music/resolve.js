@@ -1,5 +1,5 @@
 import { positionMarks, scaleMarks } from './scales.js';
-import { cagedMarks } from './chords.js';
+import { cagedMarks, cagedScaleMarks } from './chords.js';
 
 const frame = (marks) => {
   const frets = marks.map((m) => m.fret);
@@ -15,6 +15,8 @@ export function resolveFretboard(spec) {
     case 'scale':
       if (spec.position) return frame(positionMarks({ root: spec.root, scale: spec.scale, position: spec.position, perString: spec.perString }));
       return { marks: scaleMarks(spec), fromFret: spec.fromFret ?? 0, toFret: spec.toFret ?? 12 };
+    case 'caged-scale':
+      return frame(cagedScaleMarks(spec));
     case 'caged':
       return frame(cagedMarks({ root: spec.root, shape: spec.shape, quality: spec.quality }));
     default:
