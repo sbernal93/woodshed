@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import Sheet from './Sheet.jsx';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { spell } from '../music/notes.js';
 
 // Clockwise from the top: each step adds a sharp (or removes a flat), so related keys sit side by side.
@@ -7,6 +7,9 @@ const FIFTHS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F']
 const SIZE = 300;
 const RADIUS = 118;
 const PICK_MS = 260;
+const CLOSE_MS = 170;
+const PANEL = SIZE + 32;
+const EDGE = 12;
 
 const angleOf = (k) => FIFTHS.indexOf(k) * 30;
 const signature = (k) => {
@@ -20,32 +23,59 @@ const neighbour = (k, step) => FIFTHS[(FIFTHS.indexOf(k) + step + 12) % 12];
 // The current key as a button; tapping it opens a circle-of-fifths dial to pick another.
 export default function KeyPicker({ value, onChange }) {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [place, setPlace] = useState(null);
   const [aim, setAim] = useState(value);
   const [picking, setPicking] = useState(false);
+  const trigger = useRef(null);
+  const dialog = useRef(null);
   // The needle keeps a running angle so it always swings the short way (F to C is one step, not eleven).
   const needle = useRef(angleOf(value));
   const target = angleOf(aim);
   needle.current += ((((target - needle.current) % 360) + 540) % 360) - 180;
 
-  const show = () => { setAim(value); setPicking(false); setOpen(true); };
+  // Open just under the key button, kept on screen, growing out of the button's centre.
+  const show = () => {
+    const r = trigger.current.getBoundingClientRect();
+    const left = Math.min(Math.max(r.left + r.width / 2 - PANEL / 2, EDGE), innerWidth - PANEL - EDGE);
+    const top = Math.max(EDGE, Math.min(r.bottom + EDGE, innerHeight - PANEL - EDGE));
+    setPlace({ left, top, origin: `${r.left + r.width / 2 - left}px ${r.top + r.height / 2 - top}px` });
+    setAim(value);
+    setPicking(false);
+    setClosing(false);
+    setOpen(true);
+  };
+  const close = (then) => {
+    setClosing(true);
+    // Closing the native dialog first un-blocks the page, so focus can return to the key button.
+    setTimeout(() => { dialog.current?.close(); trigger.current?.focus(); setOpen(false); setClosing(false); then?.(); }, CLOSE_MS);
+  };
   const pick = (k) => {
     setAim(k);
     setPicking(true);
-    setTimeout(() => {
-      setOpen(false);
-      if (k !== value) onChange(k);
-    }, PICK_MS);
+    setTimeout(() => close(() => k !== value && onChange(k)), PICK_MS);
   };
+  useEffect(() => {
+    const d = dialog.current;
+    if (open && d && !d.open) {
+      d.showModal();
+      d.querySelector('[aria-pressed="true"]')?.focus();
+    }
+  }, [open]);
   const badge = { [neighbour(value, -1)]: 'IV', [neighbour(value, 1)]: 'V' };
 
   return (
     <>
-      <button type="button" onClick={show} aria-label={`Key: ${value}. Change key`}
+      <button ref={trigger} type="button" onClick={show} aria-label={`Key: ${value}. Change key`}
         className="inline-block min-h-11 min-w-14 -skew-x-12 bg-brand px-3 font-display text-3xl font-extrabold uppercase italic leading-none text-on-brand shadow-flat active:translate-x-px active:translate-y-px active:shadow-none">
         <span className="inline-block skew-x-12">{value}</span>
       </button>
-      <Sheet open={open} onClose={() => setOpen(false)} title="Key">
-        {open && (
+      {open && createPortal(
+        <dialog ref={dialog} aria-label="Choose a key" className={`wd-pop fixed m-0 bg-bg p-0 text-ink shadow-[6px_6px_0_var(--wd-shadow)] backdrop:bg-black/50 ${closing ? 'wd-closing' : ''}`}
+          style={{ left: place.left, top: place.top, width: PANEL, transformOrigin: place.origin }}
+          onCancel={(e) => { e.preventDefault(); close(); }}
+          onClick={(e) => e.target === dialog.current && close()}>
+          <div className="p-4">
           <div role="group" aria-label="Circle of fifths" className="relative mx-auto" style={{ width: SIZE, height: SIZE }}
             onMouseLeave={() => !picking && setAim(value)}>
             <div aria-hidden="true" className="wd-needle absolute left-1/2 top-1/2 h-[92px] w-[3px] origin-bottom -translate-x-1/2 -translate-y-full rounded-full bg-brand"
@@ -77,8 +107,10 @@ export default function KeyPicker({ value, onChange }) {
               );
             })}
           </div>
-        )}
-      </Sheet>
+          </div>
+        </dialog>,
+        document.body,
+      )}
     </>
   );
 }
