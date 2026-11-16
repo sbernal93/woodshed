@@ -86,3 +86,12 @@ test('in the scale view each region spans the scale window around its chord shap
   const g = cagedNeck({ root: 'G', view: 'scale' }).regions.find((r) => r.shape === 'E');
   expect([g.from, g.to]).toEqual([2, 5]);
 });
+
+test('each note on the CAGED neck knows which shapes it belongs to', () => {
+  const { marks } = cagedNeck({ root: 'G', view: 'maj' });
+  const at = (string, fret) => marks.find((m) => m.string === string && m.fret === fret);
+  expect(at(6, 3).shapes.sort()).toEqual(['E', 'G']);
+  expect(at(5, 10).shapes.sort()).toEqual(['A', 'C']);
+  expect(at(4, 9).shapes).toEqual(['C']);
+  expect(at(6, 15).shapes).toEqual(['G']);
+});

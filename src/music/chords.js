@@ -61,7 +61,11 @@ export function cagedNeck({ root, view, toFret = 15 }) {
       const frets = placed.map((m) => m.fret);
       if (Math.max(...frets) > toFret) continue;
       regions.push({ shape, from: Math.min(...frets), to: Math.max(...frets) });
-      for (const m of placed) if (!marks.has(`${m.string}-${m.fret}`)) marks.set(`${m.string}-${m.fret}`, m);
+      for (const m of placed) {
+        const key = `${m.string}-${m.fret}`;
+        const seen = marks.get(key);
+        if (seen) { if (!seen.shapes.includes(shape)) seen.shapes.push(shape); } else marks.set(key, { ...m, shapes: [shape] });
+      }
     }
   }
   return { marks: [...marks.values()], regions: regions.sort((a, b) => a.from - b.from) };
