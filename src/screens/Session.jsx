@@ -10,6 +10,7 @@ import { useDrone } from '../audio/useDrone.js';
 import StepPrompt from '../components/StepPrompt.jsx';
 import { trackBars, promptState } from '../session/prompts.js';
 import { resolvePattern, groupSizeOf, notesPerBeatOf } from '../session/patterns.js';
+import { TECHNIQUES } from '../music/phrase.js';
 import PatternGuide from '../components/PatternGuide.jsx';
 import GridGuide from '../components/GridGuide.jsx';
 import { resolveGrid } from '../session/grid.js';
@@ -207,7 +208,7 @@ export default function Session({ trackId, minutes, sessionId }) {
                 labelOf={(n) => (patternSpec.type === 'spider' ? n.finger : n.degree)}
                 describe={(n) => (patternSpec.type === 'spider'
                   ? `Fret ${n.fret} · finger ${n.finger}`
-                  : `Fret ${n.fret} · ${n.note} (${n.degree})${n.finger ? ` · finger ${n.finger}` : ''}`)} />
+                  : `Fret ${n.fret} · ${n.note} (${n.degree})${n.finger ? ` · finger ${n.finger}` : ''}${n.tech ? ` · ${TECHNIQUES[n.tech]}` : ''}`)} />
             )}
             {board && (
               <div className="overflow-x-auto">

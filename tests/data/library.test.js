@@ -155,3 +155,15 @@ test('triad exercises: inversions climb the neck, chords move to the nearest voi
   expect(pairs.drone.root).toBe('A');
   expect(pairs.prompt.items).toEqual(['D triad', 'E triad']);
 });
+
+test('style licks: the notes they claim, in every key they offer', async () => {
+  const { resolvePattern } = await import('../../src/session/patterns.js');
+  const degrees = (id, v = 0) => resolvePattern(exercises.build(id, v).pattern.spec).map((n) => n.degree).join(' ');
+  expect(degrees('mayer-blues-major')).toBe('b3 3 5 1 b7 5 4 3');
+  expect(degrees('mayer-triad-slides')).toBe('b7 1 3 5 1 6 1 5');
+  expect(degrees('hendrix-thumb-over')).toBe('1 3 5 6 1 2 1 5');
+  expect(degrees('hendrix-c-shape')).toBe('1 3 5 6 1 2 3 1');
+  for (const id of ['mayer-blues-major', 'mayer-triad-slides', 'hendrix-thumb-over', 'hendrix-c-shape']) {
+    exercises.get(id).variants.forEach((_, v) => expect(degrees(id, v), `${id} ${v}`).toBe(degrees(id, 0)));
+  }
+});

@@ -102,10 +102,10 @@ function TabStrip({ pattern, index, groupSize, notesPerBeat, stepMs }) {
               </>
             )}
             {i % groupSize === 0 && i % notesPerBeat !== 0 && <span className="absolute -top-2 h-[118px] w-px bg-line/50" style={{ left: i * TAB_STEP - TAB_STEP / 2 }} />}
-            <span className={`absolute -ml-3 -mt-[9px] h-[18px] w-6 text-center text-[13px] font-bold leading-[18px] ${
+            <span className={`absolute -mt-[9px] h-[18px] min-w-6 -translate-x-1/2 px-0.5 text-center text-[13px] font-bold leading-[18px] ${
               i === index ? 'bg-brand text-on-brand' : i < index ? 'bg-bg text-ink-soft/60' : 'bg-bg text-ink'}`}
               style={{ left: i * TAB_STEP, top: (n.string - 1) * TAB_ROW }}>
-              {n.fret}
+              {n.fret}{n.tech && <span className="text-[11px]">{n.tech}</span>}
             </span>
           </span>
         ))}

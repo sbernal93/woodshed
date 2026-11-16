@@ -1,4 +1,4 @@
-import { spiderPattern, sequencePattern, resolvePattern } from '../../src/session/patterns.js';
+import { spiderPattern, sequencePattern, resolvePattern, groupSizeOf } from '../../src/session/patterns.js';
 import { positionMarks } from '../../src/music/scales.js';
 import { noteAt } from '../../src/music/tuning.js';
 
@@ -75,3 +75,9 @@ test('slots wrap around the pattern', () =>
   expect(beatSlots(3, 3, 0, 60, 9).map((s) => s.slot)).toEqual([0, 1, 2]));
 test('triplet spacing at 60 BPM is a third of a second', () =>
   expect(beatSlots(0, 3, 0, 60, 9).map((s) => s.at)).toEqual([0, 1 / 3, 2 / 3]));
+
+test('a phrase pattern plays the written notes, grouped one beat at a time', () => {
+  const spec = { type: 'phrase', key: 'A', root: 'E', notesPerBeat: 2, notes: [[3, 5], [3, 6, 'h'], [2, 5], [1, 5, 'v']] };
+  expect(resolvePattern(spec).map((n) => `${n.string}/${n.fret}${n.tech ?? ''}`)).toEqual(['3/0', '3/1h', '2/0', '1/0v']);
+  expect(groupSizeOf(spec)).toBe(2);
+});
