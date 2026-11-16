@@ -1,5 +1,5 @@
-import { chordTones, cagedMarks, CAGED_SHAPES } from '../../src/music/chords.js';
-import { pitchClass } from '../../src/music/notes.js';
+import { chordTones, cagedMarks, cagedScaleMarks, CAGED_SHAPES } from '../../src/music/chords.js';
+import { pitchClass, spell } from '../../src/music/notes.js';
 import { noteAt } from '../../src/music/tuning.js';
 
 const ROOTS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -35,4 +35,33 @@ test('every minor CAGED shape for every root sounds only minor-triad tones', () 
     for (const m of marks) expect(triad.has(noteAt(m.string, m.fret).pc)).toBe(true);
     expect(marks.some((m) => m.root)).toBe(true);
   }
+});
+
+// Major scale in each CAGED position: the scale notes inside the chord shape's frets (one fret below it to its top).
+const fretsByString = (marks) => [6, 5, 4, 3, 2, 1].map((s) => marks.filter((m) => m.string === s).map((m) => m.fret).join(',')).join(' ');
+
+test('G major, E shape is the familiar frets 2-5 pattern', () =>
+  expect(fretsByString(cagedScaleMarks({ root: 'G', shape: 'E' }))).toBe('2,3,5 2,3,5 2,4,5 2,4,5 3,5 2,3,5'));
+test('C major, C shape is open position', () =>
+  expect(fretsByString(cagedScaleMarks({ root: 'C', shape: 'C' }))).toBe('0,1,3 0,2,3 0,2,3 0,2 0,1,3 0,1,3'));
+test('C major, D shape sits at frets 9-13', () =>
+  expect(fretsByString(cagedScaleMarks({ root: 'C', shape: 'D' }))).toBe('10,12,13 10,12 9,10,12 9,10,12 10,12,13 10,12,13'));
+
+test('every key and shape has all seven degrees, 2-4 notes per string, within 5 frets, around its chord', () => {
+  for (const root of ROOTS) for (const shape of Object.keys(CAGED_SHAPES)) {
+    const marks = cagedScaleMarks({ root, shape });
+    expect(new Set(marks.map((m) => m.degree))).toEqual(new Set(['1', '2', '3', '4', '5', '6', '7']));
+    for (const s of [6, 5, 4, 3, 2, 1]) expect(marks.filter((m) => m.string === s).length).toBeGreaterThanOrEqual(2);
+    for (const s of [6, 5, 4, 3, 2, 1]) expect(marks.filter((m) => m.string === s).length).toBeLessThanOrEqual(4);
+    const frets = marks.map((m) => m.fret);
+    expect(Math.max(...frets) - Math.min(...frets)).toBeLessThanOrEqual(4);
+    for (const c of cagedMarks({ root, shape })) expect(marks.some((m) => m.string === c.string && m.fret === c.fret)).toBe(true);
+    for (const m of marks) expect(spell(root, m.degree)).toBe(m.note);
+  }
+});
+
+test('chord tones are flagged so the shape stands out inside the scale', () => {
+  const marks = cagedScaleMarks({ root: 'G', shape: 'E' });
+  expect(marks.filter((m) => m.chordTone).map((m) => m.degree).every((d) => ['1', '3', '5'].includes(d))).toBe(true);
+  expect(marks.find((m) => m.string === 4 && m.fret === 4)).toMatchObject({ note: 'F#', degree: '7', chordTone: false });
 });

@@ -31,9 +31,9 @@ const KIND_LABEL = { warmup: 'Warm-up', review: 'Review', focus: 'Focus', apply:
 
 const isTyping = (el) => el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON'].includes(el.tagName));
 
-export default function Session({ trackId, minutes }) {
+export default function Session({ trackId, minutes, sessionId }) {
   const track = tracks.get(trackId);
-  const { session, steps, minutes: length } = pickSession(track, minutes);
+  const { session, steps, minutes: length } = pickSession(track, minutes, sessionId);
   const [state, dispatch] = useSessionClock(steps);
   // Suggestions come from history as it was when the session began, so logging a step mid-session can't shift them.
   const [history] = useState(() => progress.getSnapshot().entries);

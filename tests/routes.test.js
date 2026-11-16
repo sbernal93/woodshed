@@ -18,3 +18,5 @@ test('unknown track or duration goes home', () => {
   expect(parseRoute('#session/nope/20')).toEqual({ name: 'home' });
   expect(parseRoute('#session/minor-pentatonic/17')).toEqual({ name: 'home' });
 });
+test('session route can name a session', () =>
+  expect(parseRoute(sessionHref('caged', 20, 'caged-2'))).toEqual({ name: 'session', trackId: 'caged', minutes: 20, sessionId: 'caged-2' }));

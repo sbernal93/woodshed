@@ -82,3 +82,34 @@ test('pentatonic variants follow their root and box', () => {
   expect(lick.instruction).toMatch(/^Play an A minor.*box 2 \(frets 7–10/);
   expect(ids).toContain('fingerstyle-thumb-alone');
 });
+
+test('every diagram and pattern in every variant resolves to real notes', async () => {
+  const { resolveFretboard } = await import('../../src/music/resolve.js');
+  const { resolvePattern } = await import('../../src/session/patterns.js');
+  const { resolveGrid } = await import('../../src/session/grid.js');
+  for (const ex of exercises.list()) {
+    (ex.variants ?? [{}]).forEach((_, v) => {
+      const step = exercises.build(ex.id, v);
+      if (step.fretboard) expect(resolveFretboard(step.fretboard).marks.length, `${ex.id} ${v}`).toBeGreaterThan(0);
+      const specs = step.pattern ? (step.pattern.byPrompt ? Object.values(step.pattern.byPrompt) : [step.pattern.spec]) : [];
+      for (const spec of specs) {
+        const notes = spec.type === 'grid' ? resolveGrid(spec).slots : resolvePattern(spec);
+        expect(notes.length, `${ex.id} ${v}`).toBeGreaterThan(0);
+      }
+    });
+  }
+});
+
+test('CAGED exercises walk the shapes up the neck from the lowest one for the key', () => {
+  const variantOf = (id, match) => exercises.get(id).variants.findIndex((v) => Object.entries(match).every(([k, x]) => v[k] === x));
+  expect(exercises.build('caged-arpeggios', variantOf('caged-arpeggios', { root: 'C' })).prompt.items)
+    .toEqual(['C shape', 'A shape', 'G shape', 'E shape', 'D shape']);
+  expect(exercises.build('caged-arpeggios', variantOf('caged-arpeggios', { root: 'G' })).prompt.items)
+    .toEqual(['G shape', 'E shape', 'D shape', 'C shape', 'A shape']);
+  const seq = exercises.build('caged-scale-sequences', variantOf('caged-scale-sequences', { root: 'G', shape: 'E' }));
+  expect(seq.fretboard).toEqual({ type: 'caged-scale', root: 'G', shape: 'E' });
+  expect(seq.instruction).toMatch(/G major.*E shape.*frets 2–5/);
+  const targets = exercises.build('caged-chord-tones', variantOf('caged-chord-tones', { root: 'D', shape: 'C' }));
+  expect(targets.drone.root).toBe('D');
+  expect(targets.prompt).toMatchObject({ root: 'D', items: ['1', '3', '5'] });
+});

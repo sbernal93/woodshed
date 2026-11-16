@@ -18,3 +18,8 @@ test('scale spec without a position gives every note in the range', () => {
   expect(r.marks.length).toBeGreaterThan(40);
 });
 test('unknown type throws', () => expect(() => resolveFretboard({ type: 'banjo' })).toThrow(/banjo/));
+test('caged-scale spec gives the major scale in that CAGED position', () => {
+  const r = resolveFretboard({ type: 'caged-scale', root: 'G', shape: 'E' });
+  expect([r.fromFret, r.toFret]).toEqual([2, 5]);
+  expect(r.marks.filter((m) => m.chordTone).length).toBeGreaterThan(0);
+});

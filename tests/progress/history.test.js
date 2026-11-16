@@ -1,4 +1,4 @@
-import { suggestBpm, streak, mergeEntries, lastFor } from '../../src/progress/history.js';
+import { suggestBpm, streak, mergeEntries, lastFor, nextSession } from '../../src/progress/history.js';
 
 const entry = (over) => ({ id: 'x', exercise: 'ex', variant: 0, bpm: 88, rating: null, practicedAt: '2026-11-10T10:00:00.000Z', updatedAt: '2026-11-10T10:00:00.000Z', ...over });
 const range = { min: 80, max: 120 };
@@ -46,4 +46,12 @@ test('merge keeps the newer copy of each entry', () => {
   expect(mergeEntries([old], [rated])).toEqual([rated]);
   expect(mergeEntries([rated], [old])).toEqual([rated]);
   expect(mergeEntries([old], [entry({ id: 'b' })]).map((e) => e.id).sort()).toEqual(['a', 'b']);
+});
+
+test('next session: the first never practised, otherwise the least recently practised', () => {
+  const track = { id: 't', sessions: [{ id: 's1' }, { id: 's2' }, { id: 's3' }] };
+  const done = (sessionId, day) => entry({ id: `${sessionId}${day}`, sessionId, practicedAt: `2026-11-${day}T10:00:00.000Z` });
+  expect(nextSession(track, []).id).toBe('s1');
+  expect(nextSession(track, [done('s1', 10)]).id).toBe('s2');
+  expect(nextSession(track, [done('s1', 12), done('s2', 10), done('s3', 11)]).id).toBe('s2');
 });

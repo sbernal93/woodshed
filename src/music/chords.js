@@ -1,5 +1,6 @@
 import { parseDegree, pitchClass, spell } from './notes.js';
 import { STANDARD_TUNING } from './tuning.js';
+import { scaleMarks } from './scales.js';
 
 export const CHORDS = {
   maj: ['1', '3', '5'],
@@ -37,4 +38,13 @@ export function cagedMarks({ root, shape, quality = 'maj' }) {
     const info = byPc.get(mod12(STANDARD_TUNING[string] + fret));
     return [{ string, fret, note: info.note, degree: info.degree, finger: null, root: info.degree === '1' }];
   });
+}
+
+// A scale "in" a CAGED position: every scale note from one fret below the chord shape to its top fret,
+// e.g. G major around the E-shape G barre is frets 2-5. Chord tones are flagged so the shape shows inside the scale.
+export function cagedScaleMarks({ root, shape, scale = 'major' }) {
+  const chord = cagedMarks({ root, shape });
+  const frets = chord.map((m) => m.fret);
+  return scaleMarks({ root, scale, fromFret: Math.max(0, Math.min(...frets) - 1), toFret: Math.max(...frets) })
+    .map((m) => ({ ...m, chordTone: ['1', '3', '5'].includes(m.degree) }));
 }

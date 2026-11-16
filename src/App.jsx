@@ -13,6 +13,6 @@ export default function App() {
   if (route.name === 'library') return <Library />;
   if (route.name === 'scale') return <ScaleDetail key={`${route.scale}-${route.root}`} scale={route.scale} root={route.root} />;
   if (route.name === 'caged') return <CagedDetail root={route.root} />;
-  if (route.name === 'session') return <Session key={location.hash} trackId={route.trackId} minutes={route.minutes} />;
+  if (route.name === 'session') return <Session key={location.hash} trackId={route.trackId} minutes={route.minutes} sessionId={route.sessionId} />;
   return <Home />;
 }

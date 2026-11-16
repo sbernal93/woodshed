@@ -67,7 +67,9 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
         const isActive = key === active;
         const isNext = !isActive && key === upcoming;
         const playing = active !== undefined;
-        const fill = isActive || (m.root && !playing) ? 'fill-brand' : 'fill-bg';
+        // Inside a scale, the other chord tones (3 and 5) are solid so the chord shape reads at a glance.
+        const solid = m.chordTone && !m.root && !playing && !isActive;
+        const fill = isActive || (m.root && !playing) ? 'fill-brand' : solid ? 'fill-ink' : 'fill-bg';
         const stroke = isNext ? 'stroke-brand' : 'stroke-ink';
         const dim = m.muted || (playing && !isActive && !isNext);
         return (
@@ -76,7 +78,7 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
             <circle cx={x} cy={y} r="14" strokeWidth={isNext ? 3.5 : 2} className={`${fill} ${stroke}`} />
             {label !== '' && (
               <text x={x} y={y} dy="0.35em" textAnchor="middle"
-                className={`text-[14px] font-extrabold ${isActive || (m.root && !playing) ? 'fill-on-brand' : 'fill-ink'}`}>
+                className={`text-[14px] font-extrabold ${isActive || (m.root && !playing) ? 'fill-on-brand' : solid ? 'fill-bg' : 'fill-ink'}`}>
                 {label}
               </text>
             )}

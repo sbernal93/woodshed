@@ -7,7 +7,7 @@ const validRoot = (r) => KEYS.includes(r);
 
 export const scaleHref = (scale, root) => `#scale/${scale}/${encodeURIComponent(root)}`;
 export const cagedHref = (root) => `#caged/${encodeURIComponent(root)}`;
-export const sessionHref = (trackId, minutes) => `#session/${encodeURIComponent(trackId)}/${minutes}`;
+export const sessionHref = (trackId, minutes, sessionId) => `#session/${encodeURIComponent(trackId)}/${minutes}${sessionId ? `/${encodeURIComponent(sessionId)}` : ''}`;
 
 export function parseRoute(hash) {
   const [name, ...rest] = hash.replace(/^#/, '').split('/').map(decodeURIComponent);
@@ -18,9 +18,11 @@ export function parseRoute(hash) {
   }
   if (name === 'caged') return validRoot(rest[0]) ? { name: 'caged', root: rest[0] } : { name: 'library' };
   if (name === 'session') {
-    const [trackId, minutes] = [rest[0], Number(rest[1])];
-    const known = tracks.list().some((t) => t.id === trackId);
-    if (known && DURATIONS.includes(minutes)) return { name: 'session', trackId, minutes };
+    const [trackId, minutes, sessionId] = [rest[0], Number(rest[1]), rest[2]];
+    const track = tracks.list().find((t) => t.id === trackId);
+    if (track && DURATIONS.includes(minutes)) {
+      return track.sessions.some((s) => s.id === sessionId) ? { name: 'session', trackId, minutes, sessionId } : { name: 'session', trackId, minutes };
+    }
   }
   return { name: 'home' };
 }
