@@ -68,15 +68,15 @@ export default function ScaleDetail({ scale, root }) {
           <div role="group" aria-label="Label notes by" className="grid grid-cols-3 gap-2 px-2 lg:w-96">
             {[['degree', 'Degrees'], ['note', 'Notes'], ['finger', 'Fingers']].map(([v, l]) => (
               <Chip key={v} selected={mode === v} disabled={v === 'finger' && !position} onClick={() => setLabelMode(v)}
-                className="min-h-12 px-0 text-base disabled:opacity-40">{l}</Chip>
+                size="sm" className="px-0 disabled:opacity-40">{l}</Chip>
             ))}
           </div>
           {positions.length > 0 && (
             <div role="group" aria-label="Highlight position"
               className={`grid gap-2 px-2 lg:flex ${positions.length > 5 ? 'grid-cols-4' : 'grid-cols-6'}`}>
-              <Chip selected={!position} onClick={() => setPosition(null)} className="min-h-12 px-0 text-base lg:px-4">All</Chip>
+              <Chip selected={!position} onClick={() => setPosition(null)} size="sm" className="px-0 lg:px-4">All</Chip>
               {positions.map((p) => (
-                <Chip key={p} selected={position === p} onClick={() => setPosition(p)} className="min-h-12 px-0 text-base lg:w-12">{p}</Chip>
+                <Chip key={p} selected={position === p} onClick={() => setPosition(p)} size="sm" className="px-0 lg:w-12">{p}</Chip>
               ))}
             </div>
           )}

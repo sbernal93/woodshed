@@ -33,13 +33,13 @@ export default function CagedDetail({ root }) {
       <div className="mt-3 flex flex-wrap gap-x-8 gap-y-3">
         <div role="group" aria-label="Show" className="grid w-full max-w-md grid-cols-3 gap-2 px-2">
           {VIEWS.map((v) => (
-            <Chip key={v.value} selected={view === v.value} onClick={() => setView(v.value)} className="min-h-12 text-base">{v.label}</Chip>
+            <Chip key={v.value} selected={view === v.value} onClick={() => setView(v.value)} size="sm">{v.label}</Chip>
           ))}
         </div>
         <div role="group" aria-label="Highlight a shape" className="grid w-full max-w-md grid-cols-6 gap-2 px-2">
-          <Chip selected={!shape} onClick={() => setShape(null)} className="min-h-12 px-0 text-base">All</Chip>
+          <Chip selected={!shape} onClick={() => setShape(null)} size="sm" className="px-0">All</Chip>
           {SHAPES.map((s) => (
-            <Chip key={s} selected={shape === s} onClick={() => setShape(shape === s ? null : s)} className="min-h-12 px-0 text-base">{s}</Chip>
+            <Chip key={s} selected={shape === s} onClick={() => setShape(shape === s ? null : s)} size="sm" className="px-0">{s}</Chip>
           ))}
         </div>
       </div>
