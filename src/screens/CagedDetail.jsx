@@ -46,8 +46,8 @@ export default function CagedDetail({ root }) {
             title={`${root} ${view === 'scale' ? 'major scale' : view === 'm' ? 'minor' : 'major'}: all five CAGED positions on one neck`} />
           <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
             {view === 'scale'
-              ? 'Pink is the root, solid dots are the rest of the chord (3 and 5), outlined dots are the notes in between. Tap a shape above the neck to see one position.'
-              : 'Tap a shape above the neck to light it up and see it up close. Tap it again to see them all.'}
+              ? 'Pink is the root, solid dots are the rest of the chord (3 and 5), outlined dots are the notes in between. Tap a shape’s tag to see one position.'
+              : 'Tap a shape’s tag to light it up and see it up close. Tap it again to see them all.'}
           </p>
           <a href={triadsHref(root)} className="mt-2 inline-block min-h-11 py-2 font-display text-lg font-extrabold uppercase italic underline decoration-2 underline-offset-4 hover:text-brand">
             The triads inside these shapes

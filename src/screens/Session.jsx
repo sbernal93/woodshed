@@ -201,8 +201,10 @@ export default function Session({ trackId, minutes, sessionId }) {
           <aside className="mt-8 lg:mt-0">
             {grid && <GridGuide key={`${state.index}-${prompt?.index ?? 0}`} grid={grid} metronome={metronome} frozen={state.paused} prefs={guidePrefs} onPrefs={setGuidePrefs} />}
             {pattern && (
-              <PatternGuide key={`${state.index}-${prompt?.index ?? 0}`} pattern={pattern} shape={shape} groupSize={groupSizeOf(patternSpec)}
+              <PatternGuide key={`${state.index}-${prompt?.index ?? 0}-${state.preparing}`} pattern={pattern} shape={shape} groupSize={groupSizeOf(patternSpec)}
                 notesPerBeat={patternBeat} metronome={metronome} frozen={state.paused}
+                inTime={!!step.pattern.byPrompt && !state.preparing}
+                showing={step.pattern.byPrompt && prompt ? `${state.preparing ? 'First: ' : ''}${prompt.item}` : null}
                 clickEveryNote={clickEveryNote} prefs={guidePrefs} onPrefs={setGuidePrefs}
                 onClickEveryNote={(on) => { setClickEveryNote(on); if (!on) metronome.setSubdivision(1); }}
                 labelOf={(n) => (patternSpec.type === 'spider' ? n.finger : n.degree)}
