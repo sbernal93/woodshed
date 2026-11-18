@@ -8,6 +8,8 @@ import Fretboard from '../components/Fretboard.jsx';
 import ScaleHarmony from '../components/ScaleHarmony.jsx';
 import { SCALE_LIBRARY } from '../data/scaleLibrary.js';
 import { SCALES, positionMarks, scaleMarks, scaleNotes } from '../music/scales.js';
+import { CAGED_SHAPES, cagedScaleMarks } from '../music/chords.js';
+import { tonicQuality } from '../music/harmony.js';
 import { scaleHref } from '../routes.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 
@@ -23,13 +25,27 @@ export default function ScaleDetail({ scale, root }) {
   const degrees = SCALES[scale];
   const notes = scaleNotes(root, scale);
   const positions = degrees.length === 5 || degrees.length === 7 ? degrees.map((_, i) => i + 1) : [];
+  // Two ways to cut the neck up: the five CAGED shapes (needs a major or minor home chord) or the scale's own positions.
+  const quality = tonicQuality(scale);
+  const systems = [quality && 'caged', positions.length > 0 && 'positions'].filter(Boolean);
+  const [chosen, setSystem] = useState(null);
+  const system = systems.includes(chosen) ? chosen : systems.at(-1);
+  const pick = (sys, p) => { setSystem(sys); setPosition(p); };
+  // CAGED shapes in the order they climb the neck, each one also an octave up when it fits.
+  const caged = quality ? Object.keys(CAGED_SHAPES)
+    .map((shape) => ({ shape, marks: cagedScaleMarks({ root, shape, scale, quality }) }))
+    .sort((a, b) => Math.min(...a.marks.map((m) => m.fret)) - Math.min(...b.marks.map((m) => m.fret))) : [];
 
-  const shape = position ? positionMarks({ root, scale, position }) : [];
+  const cagedShape = caged.find((c) => c.shape === position)?.marks ?? [];
+  const shape = !position ? []
+    : system === 'caged' ? [...cagedShape, ...cagedShape.map((m) => ({ ...m, fret: m.fret + 12 })).filter((m) => m.fret <= NECK_FRETS)]
+      : positionMarks({ root, scale, position });
   const inShape = new Map(shape.map((m) => [key(m), m]));
   const toFret = Math.max(NECK_FRETS, ...shape.map((m) => m.fret));
   const marks = scaleMarks({ root, scale, fromFret: 0, toFret }).map((m) =>
     position ? { ...m, muted: !inShape.has(key(m)), finger: inShape.get(key(m))?.finger ?? null } : m);
-  const mode = labelMode === 'finger' && !position ? 'degree' : labelMode;
+  const hasFingers = shape.some((m) => m.finger);
+  const mode = labelMode === 'finger' && !hasFingers ? 'degree' : labelMode;
 
   const changeKey = (k) => location.replace(scaleHref(scale, k));
 
@@ -64,15 +80,24 @@ export default function ScaleDetail({ scale, root }) {
         <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
           <div role="group" aria-label="Label notes by" className="grid grid-cols-3 gap-2 px-2 lg:w-96">
             {[['degree', 'Degrees'], ['note', 'Notes'], ['finger', 'Fingers']].map(([v, l]) => (
-              <Chip key={v} selected={mode === v} disabled={v === 'finger' && !position} onClick={() => setLabelMode(v)}
+              <Chip key={v} selected={mode === v} disabled={v === 'finger' && !hasFingers} onClick={() => setLabelMode(v)}
                 size="sm" className="px-0 disabled:opacity-40">{l}</Chip>
             ))}
           </div>
-          {positions.length > 0 && (
+          {systems.length > 1 && (
+            <div role="group" aria-label="Shapes" className="grid grid-cols-2 gap-2 px-2 lg:w-72">
+              {systems.map((sys) => (
+                <Chip key={sys} selected={system === sys} onClick={() => pick(sys, null)} size="sm" className="px-0">
+                  {sys === 'caged' ? 'CAGED' : degrees.length === 5 ? 'Boxes' : '3 per string'}
+                </Chip>
+              ))}
+            </div>
+          )}
+          {systems.length > 0 && (
             <div role="group" aria-label="Highlight position"
-              className={`grid gap-2 px-2 lg:flex ${positions.length > 5 ? 'grid-cols-4' : 'grid-cols-6'}`}>
+              className={`grid gap-2 px-2 lg:flex ${system === 'positions' && positions.length > 5 ? 'grid-cols-4' : 'grid-cols-6'}`}>
               <Chip selected={!position} onClick={() => setPosition(null)} size="sm" className="px-0 lg:px-4">All</Chip>
-              {positions.map((p) => (
+              {(system === 'caged' ? caged.map((c) => c.shape) : positions).map((p) => (
                 <Chip key={p} selected={position === p} onClick={() => setPosition(p)} size="sm" className="px-0 lg:w-12">{p}</Chip>
               ))}
             </div>
@@ -81,12 +106,12 @@ export default function ScaleDetail({ scale, root }) {
         <div className="mt-6 overflow-x-auto pb-2">
           <Fretboard marks={marks} fromFret={0} toFret={toFret} labelMode={mode}
             orientation={wide ? 'horizontal' : 'vertical'}
-            title={`${root} ${info.title}${position ? `, position ${position}` : ''}, frets 0 to ${toFret}`} />
+            title={`${root} ${info.title}${position ? (system === 'caged' ? `, ${position} shape` : `, position ${position}`) : ''}, frets 0 to ${toFret}`} />
         </div>
       </section>
 
       <ScaleHarmony root={root} scale={scale} onShowBox={(p) => {
-        setPosition(p);
+        pick('positions', p);
         document.getElementById('neck-h').scrollIntoView({ behavior: 'smooth' });
       }} />
     </main>
