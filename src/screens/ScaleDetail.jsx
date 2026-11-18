@@ -16,6 +16,8 @@ import { useMediaQuery } from '../hooks/useMediaQuery.js';
 const NECK_FRETS = 15;
 const heading = 'font-display text-xl font-extrabold uppercase italic';
 const key = (m) => `${m.string}-${m.fret}`;
+// "the 3rd", but "the b3": flats and sharps read better as written.
+const ordinal = (degree) => (/^\d$/.test(degree) ? ({ 2: '2nd', 3: '3rd' })[degree] ?? `${degree}th` : degree);
 
 export default function ScaleDetail({ scale, root }) {
   const [labelMode, setLabelMode] = useState('degree');
@@ -41,6 +43,9 @@ export default function ScaleDetail({ scale, root }) {
     : system === 'caged' ? [...cagedShape, ...cagedShape.map((m) => ({ ...m, fret: m.fret + 12 })).filter((m) => m.fret <= NECK_FRETS)]
       : positionMarks({ root, scale, position });
   const inShape = new Map(shape.map((m) => [key(m), m]));
+  // Where the picked shape sits (the lower copy, for a CAGED shape that repeats up the neck).
+  const spanOf = (ms) => [Math.min(...ms.map((m) => m.fret)), Math.max(...ms.map((m) => m.fret))];
+  const span = position ? spanOf(system === 'caged' ? cagedShape : shape) : null;
   const toFret = Math.max(NECK_FRETS, ...shape.map((m) => m.fret));
   const marks = scaleMarks({ root, scale, fromFret: 0, toFret }).map((m) =>
     position ? { ...m, muted: !inShape.has(key(m)), finger: inShape.get(key(m))?.finger ?? null } : m);
@@ -98,11 +103,21 @@ export default function ScaleDetail({ scale, root }) {
               className={`grid gap-2 px-2 lg:flex ${system === 'positions' && positions.length > 5 ? 'grid-cols-4' : 'grid-cols-6'}`}>
               <Chip selected={!position} onClick={() => setPosition(null)} size="sm" className="px-0 lg:px-4">All</Chip>
               {(system === 'caged' ? caged.map((c) => c.shape) : positions).map((p) => (
-                <Chip key={p} selected={position === p} onClick={() => setPosition(p)} size="sm" className="px-0 lg:w-12">{p}</Chip>
+                <Chip key={p} selected={position === p} onClick={() => setPosition(p)} size="sm" className="px-0 lg:min-w-12 lg:px-3">
+                  {system === 'caged' ? p : `Pos ${p}`}
+                </Chip>
               ))}
             </div>
           )}
         </div>
+        {position && (
+          <p aria-live="polite" className="mt-3 px-2 text-[16px] text-ink-soft">
+            {system === 'caged' ? `${position} shape` : `Position ${position} · starts on `}
+            {system !== 'caged' && <b className="text-brand">{shape[0].note}</b>}
+            {system !== 'caged' && (degrees[position - 1] === '1' ? ', the root' : `, the ${ordinal(degrees[position - 1])}`)}
+            {` · frets ${span[0]}–${span[1]}`}
+          </p>
+        )}
         <div className="mt-6 overflow-x-auto pb-2">
           <Fretboard marks={marks} fromFret={0} toFret={toFret} labelMode={mode}
             orientation={wide ? 'horizontal' : 'vertical'}
