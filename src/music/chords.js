@@ -43,22 +43,47 @@ export function cagedMarks({ root, shape, quality = 'maj' }) {
   });
 }
 
-// A scale "in" a CAGED position: every scale note from one fret below the chord shape to its top fret,
-// e.g. G major around the E-shape G barre is frets 2-5. Chord tones are flagged so the shape shows inside the scale.
-export function cagedScaleMarks({ root, shape, scale = 'major' }) {
-  const chord = cagedMarks({ root, shape });
+// A scale "in" a CAGED position: the chord shape plus one fret, e.g. G major around the E-shape G barre is frets 2-5.
+// Major scales reach a fret below the shape; minor ones a fret above it (A minor around the E-shape Am is 5-8, box 1).
+// Chord tones are flagged so the shape shows inside the scale.
+export function cagedScaleMarks({ root, shape, scale = 'major', quality = 'maj' }) {
+  const chord = cagedMarks({ root, shape, quality });
   const frets = chord.map((m) => m.fret);
-  return scaleMarks({ root, scale, fromFret: Math.max(0, Math.min(...frets) - 1), toFret: Math.max(...frets) })
-    .map((m) => ({ ...m, chordTone: ['1', '3', '5'].includes(m.degree) }));
+  const [below, above] = quality === 'm' ? [0, 1] : [1, 0];
+  return scaleMarks({ root, scale, fromFret: Math.max(0, Math.min(...frets) - below), toFret: Math.max(...frets) + above })
+    .map((m) => ({ ...m, chordTone: CHORDS[quality].includes(m.degree) }));
+}
+
+// How a shape fills in: the root, then the rest of the chord, then the pentatonic, then the full scale.
+export const CAGED_LAYERS = {
+  maj: [
+    { label: 'Root', add: ['1'] }, { label: 'Chord', add: ['3', '5'] },
+    { label: 'Major pentatonic', add: ['2', '6'] }, { label: 'Major scale', add: ['4', '7'] },
+  ],
+  m: [
+    { label: 'Root', add: ['1'] }, { label: 'Chord', add: ['b3', '5'] },
+    { label: 'Minor pentatonic', add: ['4', 'b7'] }, { label: 'Natural minor', add: ['2', 'b6'] },
+  ],
+};
+
+// The notes of one shape's window up to layer `upTo`; `added` marks the ones that layer brings in.
+export function cagedLayers({ root, shape, quality = 'maj', upTo }) {
+  const layers = CAGED_LAYERS[quality];
+  const layerOf = (degree) => layers.findIndex((l) => l.add.includes(degree));
+  return cagedScaleMarks({ root, shape, quality, scale: quality === 'm' ? 'minor' : 'major' })
+    .filter((m) => layerOf(m.degree) <= upTo)
+    .map((m) => ({ ...m, added: upTo > 0 && layerOf(m.degree) === upTo }));
 }
 
 // All five positions laid along one neck (0-toFret), each placed where it sits and again an octave up if it fits.
-// view: 'maj' / 'm' chord shapes, or 'scale' for the major scale in each position.
-export function cagedNeck({ root, view, toFret = 15 }) {
+// view: 'maj' / 'm'. Without `layer` it shows the chord shapes; with it, each position's window up to that layer.
+export function cagedNeck({ root, view, layer, toFret = 15 }) {
   const regions = [];
   const marks = new Map();
   for (const shape of Object.keys(CAGED_SHAPES)) {
-    const base = view === 'scale' ? cagedScaleMarks({ root, shape }) : cagedMarks({ root, shape, quality: view });
+    // The neck shows a whole layer at once, so nothing on it is "new".
+    const base = layer === undefined ? cagedMarks({ root, shape, quality: view })
+      : cagedLayers({ root, shape, quality: view, upTo: layer }).map((m) => ({ ...m, added: false }));
     for (const octave of [0, 12]) {
       const placed = base.map((m) => ({ ...m, fret: m.fret + octave }));
       const frets = placed.map((m) => m.fret);

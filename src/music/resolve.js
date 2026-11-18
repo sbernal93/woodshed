@@ -1,5 +1,5 @@
 import { positionMarks, scaleMarks } from './scales.js';
-import { cagedMarks, cagedScaleMarks } from './chords.js';
+import { cagedLayers, cagedMarks, cagedScaleMarks } from './chords.js';
 import { triadVoicings } from './triads.js';
 import { cagedArpeggio, nearestShell, shellVoicing } from './jazz.js';
 
@@ -31,6 +31,8 @@ export function resolveFretboard(spec) {
       return frame(spec.near === undefined ? shellVoicing(spec) : nearestShell(spec));
     case 'caged-arpeggio':
       return frame(cagedArpeggio(spec));
+    case 'caged-layers':
+      return frame(cagedLayers(spec));
     case 'caged-scale':
       return frame(cagedScaleMarks(spec));
     case 'caged':

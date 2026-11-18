@@ -70,12 +70,13 @@ export default function Fretboard({ marks, fromFret, toFret, labelMode = 'note',
         // Inside a scale, the other chord tones (3 and 5) are solid so the chord shape reads at a glance.
         const solid = m.chordTone && !m.root && !playing && !isActive;
         const fill = isActive || (m.root && !playing) ? 'fill-brand' : solid ? 'fill-ink' : 'fill-bg';
-        const stroke = isNext ? 'stroke-brand' : 'stroke-ink';
+        // `added`: notes a build-up step just brought in, ringed in brand so the change is easy to see.
+        const stroke = isNext || m.added ? 'stroke-brand' : 'stroke-ink';
         const dim = m.muted || (playing && !isActive && !isNext);
         return (
           <g key={key} className={dim ? 'opacity-30' : undefined}>
             {isActive && <circle key={pulse} cx={x} cy={y} r="14" className="wd-pulse fill-none stroke-brand" strokeWidth="3" />}
-            <circle cx={x} cy={y} r="14" strokeWidth={isNext ? 3.5 : 2} className={`${fill} ${stroke}`} />
+            <circle cx={x} cy={y} r="14" strokeWidth={isNext || m.added ? 3.5 : 2} className={`${fill} ${stroke}`} />
             {label !== '' && (
               <text x={x} y={y} dy="0.35em" textAnchor="middle"
                 className={`text-[14px] font-extrabold ${isActive || (m.root && !playing) ? 'fill-on-brand' : solid ? 'fill-bg' : 'fill-ink'}`}>

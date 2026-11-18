@@ -1,4 +1,4 @@
-import { chordTones, cagedMarks, cagedScaleMarks, cagedNeck, CAGED_SHAPES } from '../../src/music/chords.js';
+import { chordTones, cagedMarks, cagedScaleMarks, cagedNeck, cagedLayers, CAGED_LAYERS, CAGED_SHAPES } from '../../src/music/chords.js';
 import { pitchClass, spell } from '../../src/music/notes.js';
 import { noteAt } from '../../src/music/tuning.js';
 
@@ -72,18 +72,18 @@ test('the CAGED neck for G marks each shape where it sits, repeating past the 12
 });
 
 test('the CAGED neck has each note once, and only notes from the view', () => {
-  for (const view of ['maj', 'm', 'scale']) {
-    const { marks } = cagedNeck({ root: 'D', view });
+  for (const [view, layer] of [['maj'], ['m'], ['maj', 3]]) {
+    const { marks } = cagedNeck({ root: 'D', view, layer });
     const keys = marks.map((m) => `${m.string}-${m.fret}`);
     expect(new Set(keys).size).toBe(keys.length);
     expect(marks.every((m) => m.fret >= 0 && m.fret <= 15)).toBe(true);
-    const allowed = view === 'scale' ? ['1', '2', '3', '4', '5', '6', '7'] : view === 'm' ? ['1', 'b3', '5'] : ['1', '3', '5'];
+    const allowed = layer ? ['1', '2', '3', '4', '5', '6', '7'] : view === 'm' ? ['1', 'b3', '5'] : ['1', '3', '5'];
     expect(marks.every((m) => allowed.includes(m.degree))).toBe(true);
   }
 });
 
 test('in the scale view each region spans the scale window around its chord shape', () => {
-  const g = cagedNeck({ root: 'G', view: 'scale' }).regions.find((r) => r.shape === 'E');
+  const g = cagedNeck({ root: 'G', view: 'maj', layer: 3 }).regions.find((r) => r.shape === 'E');
   expect([g.from, g.to]).toEqual([2, 5]);
 });
 
@@ -94,4 +94,36 @@ test('each note on the CAGED neck knows which shapes it belongs to', () => {
   expect(at(5, 10).shapes.sort()).toEqual(['A', 'C']);
   expect(at(4, 9).shapes).toEqual(['C']);
   expect(at(6, 15).shapes).toEqual(['G']);
+});
+
+
+test('a shape builds up in layers: root, chord, pentatonic, scale', () => {
+  const degrees = (marks) => [...new Set(marks.map((m) => m.degree))].sort().join(' ');
+  for (const root of ROOTS) for (const shape of Object.keys(CAGED_SHAPES)) {
+    const at = (quality, upTo) => cagedLayers({ root, shape, quality, upTo });
+    expect(degrees(at('maj', 0))).toBe('1');
+    expect(degrees(at('maj', 1))).toBe('1 3 5');
+    expect(degrees(at('maj', 2))).toBe('1 2 3 5 6');
+    expect(degrees(at('maj', 3))).toBe('1 2 3 4 5 6 7');
+    expect(degrees(at('m', 1))).toBe('1 5 b3');
+    expect(degrees(at('m', 2))).toBe('1 4 5 b3 b7');
+    expect(degrees(at('m', 3))).toBe('1 2 4 5 b3 b6 b7');
+    // Each layer keeps every note of the one before and flags only what it adds.
+    for (const quality of ['maj', 'm']) for (const k of [1, 2, 3]) {
+      const before = new Set(at(quality, k - 1).map((m) => `${m.string}-${m.fret}`));
+      const now = at(quality, k);
+      expect(now.filter((m) => !m.added).map((m) => `${m.string}-${m.fret}`).sort()).toEqual([...before].sort());
+      expect(now.filter((m) => m.added).every((m) => CAGED_LAYERS[quality][k].add.includes(m.degree))).toBe(true);
+    }
+  }
+});
+
+test('the full layered E shape in G is the same as the G major scale in that position', () =>
+  expect(cagedLayers({ root: 'G', shape: 'E', quality: 'maj', upTo: 3 }).map((m) => `${m.string}-${m.fret}`).sort())
+    .toEqual(cagedScaleMarks({ root: 'G', shape: 'E' }).map((m) => `${m.string}-${m.fret}`).sort()));
+
+test('minor pentatonic in the CAGED neck: the five boxes, only 1 b3 4 5 b7', () => {
+  const { marks, regions } = cagedNeck({ root: 'A', view: 'm', layer: 2 });
+  expect(marks.every((m) => ['1', 'b3', '4', '5', 'b7'].includes(m.degree))).toBe(true);
+  expect(regions.map((r) => `${r.shape} ${r.from}-${r.to}`)).toEqual(['A 0-3', 'G 2-5', 'E 5-8', 'D 7-10', 'C 9-13', 'A 12-15']);
 });

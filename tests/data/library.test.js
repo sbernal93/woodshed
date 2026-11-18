@@ -191,3 +191,11 @@ test('jazz: every progression voice-leads, guide tones are only 3rds and 7ths, C
   const arp = exercises.build('jazz-arpeggios', 0);
   expect(arp.instruction).toMatch(/Dm7 in the . shape, G7 in the . shape, Cmaj7 in the . shape/);
 });
+
+test('build-up walks one shape from roots to the full scale, each layer holding the last', async () => {
+  const { resolveFretboard } = await import('../../src/music/resolve.js');
+  const step = exercises.build('caged-build-up', exercises.get('caged-build-up').variants.findIndex((v) => v.quality === 'm'));
+  expect(step.prompt.items).toEqual(['Root', 'Chord', 'Minor pentatonic', 'Natural minor']);
+  const sizes = step.prompt.items.map((i) => resolveFretboard(step.pattern.byPrompt[i].of).marks.length);
+  sizes.slice(1).forEach((n, k) => expect(n).toBeGreaterThan(sizes[k]));
+});

@@ -1,4 +1,4 @@
-import { cagedMarks } from '../../music/chords.js';
+import { CAGED_LAYERS, cagedMarks } from '../../music/chords.js';
 import { firstGroups, fretSpan } from './text.js';
 
 const SHAPES = ['C', 'A', 'G', 'E', 'D'];
@@ -180,4 +180,30 @@ const scaleSwap = {
   }),
 };
 
-export default [arpeggios, findTheShape, scaleSequences, connectShapes, chordTones, melodyInShape, neckClimb, shapeSwitch, scaleSwap];
+const BUILDS = [
+  { root: 'C', shape: 'A', quality: 'maj' }, { root: 'G', shape: 'E', quality: 'maj' }, { root: 'A', shape: 'E', quality: 'm' },
+  { root: 'D', shape: 'C', quality: 'maj' }, { root: 'E', shape: 'D', quality: 'm' },
+];
+
+const buildUp = {
+  id: 'caged-build-up', title: 'From chord to scale', roles: ['focus', 'apply'], tags: [...tags, 'major-scale', 'pentatonic', 'improvisation', 'ear'], level: 1,
+  variants: BUILDS,
+  build: ({ root, shape, quality }) => {
+    const layers = CAGED_LAYERS[quality];
+    const name = `${root}${quality === 'm' ? ' minor' : ''}`;
+    return {
+      instruction: `Improvise over the ${root} drone in the ${shape} shape of ${name}, one layer at a time: only the roots, then the chord, then the pentatonic, then the full scale, four bars each. Each layer adds two notes (ringed on the diagram): make every phrase use the new ones and hear what they bring.`,
+      bpm: { min: 60, max: 90 }, fretboard: null, drone: { root },
+      prompt: { label: 'Use', items: layers.map((l) => l.label), everyBars: 4, order: 'cycle' },
+      pattern: {
+        notesPerBeat: 2,
+        byPrompt: Object.fromEntries(layers.map((l, upTo) => [l.label, {
+          type: 'sequence', of: { type: 'caged-layers', root, shape, quality, upTo }, group: 1, direction: 'up', notesPerBeat: 2,
+        }])),
+      },
+      success: 'Even with only the roots it sounds like music, and you can hear each pair of new notes arrive.',
+    };
+  },
+};
+
+export default [buildUp, arpeggios, findTheShape, scaleSequences, connectShapes, chordTones, melodyInShape, neckClimb, shapeSwitch, scaleSwap];

@@ -21,7 +21,7 @@ export default {
         { kind: 'warmup', exercise: 'caged-arpeggios', variant: 0 },
         { kind: 'review', exercise: 'caged-find-the-shape', variant: 0 },
         { kind: 'focus', exercise: 'caged-scale-sequences', variant: 0 },
-        { kind: 'apply', exercise: 'caged-chord-tones', variant: 0 },
+        { kind: 'apply', exercise: 'caged-build-up', variant: 0 },
         { kind: 'cooldown', exercise: 'caged-melody-in-shape', variant: 0 },
       ],
       timing,
