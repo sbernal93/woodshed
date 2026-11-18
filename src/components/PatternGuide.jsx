@@ -116,10 +116,12 @@ function TabStrip({ pattern, index, groupSize, notesPerBeat, stepMs }) {
 }
 
 // Demonstration of a pattern: the board shows the current group in play order, the tab scrolls past a playhead.
-export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, metronome, frozen, labelOf, describe, clickEveryNote, onClickEveryNote, prefs, onPrefs }) {
+// inTime: the pattern changes with the prompt, so once the step runs the demo keeps tempo and every change lands on a bar line.
+// showing: what the guide is showing right now (the prompt item), named above the board for when the prompt is scrolled away.
+export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, metronome, frozen, labelOf, describe, clickEveryNote, onClickEveryNote, prefs, onPrefs, inTime, showing }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const speed = prefs.speed ?? 'slow';
+  const speed = inTime ? 'tempo' : prefs.speed ?? 'slow';
   const setSpeed = (v) => onPrefs((p) => ({ ...p, speed: v }));
   const { bpm } = metronome;
   const stepMs = demoStepMs(speed, bpm, notesPerBeat);
@@ -142,7 +144,7 @@ export default function PatternGuide({ pattern, shape, groupSize, notesPerBeat, 
 
   return (
     <figure>
-      <GuideHeader following={following} playing={playing} speed={speed} onSpeed={setSpeed}
+      <GuideHeader following={following} playing={playing} speed={speed} onSpeed={inTime ? null : setSpeed} showing={showing}
         tempoLabel={`At tempo · ${SUBDIVISION_NAME[notesPerBeat]}`}
         extras={[{ label: 'Click every note', on: clickEveryNote, onToggle: () => onClickEveryNote(!clickEveryNote) }]} />
       <button type="button" disabled={following} onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pause the demo' : 'Play the demo'}
