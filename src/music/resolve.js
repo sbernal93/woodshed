@@ -1,6 +1,7 @@
 import { positionMarks, scaleMarks } from './scales.js';
 import { cagedMarks, cagedScaleMarks } from './chords.js';
 import { triadVoicings } from './triads.js';
+import { cagedArpeggio, nearestShell, shellVoicing } from './jazz.js';
 
 const frame = (marks) => {
   const frets = marks.map((m) => m.fret);
@@ -26,6 +27,10 @@ export function resolveFretboard(spec) {
       if (!pick) throw new Error(`no ${spec.root} ${spec.quality} triad for ${JSON.stringify(spec)}`);
       return frame(pick.marks);
     }
+    case 'shell':
+      return frame(spec.near === undefined ? shellVoicing(spec) : nearestShell(spec));
+    case 'caged-arpeggio':
+      return frame(cagedArpeggio(spec));
     case 'caged-scale':
       return frame(cagedScaleMarks(spec));
     case 'caged':
