@@ -167,3 +167,27 @@ test('style licks: the notes they claim, in every key they offer', async () => {
     exercises.get(id).variants.forEach((_, v) => expect(degrees(id, v), `${id} ${v}`).toBe(degrees(id, 0)));
   }
 });
+
+test('jazz: every progression voice-leads, guide tones are only 3rds and 7ths, Charleston hits 1 and the and of 2', async () => {
+  const { resolveFretboard } = await import('../../src/music/resolve.js');
+  const rootFrets = (step) => step.prompt.items.map((item) => resolveFretboard(step.pattern.byPrompt[item].of).marks[0].fret);
+  for (const id of ['jazz-shells-cycle', 'jazz-two-five-one', 'jazz-ballad']) {
+    exercises.get(id).variants.forEach((_, v) => {
+      const frets = rootFrets(exercises.build(id, v));
+      frets.slice(1).forEach((f, i) => expect(Math.abs(f - frets[i]), `${id} ${v}: ${frets}`).toBeLessThanOrEqual(5));
+    });
+  }
+  const c = exercises.build('jazz-two-five-one', 0);
+  expect(c.prompt.items).toEqual(['Dm7 (ii)', 'G7 (V)', 'Cmaj7 (I)']);
+  expect(rootFrets(c)).toEqual([5, 3, 3]);
+
+  const guide = exercises.build('jazz-guide-tones', 0);
+  for (const spec of Object.values(guide.pattern.byPrompt)) {
+    expect(resolveFretboard(spec.of).marks.map((m) => m.degree).every((d) => /^b?[37]$/.test(d))).toBe(true);
+  }
+  const comp = exercises.build('jazz-charleston', 0);
+  for (const grid of Object.values(comp.pattern.byPrompt)) expect(Object.keys(grid.events)).toEqual(['0', '3']);
+
+  const arp = exercises.build('jazz-arpeggios', 0);
+  expect(arp.instruction).toMatch(/Dm7 in the . shape, G7 in the . shape, Cmaj7 in the . shape/);
+});
