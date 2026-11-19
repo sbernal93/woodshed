@@ -8,7 +8,7 @@ import { useFollowClick } from '../hooks/useFollowClick.js';
 
 const TAB = { 6: 'E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'e' };
 const SPOKEN = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high e' };
-const HAND = { p: 'Thumb', i: 'Index', m: 'Middle', a: 'Ring' };
+const HAND = { p: 'Thumb', i: 'Index', m: 'Middle', a: 'Ring', d: 'Down' };
 const ROW = 22;
 
 function pluck(notes) {
@@ -56,7 +56,7 @@ function GridBoard({ shape, notes }) {
         return (
           <g key={`${n.string}-${n.fret}-${n.hand}`}>
             <circle cx={p.x} cy={p.y} r="17" className={n.thumb ? 'fill-ink' : 'fill-brand'} />
-            <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className={`text-[17px] font-extrabold ${n.thumb ? 'fill-bg' : 'fill-on-brand'}`}>{n.hand}</text>
+            <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className={`text-[17px] font-extrabold ${n.thumb ? 'fill-bg' : 'fill-on-brand'}`}>{n.hand === 'd' ? '↓' : n.hand}</text>
           </g>
         );
       })}

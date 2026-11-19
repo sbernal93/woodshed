@@ -72,7 +72,7 @@ const guideTones = {
 };
 
 // The CAGED shape of a chord whose middle sits closest to `near`, so all three arpeggios share one area of the neck.
-function shapeNear(root, quality, near) {
+export function shapeNear(root, quality, near) {
   const mid = (shape) => {
     const frets = cagedMarks({ root, shape, quality: quality.startsWith('m') ? 'm' : 'maj' }).map((m) => m.fret);
     return (Math.min(...frets) + Math.max(...frets)) / 2;

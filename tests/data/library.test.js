@@ -199,3 +199,25 @@ test('build-up walks one shape from roots to the full scale, each layer holding 
   const sizes = step.prompt.items.map((i) => resolveFretboard(step.pattern.byPrompt[i].of).marks.length);
   sizes.slice(1).forEach((n, k) => expect(n).toBeGreaterThan(sizes[k]));
 });
+
+test('blues: every chorus is 12 bars with the IV in bar 5 (bar 2 on the quick change), shuffle swings, guides follow the chord', async () => {
+  const { resolveFretboard } = await import('../../src/music/resolve.js');
+  const deg = (step) => step.prompt.items.map((i) => i.match(/\((\w+)\)/)[1]).join(' ');
+  for (const id of ['blues-shuffle', 'blues-shells', 'blues-thirds', 'blues-arpeggios', 'blues-call-response', 'blues-slow']) {
+    exercises.get(id).variants.forEach((v, i) => {
+      expect(deg(exercises.build(id, i)), `${id} ${i}`).toBe(v.quick ? 'I IV I I IV IV I I V IV I V' : 'I I I I IV IV I I V IV I V');
+    });
+  }
+  expect(exercises.build('blues-shells', 0).prompt.items.slice(0, 5)).toEqual(['A7 (I)', 'A7 (I)', 'A7 (I)', 'A7 (I)', 'D7 (IV)']);
+
+  const shuffle = exercises.build('blues-shuffle', 0);
+  const e = shuffle.pattern.byPrompt['E7 (I)'];
+  expect(Object.keys(e.events).map(Number)).toEqual([0, 2, 3, 5, 6, 8, 9, 11]);
+  expect([0, 3, 6, 9].map((s) => e.events[s][1][1])).toEqual([2, 4, 5, 4]);
+
+  const thirds = exercises.build('blues-thirds', 0);
+  for (const spec of Object.values(thirds.pattern.byPrompt)) {
+    expect(resolveFretboard(spec.of).marks.map((m) => m.degree).every((d) => /^b?[37]$/.test(d))).toBe(true);
+  }
+  expect(resolveFretboard(thirds.fretboard).marks.some((m) => m.degree === 'b5')).toBe(true);
+});

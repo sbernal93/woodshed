@@ -52,7 +52,7 @@ function validGrid(g, where) {
   check(Array.isArray(g.shape) && g.shape.every(([s, f]) => isPosition(s, f)), where, 'grid shape must be [string, fret] pairs');
   for (const [slot, notes] of Object.entries(g.events ?? {})) {
     check(Number.isInteger(Number(slot)) && Number(slot) >= 0 && Number(slot) < slots, where, `grid event slot ${slot} is outside the bar`);
-    check(notes.every(([s, f, hand]) => isPosition(s, f) && ['p', 'i', 'm', 'a'].includes(hand)), where, `grid notes at slot ${slot} need string, fret and hand p/i/m/a`);
+    check(notes.every(([s, f, hand]) => isPosition(s, f) && ['p', 'i', 'm', 'a', 'd'].includes(hand)), where, `grid notes at slot ${slot} need string, fret and hand p/i/m/a, or d for a downstroke`);
   }
   return true;
 }
