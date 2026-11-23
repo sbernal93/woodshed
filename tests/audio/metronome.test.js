@@ -89,3 +89,26 @@ test('start resumes an interrupted context', () => {
   m.start(); m.stop();
   expect(resumed).toBe(true);
 });
+
+const clicksOver = (setup, seconds) => {
+  const ctx = fakeCtx(), clicks = [];
+  ctx.createOscillator = () => ({ connect() {}, start(t) { clicks.push(t); }, stop() {}, frequency: { value: 0 } });
+  const m = new Metronome({ audioContext: ctx, scheduleAheadSec: 0.1 });
+  m.setBpm(120);
+  setup(m);
+  const beats = [];
+  m.onBeat((i) => beats.push(i));
+  m.start(); for (let t = 0; t <= seconds; t += 0.02) { ctx.currentTime = t; m._poll(); } m.stop();
+  return { clicks: clicks.map((t) => Math.round((t - 0.05) * 2)), beats };
+};
+
+test('backbeat clicks only on 2 and 4, but every beat still reaches the guides', () => {
+  const { clicks, beats } = clicksOver((m) => { m.setBackbeat(true); m.setSubdivision(2); }, 3.9);
+  expect(clicks).toEqual([1, 3, 5, 7]);
+  expect(beats.slice(0, 8)).toEqual([0, 1, 2, 3, 0, 1, 2, 3]);
+});
+
+test('one silent bar in four: bar 4 has no clicks, bar 5 comes back', () => {
+  const { clicks } = clicksOver((m) => m.setSilentBars(1), 9.9);
+  expect(clicks).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19]);
+});

@@ -32,7 +32,7 @@ Each step has a get-ready phase, a countdown, a target tempo, a built-in metrono
 | | |
 |---|---|
 | **Tracks** | Advanced Fingerstyle, Minor Pentatonic, the CAGED System, Triads, Style Studies, Jazz Foundations, the 12-Bar Blues and Sweep Picking so far. Funk is on the way. |
-| **Sessions** | 15, 20 or 30 minutes in five steps. Every step has a twist, a goal or a musical context: live prompts that change every few bars, a drone to play over, a tempo ladder. |
+| **Sessions** | 15, 20 or 30 minutes in five steps. Every step has a twist, a goal or a musical context: live prompts that change every few bars, a drone to play over, a tempo ladder, a chord chart that shows the next change, rules for improvising. The metronome can click on 2 and 4 or drop out for silent bars, and foot pedals that send arrow or Page Up/Down keys work hands-free. |
 | **Guides** | Fretboard with play order and a scrolling tab, or a fingerstyle rhythm grid. They play as a demo, or follow the metronome's click. |
 | **Progress** | Rate each step Struggled, Okay or Clean, and the next session starts at the right tempo. A streak, and sync across devices with no account. |
 | **Library** | Every scale in any key with the chords that go with it, the CAGED system on the whole neck (chords, pentatonic or full scale, major or minor) with a step-by-step build from root to scale, and triads in every inversion on every string set. |
@@ -136,6 +136,8 @@ Without `variants`, `build` is called with `{}`. Write instruction text from the
 | `prompt` | no | `{ label, items, everyBars, order: 'cycle' \| 'random', root? }`. A big cue that changes every few bars. With `root`, degree items also show the note name. |
 | `drone` | no | `{ root }`. A low drone while the step runs. |
 | `ladder` | no | `{ by }`. Adds a "Clean pass · +N BPM" button. |
+| `backbeat` | no | `true` sets the click to beats 2 and 4 for this step (swing, blues, jazz). |
+| `challenge` | no | `{ everyBars }`. Shows a random improvising rule from `src/data/challenges.js`, a new one every N bars. |
 | `title` | no | Overrides the exercise title. |
 
 Every step must show something: a `fretboard`, a `pattern` or both.
@@ -180,7 +182,7 @@ Content is checked when the app loads and again in `npm test`, so a mistake fail
 - Exercise ids are unique. `roles` are step kinds, `level` is 1-5, and `build` is a function.
 - A recipe step's `kind` must be one of its exercise's `roles`. `variant` must exist.
 - Each `timing` entry has one length per step. Durations are only 15, 20 or 30, and the lengths must add up to exactly that many minutes.
-- Every step has a `fretboard` or a `pattern`. Prompt, drone, ladder and pattern fields are checked too. `byPrompt` keys must be prompt items, grid notes need a string, a fret and a hand (`p i m a`, or `d` for a downstroke), and so on.
+- Every step has a `fretboard` or a `pattern`. Prompt, drone, ladder, backbeat, challenge and pattern fields are checked too. `byPrompt` keys must be prompt items, grid notes need a string, a fret and a hand (`p i m a`, or `d` for a downstroke), and so on.
 - `tests/data/library.test.js` builds **every variant of every exercise** and validates it, so an unused variant can't rot.
 
 The rules live in `src/data/schema.js` (steps and tracks) and `src/data/library.js` (exercises and recipes).
