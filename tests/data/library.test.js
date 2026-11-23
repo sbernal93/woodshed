@@ -221,3 +221,29 @@ test('blues: every chorus is 12 bars with the IV in bar 5 (bar 2 on the quick ch
   }
   expect(resolveFretboard(thirds.fretboard).marks.some((m) => m.degree === 'b5')).toBe(true);
 });
+
+test('sweeps: only chord tones, one turn at the top, inversions climb, no open strings, changes stay close', async () => {
+  const { resolvePattern } = await import('../../src/session/patterns.js');
+  const { CHORDS } = await import('../../src/music/chords.js');
+  for (const id of ['sweep-three-string', 'sweep-five-string', 'sweep-progression']) {
+    exercises.get(id).variants.forEach((_, v) => {
+      const step = exercises.build(id, v);
+      step.prompt.items.forEach((item) => {
+        const notes = resolvePattern(step.pattern.byPrompt[item]);
+        const inChord = ['maj', 'm'].some((q) => notes.every((n) => CHORDS[q].includes(n.degree)));
+        expect(inChord && notes.every((n) => n.fret > 0), `${id} ${v} ${item}`).toBe(true);
+        // Up on the way in, down on the way out: the highest note sits in the middle of the loop.
+        const peak = notes.reduce((a, n, i) => (n.string === 1 && n.fret > notes[a].fret ? i : a), 0);
+        expect(peak, `${id} ${v} ${item}`).toBe(notes.length / 2);
+      });
+    });
+  }
+  const climb = exercises.build('sweep-three-string', 0);
+  const lowest = climb.prompt.items.map((i) => Math.min(...resolvePattern(climb.pattern.byPrompt[i]).map((n) => n.fret)));
+  expect(lowest).toEqual([...lowest].sort((a, b) => a - b));
+
+  const prog = exercises.build('sweep-progression', 0);
+  const starts = prog.prompt.items.map((i) => resolvePattern(prog.pattern.byPrompt[i])[0].fret);
+  starts.slice(1).forEach((f, i) => expect(Math.abs(f - starts[i])).toBeLessThanOrEqual(3));
+  expect(resolvePattern(exercises.build('sweep-five-string', 1).pattern.byPrompt.Cm).map((n) => n.degree).join(' ')).toBe('1 b3 5 1 b3 5 1 5 b3 1 5 b3');
+});
