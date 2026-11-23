@@ -9,6 +9,12 @@ const SUBDIVISIONS = [
   { value: 4, label: '1/16' },
 ];
 
+const SILENT = [
+  { value: 0, label: 'Off' },
+  { value: 1, label: '1 in 4' },
+  { value: 2, label: '2 in 4' },
+];
+
 const stepBtn = 'grid size-14 place-items-center rounded-full bg-fill text-ink hover:bg-fill-hover disabled:opacity-40';
 
 // Takes the metronome from useMetronome() so the click keeps running when this panel unmounts.
@@ -53,8 +59,24 @@ export default function MetronomePanel({ m }) {
 
       <label className="mt-4 flex min-h-14 cursor-pointer items-center justify-between text-[15px] font-semibold">
         Accent beat 1
-        <input type="checkbox" checked={m.accent} onChange={(e) => m.setAccent(e.target.checked)} className="size-6 accent-[var(--wd-brand)]" />
+        <input type="checkbox" checked={m.accent} disabled={m.backbeat} onChange={(e) => m.setAccent(e.target.checked)} className="size-6 accent-[var(--wd-brand)]" />
       </label>
+
+      <label className="flex min-h-14 cursor-pointer items-center justify-between text-[15px] font-semibold">
+        Click on 2 and 4 only
+        <input type="checkbox" checked={m.backbeat} onChange={(e) => m.setBackbeat(e.target.checked)} className="size-6 accent-[var(--wd-brand)]" />
+      </label>
+
+      <fieldset className="mt-4">
+        <legend className="text-[15px] font-semibold text-ink-soft">Silent bars: keep time with no click</legend>
+        <div className="mt-3 grid grid-cols-3 gap-2 px-2">
+          {SILENT.map((s) => (
+            <Chip key={s.value} selected={m.silentBars === s.value} onClick={() => m.setSilentBars(s.value)} className="px-0 text-lg">
+              {s.label}
+            </Chip>
+          ))}
+        </div>
+      </fieldset>
     </div>
   );
 }

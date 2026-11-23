@@ -30,6 +30,8 @@ export class Metronome {
     this.bpm = DEFAULT_BPM;
     this.subdivision = 1;
     this.accent = true;
+    this.backbeat = false;
+    this.silentBars = 0;
     this.running = false;
     this.listeners = new Set();
     this.taps = [];
@@ -43,6 +45,10 @@ export class Metronome {
     else { this.subdivision = next; this.pendingSubdivision = null; }
   }
   setAccent(on) { this.accent = Boolean(on); }
+  // Click only on 2 and 4, where a drummer's snare sits.
+  setBackbeat(on) { this.backbeat = Boolean(on); }
+  // The last `n` bars of every 4 go quiet, to test your own time. Beats still reach listeners so the guides keep going.
+  setSilentBars(n) { this.silentBars = [0, 1, 2].includes(n) ? n : 0; }
   isRunning() { return this.running; }
 
   onBeat(cb) {
@@ -57,6 +63,7 @@ export class Metronome {
     this.running = true;
     this.nextTime = this.ctx.currentTime + 0.05;
     this.beatInBar = 0;
+    this.bar = 0;
     this.subIndex = 0;
     const tick = () => {
       this._poll();
@@ -89,11 +96,16 @@ export class Metronome {
     while (this.nextTime < this.ctx.currentTime) this._advance();
     while (this.nextTime < this.ctx.currentTime + this.scheduleAheadSec) {
       const mainBeat = this.subIndex === 0;
-      const isAccent = mainBeat && this.accent && this.beatInBar === 0;
-      this._click(this.nextTime, isAccent ? 1500 : mainBeat ? 1000 : 700, mainBeat ? 0.6 : 0.25);
+      const isAccent = mainBeat && this.accent && !this.backbeat && this.beatInBar === 0;
+      if (this._audible(mainBeat)) this._click(this.nextTime, isAccent ? 1500 : mainBeat ? 1000 : 700, mainBeat ? 0.6 : 0.25);
       if (mainBeat) this.listeners.forEach((cb) => cb(this.beatInBar, isAccent, this.nextTime));
       this._advance();
     }
+  }
+
+  _audible(mainBeat) {
+    if (this.silentBars && this.bar % 4 >= 4 - this.silentBars) return false;
+    return !this.backbeat || (mainBeat && this.beatInBar % 2 === 1);
   }
 
   _advance() {
@@ -101,6 +113,7 @@ export class Metronome {
     this.subIndex = (this.subIndex + 1) % this.subdivision;
     if (this.subIndex !== 0) return;
     this.beatInBar = (this.beatInBar + 1) % BEATS_PER_BAR;
+    if (this.beatInBar === 0) this.bar += 1;
     if (this.pendingSubdivision) {
       this.subdivision = this.pendingSubdivision;
       this.pendingSubdivision = null;

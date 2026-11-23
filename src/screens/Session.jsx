@@ -8,6 +8,7 @@ import { getAudioContext } from '../audio/context.js';
 import { playChime, playGo } from '../audio/chime.js';
 import { useDrone } from '../audio/useDrone.js';
 import StepPrompt from '../components/StepPrompt.jsx';
+import { CHALLENGES } from '../data/challenges.js';
 import { trackBars, promptState } from '../session/prompts.js';
 import { resolvePattern, groupSizeOf, notesPerBeatOf } from '../session/patterns.js';
 import { TECHNIQUES } from '../music/phrase.js';
@@ -45,6 +46,8 @@ export default function Session({ trackId, minutes, sessionId }) {
   const [logged, setLogged] = useState({});
 
   useWakeLock(keepAwake(state));
+  const preparingRef = useRef(state.preparing);
+  preparingRef.current = state.preparing;
 
   const [seed] = useState(() => Math.floor(Math.random() * 2 ** 31));
   const [droneOn, setDroneOn] = useState(true);
@@ -54,6 +57,7 @@ export default function Session({ trackId, minutes, sessionId }) {
   const barsRef = useRef(null);
   barsRef.current = trackBars(barsRef.current, step.seconds * 1000 - state.remainingMs, metronome.bpm, state.index);
   const prompt = step.prompt ? promptState(step.prompt, barsRef.current.bars, seed + state.index) : null;
+  const challenge = step.challenge ? promptState({ items: CHALLENGES, everyBars: step.challenge.everyBars, order: 'random' }, barsRef.current.bars, seed + 7919 * (state.index + 1)) : null;
   const patternSpec = step.pattern && (step.pattern.byPrompt ? step.pattern.byPrompt[prompt?.item] : step.pattern.spec);
   const grid = useMemo(() => (patternSpec?.type === 'grid' ? resolveGrid(patternSpec) : null), [patternSpec]);
   const pattern = useMemo(() => (patternSpec && !grid ? resolvePattern(patternSpec) : null), [patternSpec, grid]);
@@ -67,9 +71,10 @@ export default function Session({ trackId, minutes, sessionId }) {
   }, [clickEveryNote, patternBeat, pattern]); // eslint-disable-line react-hooks/exhaustive-deps
   useDrone(step.drone?.root, Boolean(step.drone) && droneOn && !state.paused && !state.finished);
 
-  // Each step suggests its own tempo; the click keeps running across the change.
+  // Each step suggests its own tempo and click (2 and 4 for swing and blues); the click keeps running across the change.
   useEffect(() => {
     if (suggestion.bpm) metronome.setBpm(suggestion.bpm);
+    metronome.setBackbeat(Boolean(step.backbeat));
   }, [state.index]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Log a step once it is behind you (moved on or session over), with the tempo you finished it at.
@@ -118,13 +123,19 @@ export default function Session({ trackId, minutes, sessionId }) {
   }, [state.paused]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    // Foot pedals send arrows or Page Up/Down. Forward during get-ready starts the step; pressed again it skips.
     const onKey = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === ' ' && !isTyping(e.target)) {
         e.preventDefault();
         dispatch({ type: 'togglePause', now: performance.now() });
-      } else if (e.key === 'ArrowLeft') dispatch({ type: 'prev' });
-      else if (e.key === 'ArrowRight') dispatch({ type: 'next' });
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        dispatch({ type: 'prev' });
+      } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault();
+        dispatch(preparingRef.current ? { type: 'startNow', now: performance.now() } : { type: 'next' });
+      }
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
@@ -162,6 +173,12 @@ export default function Session({ trackId, minutes, sessionId }) {
             {!state.preparing && (
               <div className="wd-fade-up">
                 {step.prompt && <StepPrompt prompt={step.prompt} state={prompt} />}
+                {challenge && (
+                  <p aria-live="polite" className="mt-3 border-l-4 border-brand pl-3 font-display text-2xl font-extrabold italic leading-tight">
+                    <span className="block text-base font-semibold uppercase text-ink-soft">Rule for now</span>
+                    {challenge.item}
+                  </p>
+                )}
                 <div className="mt-4 text-[16px] leading-relaxed">
                   {howOpen ? (
                     <>

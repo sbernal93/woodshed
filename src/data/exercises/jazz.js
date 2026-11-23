@@ -31,7 +31,7 @@ const shellsCycle = {
     const chords = voiceLead(roots.map((r) => [r, quality]), 5);
     return {
       instruction: `${quality === 'maj7' ? 'Major 7' : quality === 'm7' ? 'Minor 7' : 'Dominant 7'} shells up a fourth each bar: ${chords.map((c) => c.label).join(', ')}. Root, 3rd and 7th only. The root swaps between the 6th and 5th strings, so each change moves your hand a fret or two, with one jump back up the neck. Strum on beat 1, then pick the three notes, saying which one is the 3rd.`,
-      bpm: { min: 60, max: 100 }, ladder: { by: 4 }, fretboard: null,
+      bpm: { min: 60, max: 100 }, backbeat: true, ladder: { by: 4 }, fretboard: null,
       prompt: chordPrompt(chords, 1),
       pattern: { notesPerBeat: 3, byPrompt: byLabel(chords, (c) => arpeggio(shell(c.root, c.quality, c.near))) },
       success: 'Every change lands on beat 1 without looking, and every move is the smallest one there is.',
@@ -48,7 +48,7 @@ const twoFiveOneShells = {
     const chords = voiceLead(twoFiveOne(key), near);
     return {
       instruction: `The ii–V–I in ${key}: ${chords.map((c) => c.label.split(' ')[0]).join(', ')}, two bars each, as shells. Comp on beats 2 and 4 like a big-band guitarist, short and dry. On every change one note stays and the other slips down a fret: find that note and hear it move.`,
-      bpm: { min: 60, max: 120 }, ladder: { by: 6 }, fretboard: null,
+      bpm: { min: 60, max: 120 }, backbeat: true, ladder: { by: 6 }, fretboard: null,
       prompt: chordPrompt(chords),
       pattern: { notesPerBeat: 3, byPrompt: byLabel(chords, (c) => arpeggio(shell(c.root, c.quality, c.near))) },
       success: 'Your hand barely moves through the changes, and you can name the note that falls each time.',
@@ -63,7 +63,7 @@ const guideTones = {
     const chords = voiceLead(twoFiveOne(key), near);
     return {
       instruction: `Only the 3rd and 7th of each chord through the ii–V–I in ${key}: two notes that spell the whole harmony. The 7th of one chord falls a half step to the 3rd of the next. First play them as long notes and sing the line; then improvise, starting every phrase on a guide tone and ending on one when the chord changes.`,
-      bpm: { min: 60, max: 110 }, fretboard: null,
+      bpm: { min: 60, max: 110 }, backbeat: true, fretboard: null,
       prompt: chordPrompt(chords),
       pattern: { notesPerBeat: 2, byPrompt: byLabel(chords, (c) => arpeggio(shell(c.root, c.quality, c.near, true), 2)) },
       success: 'You can play and sing the guide-tone line without the root, and your solo lines land on a 3rd or 7th at every change.',
@@ -87,7 +87,7 @@ const arpeggios = {
     const chords = twoFiveOne(key).map(([root, quality, label]) => ({ root, quality, label, shape: shapeNear(root, quality, near) }));
     return {
       instruction: `7th-chord arpeggios for the ii–V–I in ${key}, all around fret ${near}: ${chords.map((c) => `${c.label.split(' ')[0]} in the ${c.shape} shape`).join(', ')}. Run each up from its lowest note. Then the real test: when the chord changes, don't restart. Carry on from the nearest note of the new chord, ideally its 3rd.`,
-      bpm: { min: 60, max: 100 }, ladder: { by: 4 }, fretboard: null,
+      bpm: { min: 60, max: 100 }, backbeat: true, ladder: { by: 4 }, fretboard: null,
       prompt: chordPrompt(chords),
       pattern: { notesPerBeat: 2, byPrompt: byLabel(chords, (c) => arpeggio({ type: 'caged-arpeggio', root: c.root, quality: c.quality, shape: c.shape }, 2)) },
       success: 'The changes are audible in your line alone: every new chord starts on one of its own notes, a step from where you were.',
@@ -108,7 +108,7 @@ const charleston = {
     const chords = voiceLead(twoFiveOne(key), near);
     return {
       instruction: `Comp the ii–V–I in ${key} with the Charleston rhythm: a short chord on 1, another on the "and" of 2, then nothing for beats 3 and 4. Thumb on the root, fingers on the 3rd and 7th. Kill each chord by easing off the strings: the silence is half the groove. Once it sits, anticipate the next chord on the "and" of 4.`,
-      bpm: { min: 80, max: 160 }, ladder: { by: 8 }, fretboard: null,
+      bpm: { min: 80, max: 160 }, backbeat: true, ladder: { by: 8 }, fretboard: null,
       prompt: chordPrompt(chords),
       pattern: { notesPerBeat: 2, byPrompt: byLabel(chords, (c) => charlestonGrid(nearestShell(c))) },
       success: 'Both hits are short and exactly placed, beats 3 and 4 are truly silent, and it swings at the top tempo.',

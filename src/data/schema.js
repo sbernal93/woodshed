@@ -41,6 +41,8 @@ export function validateStep(s, where) {
     }
   }
   check(s.fretboard || s.pattern, where, 'every step needs a diagram or a pattern to show');
+  if (s.challenge !== undefined) check(Number.isInteger(s.challenge?.everyBars) && s.challenge.everyBars > 0, where, 'challenge.everyBars must be a positive integer');
+  if (s.backbeat !== undefined) check(typeof s.backbeat === 'boolean', where, 'backbeat must be true or false');
   if (s.ladder !== undefined) check(Number.isInteger(s.ladder?.by) && s.ladder.by > 0, where, 'ladder.by must be a positive integer');
 }
 

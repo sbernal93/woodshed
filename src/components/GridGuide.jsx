@@ -75,6 +75,7 @@ export default function GridGuide({ grid, metronome, frozen, prefs, onPrefs }) {
   const setSpeed = (v) => onPrefs((p) => ({ ...p, speed: v }));
   const setSound = (f) => onPrefs((p) => ({ ...p, sound: f(p.sound) }));
   const counts = countLabels(grid.slotsPerBeat, grid.beats);
+  const picked = grid.slots.flat().every((n) => n.hand === 'd');
   const length = grid.slots.length;
   const stepMs = demoStepMs(speed, bpm, grid.slotsPerBeat);
   const { following, clickActive } = useFollowClick({ metronome, slotsPerBeat: grid.slotsPerBeat, length, onSlot: setSlot });
@@ -98,10 +99,14 @@ export default function GridGuide({ grid, metronome, frozen, prefs, onPrefs }) {
       <GuideHeader following={following} playing={playing} speed={speed} onSpeed={setSpeed}
         tempoLabel={`At tempo · ${SUBDIVISION_NAME[grid.slotsPerBeat]}`}
         extras={[{ label: 'Hear it', on: sound, onToggle: () => setSound((v) => !v) }]} />
-      <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[15px] text-ink-soft">
-        <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-ink" /> Thumb (p)</span>
-        <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-brand" /> Fingers (i m a)</span>
-      </p>
+      {picked ? (
+        <p className="mt-4 text-[15px] text-ink-soft">↓ Downstroke with the pick</p>
+      ) : (
+        <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[15px] text-ink-soft">
+          <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-ink" /> Thumb (p)</span>
+          <span className="flex items-center gap-2"><span className="size-3.5 rounded-full bg-brand" /> Fingers (i m a)</span>
+        </p>
+      )}
 
       <button type="button" disabled={following} onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pause the demo' : 'Play the demo'}
         className="mt-3 block w-full">

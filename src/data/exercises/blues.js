@@ -39,7 +39,7 @@ const shuffle = {
     const labels = chordsOf(key).map((c) => c[2]);
     return {
       instruction: `The shuffle through a ${quick ? 'quick-change ' : ''}12-bar in ${key}, all downstrokes: root plus 5th, 6th, b7, 6th, two hits a beat. Swing it: the second hit lands on the last third of the beat, long-short, never straight. Mute with the side of your picking hand so it chugs. Count the bars without looking: the IV comes in bar ${quick ? '2, back to the I in 3, and again in bar 5' : '5'}, the V in bar 9.`,
-      bpm: { min: 70, max: 130 }, ladder: { by: 6 }, fretboard: null,
+      bpm: { min: 70, max: 130 }, backbeat: true, ladder: { by: 6 }, fretboard: null,
       prompt: formPrompt(labels, quick),
       pattern: { notesPerBeat: 2, byPrompt: Object.fromEntries(labels.map((l) => [l, shuffleGrid(SHUFFLE_KEYS[key][l.match(/\((\w+)\)/)[1]])])) },
       success: 'Twelve bars without losing the form or the swing, and every change lands on beat 1 without a gap.',
@@ -56,7 +56,7 @@ const shells = {
     const chords = voiceLead(chordsOf(key), near);
     return {
       instruction: `The 12-bar in ${key} as dominant 7 shells: root, 3rd and b7. ${chords.map((c) => c.label.split(' ')[0]).join(', ')}, each in the grip closest to the last. Comp on 2 and 4, short. From the I to the IV the 3rd falls a half step to become the new b7: listen for it. Call out the bar numbers 5, 9 and 12 as you get there.`,
-      bpm: { min: 60, max: 120 }, ladder: { by: 6 }, fretboard: null,
+      bpm: { min: 60, max: 120 }, backbeat: true, ladder: { by: 6 }, fretboard: null,
       prompt: formPrompt(chords.map((c) => c.label)),
       pattern: { notesPerBeat: 3, byPrompt: byLabel(chords, (c) => arpeggio(shell(c), 3)) },
       success: 'You never lose your place in the form, and each change moves your hand a fret or two at most.',
@@ -74,7 +74,7 @@ const thirds = {
     const third = (c) => spell(c.root, '3');
     return {
       instruction: `Solo in the ${key} blues box, but at every change land on the new chord's 3rd or b7: ${chords.map((c) => `${third(c)} for ${c.label.split(' ')[0]}`).join(', ')}. None of those 3rds are in the box, so bend or slide into each from a half step below; the b7s are all there. The guide shows the 3rd and b7 of the chord you're on.`,
-      bpm: { min: 60, max: 100 }, fretboard: box(key, near),
+      bpm: { min: 60, max: 100 }, backbeat: true, fretboard: box(key, near),
       prompt: formPrompt(chords.map((c) => c.label)),
       pattern: { notesPerBeat: 2, byPrompt: byLabel(chords, (c) => arpeggio(shell(c, true), 2)) },
       success: 'Someone listening without the backing could hear where the IV and the V come in, from your line alone.',
@@ -89,7 +89,7 @@ const arpeggios = {
     const chords = chordsOf(key).map(([root, quality, label]) => ({ root, quality, label, shape: shapeNear(root, quality, near) }));
     return {
       instruction: `The I7, IV7 and V7 of ${key} as arpeggios around fret ${near}: ${chords.map((c) => `${c.label.split(' ')[0]} in the ${c.shape} shape`).join(', ')}. Run up the one for the bar you're in. Then make it music: when the chord changes, carry on from the nearest note of the new arpeggio instead of restarting.`,
-      bpm: { min: 60, max: 100 }, ladder: { by: 4 }, fretboard: null,
+      bpm: { min: 60, max: 100 }, backbeat: true, ladder: { by: 4 }, fretboard: null,
       prompt: formPrompt(chords.map((c) => c.label)),
       pattern: { notesPerBeat: 2, byPrompt: byLabel(chords, (c) => arpeggio({ type: 'caged-arpeggio', root: c.root, quality: c.quality, shape: c.shape }, 2)) },
       success: 'All 12 bars without leaving the area, and every change heard in your line.',
@@ -104,7 +104,7 @@ const callResponse = {
     const labels = chordsOf(key).map((c) => c[2]);
     return {
       instruction: `Solo like a blues lyric: a short call in bars 1–2, then rest. Play the same call again over the IV in bars 5–6 and let the new chord change how it sounds. Answer it in bars 9–10, then rest to the top. Each phrase is a sentence; the rests are where the singer breathes.`,
-      bpm: { min: 60, max: 96 }, fretboard: box(key),
+      bpm: { min: 60, max: 96 }, backbeat: true, challenge: { everyBars: 12 }, fretboard: box(key),
       prompt: formPrompt(labels, quick),
       success: 'Three phrases per chorus, the second the same as the first, and silence you can hear in between.',
     };

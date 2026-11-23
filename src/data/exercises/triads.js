@@ -66,7 +66,7 @@ const triadPairs = {
   variants: [{ root: 'A', a: 'D', b: 'E' }, { root: 'E', a: 'A', b: 'B' }, { root: 'G', a: 'C', b: 'D' }],
   build: ({ root, a, b }) => ({
     instruction: `Over the ${root} drone, improvise using only the notes of the ${a} triad for a bar, then only the ${b} triad. Together they give six notes of ${root} major without its 3rd, which sounds open and floating. Mix the order of the notes, skip strings, and slide between the two shapes.`,
-    bpm: { min: 70, max: 100 }, fretboard: null, drone: { root },
+    bpm: { min: 70, max: 100 }, fretboard: null, drone: { root }, challenge: { everyBars: 8 },
     prompt: { label: 'Use', items: [`${a} triad`, `${b} triad`], everyBars: 1, order: 'cycle' },
     pattern: { notesPerBeat: 3, byPrompt: { [`${a} triad`]: arpeggio(triad(a, 'maj', '321', { near: 7 })), [`${b} triad`]: arpeggio(triad(b, 'maj', '321', { near: 7 })) } },
     success: 'Phrases that sound like melodies, not arpeggios, and the switch lands on every bar line.',
